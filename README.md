@@ -1,8 +1,11 @@
 # Vancord
 
-A lightweight, fast desktop chat application for small groups of friends. Built with Tauri 2,
-React 19 and Supabase. No always-on server to pay for: the client talks straight to Supabase and
-row level security is the only trust boundary.
+A small, calm desktop chat app for a closed group of friends. Built with Tauri 2, React 19 and
+Supabase. There is no server to keep running: the client talks straight to Supabase and row level
+security is the only trust boundary.
+
+**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** — Windows
+installer (NSIS or MSI). Updates are signed and install in place.
 
 ## Features
 
@@ -22,6 +25,8 @@ row level security is the only trust boundary.
 | UI | React 19, Vite, Tailwind CSS v4, shadcn/ui, Radix primitives |
 | Data | Supabase Postgres, Auth, Realtime, Storage (RLS on every table) |
 | State | TanStack Query + Zustand |
+
+Design direction, palette and measured contrast live in [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Getting started
 
@@ -52,30 +57,33 @@ pnpm tauri build    # NSIS + MSI installers
 
 ## Release and updates
 
-1. Generate signing keys once:
+Releases are already wired for this repository. The signing key has no password, so only four
+secrets are needed and three are stored:
 
-   ```bash
-   pnpm tauri signer generate -w ~/.tauri/vancord.key
-   ```
+| Secret | Value |
+| --- | --- |
+| `TAURI_SIGNING_PRIVATE_KEY` | contents of the private key file (already set) |
+| `VITE_SUPABASE_URL` | project URL (already set) |
+| `VITE_SUPABASE_ANON_KEY` | publishable or anon key (already set) |
 
-   Copy the public key into `plugins.updater.pubkey` in `src-tauri/tauri.conf.json`.
+The updater endpoint is `https://github.com/vaniusx/vancord/releases/latest/download/latest.json`
+and the public key is baked into `src-tauri/tauri.conf.json`.
 
-2. Point `plugins.updater.endpoints` at your repository's
-   `releases/latest/download/latest.json`.
+To ship a new version:
 
-3. Add these repository secrets:
+```bash
+# bump the version in package.json and src-tauri/tauri.conf.json
+git commit -am "release: v0.2.0"
+git tag v0.2.0
+git push && git push --tags
+```
 
-   | Secret | Value |
-   | --- | --- |
-   | `TAURI_SIGNING_PRIVATE_KEY` | contents of the private key file |
-   | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | its password, empty if none |
-   | `VITE_SUPABASE_URL` | project URL |
-   | `VITE_SUPABASE_ANON_KEY` | publishable or anon key |
+`.github/workflows/release.yml` type checks, builds the NSIS and MSI installers, signs the updater
+artifacts and publishes the release with `latest.json`. `keepalive.yml` pings the project every
+other day so the free Supabase project does not pause.
 
-4. Push a tag such as `v0.1.0`. `.github/workflows/release.yml` builds the installers, signs the
-   updater artifacts and publishes them.
-
-`keepalive.yml` pings the project every other day so a free Supabase project does not pause.
+Keep the private key at `~/.tauri/vancord/vancord.key`. Losing it means existing installs can no
+longer auto-update.
 
 ## Security notes
 
@@ -85,6 +93,8 @@ pnpm tauri build    # NSIS + MSI installers
 - Attachments are limited to 5 MB and images are compressed to WebP on the client.
 - Updates are verified against the public key baked into the app.
 - The CSP only allows Supabase, the local dev server and Tauri IPC.
+- The repository is public so the updater can fetch release metadata without a token. No secrets
+  are committed; database access is guarded by RLS, not by repo visibility.
 
 ## Project layout
 
