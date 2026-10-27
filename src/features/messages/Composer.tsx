@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppStore } from "@/features/app/app-store";
 import { EmojiPicker } from "@/features/messages/EmojiPicker";
+import { GifPicker } from "@/features/messages/GifPicker";
 import { useSendMessage } from "@/features/messages/use-messages";
 import { useTypingSender } from "@/features/realtime/realtime";
 import { uploadAttachment, type UploadResult } from "@/lib/upload";
@@ -187,6 +188,23 @@ export function Composer({
             }}
             className="max-h-[180px] min-h-8 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 text-[14.5px] shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
           />
+
+          <GifPicker
+            onSelect={(gif) => {
+              setDraft(channelId, `${draft}${draft ? " " : ""}${gif.url}`);
+              textareaRef.current?.focus();
+            }}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("gif.title")}
+              className="size-8 shrink-0 text-[10px] font-bold tracking-tight text-muted-foreground"
+            >
+              GIF
+            </Button>
+          </GifPicker>
 
           <EmojiPicker
             onSelect={(emoji) => {

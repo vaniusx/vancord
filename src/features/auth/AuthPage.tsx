@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { AtSign, Eye, EyeOff, Lock, User } from "lucide-react";
+import { AtSign, Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 
+import { CodeForm } from "@/features/auth/CodeForm";
 import { useAuthStatus } from "@/features/auth/auth-store";
 import { useAuthErrorMessage } from "@/features/auth/use-auth-error";
 import {
@@ -74,6 +75,7 @@ function SignInForm() {
   const [values, setValues] = useState<SignInValues>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [pending, setPending] = useState(false);
+  const [recovering, setRecovering] = useState(false);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -101,6 +103,10 @@ function SignInForm() {
 
     navigate("/", { replace: true });
   };
+
+  if (recovering) {
+    return <RecoveryFlow onBack={() => setRecovering(false)} />;
+  }
 
   return (
     <form onSubmit={submit} className="space-y-4">
@@ -143,10 +149,27 @@ function SignInForm() {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("common.loading") : t("auth.signIn")}
       </Button>
+
+      <button
+        type="button"
+        onClick={() => setRecovering(true)}
+        className="mx-auto block text-[12px] text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {t("auth.forgot")}
+      </button>
     </form>
   );
 }
 
+async function readVerificationMode(): Promise<"auto" | "code"> {
+  if (!supabase) return "code";
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "email_verification_mode")
+    .maybeSingle();
+  return data?.value === "auto" ? "auto" : "code";
+}
 function SignUpForm() {
   const { t } = useTranslation();
   const describeError = useAuthErrorMessage();
@@ -194,6 +217,21 @@ function SignUpForm() {
     }
 
     if (!data.session) {
+      // Verification mode "auto" confirms the account server side, so a plain
+      // sign-in completes the flow without an email round trip.
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+
+      if (!signInError) return;
+
+      const mode = await readVerificationMode();
+      if (mode === "auto") {
+        toast.error(describeError(signInError));
+        return;
+      }
+
       setSentTo(parsed.data.email);
       return;
     }
@@ -201,15 +239,11 @@ function SignUpForm() {
 
   if (sentTo) {
     return (
-      <div className="space-y-3 rounded-lg border border-border bg-card/60 p-4 text-sm">
-        <p className="font-medium">{t("auth.confirmTitle")}</p>
-        <p className="text-muted-foreground">
-          {t("auth.confirmBody", { email: sentTo })}
-        </p>
-        <Button variant="outline" onClick={() => setSentTo(null)}>
-          {t("auth.backToSignIn")}
-        </Button>
-      </div>
+      <CodeForm
+        email={sentTo}
+        purpose="signup"
+        onChangeEmail={() => setSentTo(null)}
+      />
     );
   }
 
@@ -307,6 +341,61 @@ function SignUpForm() {
         {pending ? t("common.loading") : t("auth.signUp")}
       </Button>
     </form>
+  );
+}
+
+function RecoveryFlow({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation();
+  const describeError = useAuthErrorMessage();
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  const send = async () => {
+    if (!supabase || !email.trim()) return;
+    setPending(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+    setPending(false);
+    if (error) {
+      toast.error(describeError(error));
+      return;
+    }
+    setSent(true);
+  };
+
+  if (sent) {
+    return <CodeForm email={email.trim()} purpose="recovery" onChangeEmail={() => setSent(false)} />;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="recovery-email">{t("auth.email")}</Label>
+        <Input
+          id="recovery-email"
+          type="email"
+          autoFocus
+          value={email}
+          autoComplete="email"
+          onChange={(event) => setEmail(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") void send();
+          }}
+        />
+        <p className="text-[11.5px] text-muted-foreground">{t("auth.resetBody", { email: email || "â€¦" })}</p>
+      </div>
+      <Button className="w-full" onClick={() => void send()} disabled={pending || !email.trim()}>
+        {pending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+        {t("auth.resend")}
+      </Button>
+      <button
+        type="button"
+        onClick={onBack}
+        className="mx-auto block text-[12px] text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {t("auth.backToSignIn")}
+      </button>
+    </div>
   );
 }
 

@@ -39,7 +39,8 @@
     "online": "Çevrimiçi",
     "offline": "Çevrimdışı",
     "noChannels": "Henüz kanal yok",
-    "createChannel": "Kanal oluştur"
+    "createChannel": "Kanal oluştur",
+    "voiceChannels": "Sesli kanallar"
   },
   "servers": {
     "createTitle": "Sunucu oluştur",
@@ -56,7 +57,10 @@
     "deleteWarning": "Sunucu ve tüm mesajları kalıcı olarak silinir. Bu işlem geri alınamaz.",
     "leaveWarning": "Sunucudan ayrılırsan kanallara erişimini kaybedersin. Yeniden katılmak için davet gerekir.",
     "delete": "Sunucuyu sil",
-    "leave": "Sunucudan ayrıl"
+    "leave": "Sunucudan ayrıl",
+    "description": "Sunucu açıklaması",
+    "descriptionPlaceholder": "Bu sunucu ne hakkında?",
+    "changeBanner": "Kapağı değiştir"
   },
   "channels": {
     "createBody": "Kanallar konu bazlı sohbet alanlarıdır.",
@@ -64,7 +68,9 @@
     "namePlaceholder": "yeni-kanal",
     "topic": "Konu",
     "topicPlaceholder": "Bu kanal ne hakkında?",
-    "emptyBody": "Yönetici olduğun bir sunucuda kanal oluşturarak başla."
+    "emptyBody": "Yönetici olduğun bir sunucuda kanal oluşturarak başla.",
+    "typeText": "Metin kanalı",
+    "typeVoice": "Sesli kanal"
   },
   "invites": {
     "title": "{{server}} sunucusuna davet",
@@ -172,14 +178,21 @@
       "upload": "Görsel yükle",
       "avatarUpdated": "Profil fotoğrafı güncellendi",
       "customStatus": "Durum mesajı",
-      "customStatusPlaceholder": "Ne yapıyorsun?"
+      "customStatusPlaceholder": "Ne yapıyorsun?",
+      "bio": "Hakkımda",
+      "bioPlaceholder": "Kendinden kısa bir not",
+      "bannerColor": "Kapak rengi",
+      "changeBanner": "Kapağı değiştir",
+      "bannerUpdated": "Kapak güncellendi"
     },
     "appearance": {
       "theme": "Tema",
       "themeHint": "Sistem temasını takip edebilir veya sabitleyebilirsin.",
       "system": "Sistem",
       "dark": "Koyu",
-      "light": "Açık"
+      "light": "Açık",
+      "palette": "Renk paleti",
+      "paletteHint": "Altı hazır paletten birini seç. Tema koyu ve açık modda birlikte çalışır."
     },
     "notifications": {
       "desktop": "Masaüstü bildirimleri",
@@ -238,8 +251,23 @@
       "emailTaken": "Bu e-posta ile bir hesap zaten var.",
       "rateLimited": "Çok fazla deneme yaptın. Biraz sonra tekrar dene.",
       "notConfigured": "Supabase yapılandırılmamış. .env.local dosyasını kontrol et.",
-      "generic": "Giriş yapılamadı. Tekrar dene."
-    }
+      "generic": "Giriş yapılamadı. Tekrar dene.",
+      "codeInvalid": "Kod hatalı veya süresi dolmuş.",
+      "codeExpired": "Kodun süresi doldu, yenisini iste."
+    },
+    "verifyTitle": "E-postanı doğrula",
+    "verifyBody": "{{email}} adresine 6 haneli bir kod gönderdik.",
+    "verifyCode": "Doğrulama kodu",
+    "verify": "Doğrula",
+    "resendIn": "{{seconds}} sn sonra tekrar gönder",
+    "resend": "Kodu yeniden gönder",
+    "codeSent": "Yeni kod gönderildi",
+    "useOtherEmail": "Farklı e-posta kullan",
+    "forgot": "Şifremi unuttum",
+    "resetTitle": "Şifreni sıfırla",
+    "resetBody": "{{email}} adresine sıfırlama kodu gönderdik.",
+    "newPassword": "Yeni şifre",
+    "resetDone": "Şifren güncellendi"
   },
   "common": {
     "save": "Kaydet",
@@ -258,5 +286,33 @@
     "reconnecting": "Yeniden bağlanıyor",
     "unknownUser": "Bilinmeyen kullanıcı",
     "offlineBanner": "Bağlantı yok. Yeniden bağlanmayı deniyoruz."
+  },
+  "themes": {
+    "petrol": "Petrol",
+    "graphite": "Grafit",
+    "olive": "Zeytin",
+    "ember": "Kor",
+    "rose": "Gül",
+    "mint": "Nane"
+  },
+  "voice": {
+    "join": "Sese katıl",
+    "leave": "Sesten ayrıl",
+    "connecting": "Bağlanıyor",
+    "connected": "Bağlı",
+    "screen": "Ekran paylaş",
+    "stopScreen": "Paylaşımı durdur",
+    "mute": "Sustur",
+    "unmute": "Sesi aç",
+    "deafen": "Kulaklığı kapat",
+    "notConfigured": "Sesli kanal için LiveKit yapılandırılmadı.",
+    "participants": "Katılımcılar",
+    "noParticipants": "Kimse yok"
+  },
+  "gif": {
+    "title": "GIF",
+    "search": "GIF ara",
+    "empty": "GIF bulunamadı",
+    "notConfigured": "GIF aramak için VITE_GIPHY_API_KEY gerekli."
   }
 }

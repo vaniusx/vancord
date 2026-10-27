@@ -1,8 +1,13 @@
-import { Check, Copy, Hash, Loader2, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Check, Copy, Hash, Loader2, Plus, Trash2, Volume2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import { useProfile } from "@/features/profiles/use-profile";
+import { accentFor, initials } from "@/lib/format";
+import { publicUrl } from "@/lib/supabase";
+import { uploadServerIcon } from "@/lib/upload";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -283,7 +289,7 @@ export function InviteDialog({
                         {invite.code}
                       </code>
                       <span className="text-[10.5px] text-muted-foreground tabular-nums">
-                        {invite.uses}/{invite.max_uses ?? "Ã¢Ë†Â"}
+                        {invite.uses}/{invite.max_uses ?? "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â"}
                       </span>
                       <Button
                         size="icon"
@@ -347,11 +353,12 @@ export function CreateChannelDialog({
   const createChannel = useCreateChannel();
   const [name, setName] = useState("");
   const [topic, setTopic] = useState("");
+  const [type, setType] = useState<"text" | "voice">("text");
 
   const submit = () => {
     if (!serverId || !name.trim()) return;
     createChannel.mutate(
-      { serverId, name, topic },
+      { serverId, name, topic, type },
       {
         onSuccess: () => {
           onOpenChange(false);
@@ -372,6 +379,25 @@ export function CreateChannelDialog({
         </DialogHeader>
 
         <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setType("text")}
+              className={type === "text" ? "flex items-center gap-2 rounded-lg border border-primary bg-primary/10 px-3 py-2 text-left text-[12.5px] text-primary" : "flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-left text-[12.5px]"}
+            >
+              <Hash className="size-4" />
+              {t("channels.typeText")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setType("voice")}
+              className={type === "voice" ? "flex items-center gap-2 rounded-lg border border-primary bg-primary/10 px-3 py-2 text-left text-[12.5px] text-primary" : "flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-left text-[12.5px]"}
+            >
+              <Volume2 className="size-4" />
+              {t("channels.typeVoice")}
+            </button>
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="channel-name">{t("channels.name")}</Label>
             <div className="relative">
@@ -390,15 +416,17 @@ export function CreateChannelDialog({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="channel-topic">{t("channels.topic")}</Label>
-            <Input
-              id="channel-topic"
-              value={topic}
-              onChange={(event) => setTopic(event.target.value)}
-              placeholder={t("channels.topicPlaceholder")}
-            />
-          </div>
+          {type === "text" ? (
+            <div className="space-y-1.5">
+              <Label htmlFor="channel-topic">{t("channels.topic")}</Label>
+              <Input
+                id="channel-topic"
+                value={topic}
+                onChange={(event) => setTopic(event.target.value)}
+                placeholder={t("channels.topicPlaceholder")}
+              />
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter>
@@ -432,10 +460,21 @@ export function ServerSettingsDialog({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [name, setName] = useState(server?.name ?? "");
+  const [description, setDescription] = useState(server?.description ?? "");
   const updateServer = useUpdateServer();
   const deleteServer = useDeleteServer();
   const leaveServer = useLeaveServer();
   const [confirming, setConfirming] = useState<"delete" | "leave" | null>(null);
+  const [busy, setBusy] = useState<"icon" | "banner" | null>(null);
+  const iconRef = useRef<HTMLInputElement>(null);
+  const bannerRef = useRef<HTMLInputElement>(null);
+  const { data: profile } = useProfile();
+
+  useEffect(() => {
+    if (!server) return;
+    setName(server.name);
+    setDescription(server.description ?? "");
+  }, [server?.id, server?.name, server?.description]);
 
   if (!server) return null;
 
@@ -443,14 +482,40 @@ export function ServerSettingsDialog({
 
   const save = () => {
     const value = name.trim();
-    if (!value || value === server.name) return;
+    if (!value) return;
     updateServer.mutate(
-      { serverId: server.id, name: value },
+      { serverId: server.id, name: value, description: description.trim() || null },
       {
         onSuccess: () => toast.success(t("common.saved")),
         onError: () => toast.error(t("common.error")),
       },
     );
+  };
+
+  const onIcon = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setBusy("icon");
+    try {
+      const path = await uploadServerIcon(profile.id, server.id, file);
+      updateServer.mutate({ serverId: server.id, icon_url: publicUrl("banners", path) });
+    } catch {
+      toast.error(t("common.error"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onBanner = async (file: File | undefined) => {
+    if (!file || !profile) return;
+    setBusy("banner");
+    try {
+      const path = await uploadServerIcon(profile.id, `${server.id}-banner`, file);
+      updateServer.mutate({ serverId: server.id, banner_url: publicUrl("banners", path) });
+    } catch {
+      toast.error(t("common.error"));
+    } finally {
+      setBusy(null);
+    }
   };
 
   const destroy = () => {
@@ -474,47 +539,106 @@ export function ServerSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-h-[85vh] overflow-y-auto p-0 sm:max-w-lg">
+        <DialogHeader className="border-b border-border px-6 py-4">
           <DialogTitle>{t("servers.settings")}</DialogTitle>
           <DialogDescription>
             {t("servers.memberCount", { count: memberCount })}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="server-rename">{t("servers.name")}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="server-rename"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") save();
-                }}
-              />
-              <Button
-                onClick={save}
-                disabled={!name.trim() || name.trim() === server.name || updateServer.isPending}
+        <div className="space-y-4 px-6 py-4">
+          <div className="overflow-hidden rounded-xl border border-border/70">
+            <button
+              type="button"
+              onClick={() => bannerRef.current?.click()}
+              className="relative flex h-24 w-full items-end justify-end p-2"
+              style={
+                server.banner_url
+                  ? {
+                      backgroundImage: `url(${server.banner_url})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : { backgroundColor: accentFor(server.id) }
+              }
+            >
+              <span className="rounded-md bg-black/35 px-2 py-1 text-[11px] font-medium text-white">
+                {busy === "banner" ? <Loader2 className="size-3 animate-spin" /> : t("servers.changeBanner")}
+              </span>
+            </button>
+            <div className="flex items-center gap-3 px-3 pb-3">
+              <button
+                type="button"
+                onClick={() => iconRef.current?.click()}
+                className="-mt-6 flex size-14 items-center justify-center overflow-hidden rounded-xl border-4 border-card text-[13px] font-semibold text-white"
+                style={{ backgroundColor: accentFor(server.id) }}
               >
-                {updateServer.isPending ? (
+                {server.icon_url ? (
+                  <img src={server.icon_url} alt="" className="size-full object-cover" />
+                ) : busy === "icon" ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  t("common.save")
+                  initials(server.name)
                 )}
-              </Button>
+              </button>
+              <p className="min-w-0 flex-1 truncate pt-4 text-[13px] font-semibold">
+                {server.name}
+              </p>
             </div>
           </div>
+
+          <input
+            ref={iconRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={(event) => void onIcon(event.target.files?.[0])}
+          />
+          <input
+            ref={bannerRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={(event) => void onBanner(event.target.files?.[0])}
+          />
+
+          {server.role === "owner" || server.role === "admin" ? (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="server-rename">{t("servers.name")}</Label>
+                <Input
+                  id="server-rename"
+                  value={name}
+                  maxLength={100}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="server-description">{t("servers.description")}</Label>
+                <Textarea
+                  id="server-description"
+                  value={description}
+                  rows={3}
+                  maxLength={280}
+                  placeholder={t("servers.descriptionPlaceholder")}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </div>
+              <Button onClick={save} disabled={updateServer.isPending || !name.trim()}>
+                {updateServer.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                {t("common.save")}
+              </Button>
+            </>
+          ) : null}
 
           <div className="space-y-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
             <p className="text-[12px] font-semibold text-destructive">
               {t("servers.dangerZone")}
             </p>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-[11.5px] leading-relaxed text-muted-foreground">
               {isOwner ? t("servers.deleteWarning") : t("servers.leaveWarning")}
             </p>
-
             {confirming ? (
               <div className="flex gap-2">
                 <Button variant="destructive" size="sm" onClick={destroy}>
@@ -530,14 +654,13 @@ export function ServerSettingsDialog({
                 size="sm"
                 onClick={() => setConfirming(isOwner ? "delete" : "leave")}
               >
-                <Trash2 className="mr-1.5 size-3.5" />
                 {isOwner ? t("servers.delete") : t("servers.leave")}
               </Button>
             )}
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t border-border px-6 py-3">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t("common.close")}
           </Button>

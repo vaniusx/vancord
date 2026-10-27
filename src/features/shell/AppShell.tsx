@@ -24,6 +24,7 @@ import { CommandPalette } from "@/features/shell/CommandPalette";
 import { ServerRail } from "@/features/shell/ServerRail";
 import { Sidebar } from "@/features/shell/Sidebar";
 import { TitleBar } from "@/features/shell/TitleBar";
+import { VoiceBar } from "@/features/voice/VoiceBar";
 import { WifiOff } from "lucide-react";
 import { isTauri } from "@/lib/tauri";
 
@@ -131,6 +132,11 @@ function ShellLayout() {
     location.pathname.match(/^\/s\/[^/]+\/([^/]+)/) ??
     location.pathname.match(/^\/dm\/([^/]+)/);
   const activeChannelId = channelMatch?.[1];
+  const sidebarMode: "friends" | "server" | "dm" = activeServerId
+    ? "server"
+    : location.pathname.startsWith("/dm/")
+      ? "dm"
+      : "friends";
 
   const [dialog, setDialog] = useState<DialogName>(null);
 
@@ -177,6 +183,7 @@ function ShellLayout() {
           activeChannelId={activeChannelId}
           unread={unread ?? {}}
           dms={dms ?? []}
+          mode={sidebarMode}
           onInvite={() => setDialog("invite")}
           onServerSettings={() => setDialog("serverSettings")}
           onCreateChannel={() => setDialog("createChannel")}
@@ -184,8 +191,11 @@ function ShellLayout() {
           onDeleteServer={() => setDialog("serverSettings")}
         />
 
-        <main className="flex min-w-0 flex-1">
-          <Outlet />
+        <main className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-h-0 flex-1">
+            <Outlet />
+          </div>
+          <VoiceBar />
         </main>
       </div>
 

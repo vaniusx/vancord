@@ -4,18 +4,34 @@ A small, calm desktop chat app for a closed group of friends. Built with Tauri 2
 Supabase. There is no server to keep running: the client talks straight to Supabase and row level
 security is the only trust boundary.
 
-**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** — Windows
+**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** Ã¢â‚¬â€ Windows
 installer (NSIS or MSI). Updates are signed and install in place.
 
 ## Features
 
 - Email/password accounts with a provisioned profile, personal server and starter channel
-- Servers, invite codes, roles (owner / admin / member) and member list
-- Text channels with markdown, reactions, file and image attachments, inline editing
+- Servers with icon, banner, description, invite codes and owner/admin/member roles
+- Text channels with markdown, GIFs, reactions, image attachments and inline editing
+- Voice channels with camera and screen sharing (LiveKit)
 - Live message updates, typing indicators and presence over Supabase Realtime
-- Direct messages plus a friends list with requests
+- Direct messages, but only in the messages view; servers stay focused on channels
+- Six colour palettes with dark and light mode, switchable from settings
+- Profile customisation: avatar, banner, bio, status and accent
 - Desktop notifications, system tray, window state, autostart and signed auto-updates
-- Turkish and English UI, dark and light themes that follow the system
+- Turkish and English UI
+
+## Optional integrations
+
+| Feature | Setup | Cost |
+| --- | --- | --- |
+| Voice + screen share | Create a LiveKit Cloud project, then set the Edge Function secrets `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | Free tier: 5,000 WebRTC minutes/month, 100 concurrent |
+| GIF picker | `VITE_GIPHY_API_KEY` from developers.giphy.com | Free |
+| Email verification codes | Paste `supabase/templates/confirmation.html` into Authentication > Emails > Confirm signup, then set `app_settings.email_verification_mode = code` | Free |
+
+With `app_settings.email_verification_mode = auto` (the default) accounts are confirmed on
+signup and the client signs in immediately, so no email is needed at all. Switching the setting to
+`code` makes the app require the 6-digit token from the confirmation email; that template must
+contain `{{ .Token }}` for the code to appear in the message.
 
 ## Stack
 
@@ -41,7 +57,7 @@ dashboard SQL editor, or `supabase db push`.
 
 ### Required Supabase settings
 
-- Authentication → Sign In / Providers → Email: turn **Confirm email** off while developing,
+- Authentication Ã¢â€ â€™ Sign In / Providers Ã¢â€ â€™ Email: turn **Confirm email** off while developing,
   otherwise sign-up returns no session until the address is verified.
 - Storage buckets `avatars` and `attachments` are created by the migration, together with their
   policies.

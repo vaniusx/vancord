@@ -33,6 +33,35 @@ import type { AttachmentRow, MessageRow } from "@/lib/models";
 import { publicUrl } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
+const GIF_URL = /^(https?:\/\/[^\s]+\.(?:gif|webp|mp4)(?:\?\S*)?)$/i;
+
+function GifEmbed({ url }: { url: string }) {
+  const [open, setOpen] = useState(false);
+  const isVideo = /\.mp4(\?|$)/i.test(url);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className="mt-1.5 block max-w-sm overflow-hidden rounded-xl">
+          {isVideo ? (
+            <video src={url} autoPlay loop muted playsInline className="max-h-64 rounded-xl" />
+          ) : (
+            <img src={url} alt="" loading="lazy" className="max-h-64 rounded-xl object-cover" />
+          )}
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none">
+        <DialogTitle className="sr-only">GIF</DialogTitle>
+        {isVideo ? (
+          <video src={url} autoPlay loop muted playsInline controls className="w-full rounded-xl" />
+        ) : (
+          <img src={url} alt="" className="max-h-[80vh] w-full rounded-xl object-contain" />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function AttachmentView({ attachment }: { attachment: AttachmentRow }) {
   const [open, setOpen] = useState(false);
   const url = publicUrl("attachments", attachment.storage_path);
@@ -245,7 +274,13 @@ export function MessageItem({
               </div>
             ) : (
               <>
-                {message.content ? <Markdown content={message.content} /> : null}
+                {message.content ? (
+                  GIF_URL.test(message.content.trim()) ? (
+                    <GifEmbed url={message.content.trim()} />
+                  ) : (
+                    <Markdown content={message.content} />
+                  )
+                ) : null}
                 {message.edited_at ? (
                   <span className="ml-1 align-baseline text-[10px] text-muted-foreground">
                     ({t("chat.edited")})

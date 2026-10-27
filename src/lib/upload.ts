@@ -88,3 +88,37 @@ export async function uploadAvatar(userId: string, file: File) {
   if (error) throw error;
   return path;
 }
+
+export async function uploadBanner(userId: string, file: File) {
+  const supabase = requireSupabase();
+  const blob = await imageCompression(file, {
+    maxSizeMB: 1.5,
+    maxWidthOrHeight: 1600,
+    useWebWorker: true,
+    fileType: "image/webp",
+    initialQuality: 0.85,
+  });
+  const path = `${userId}/${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage
+    .from("banners")
+    .upload(path, blob, { contentType: "image/webp", upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+export async function uploadServerIcon(userId: string, serverId: string, file: File) {
+  const supabase = requireSupabase();
+  const blob = await imageCompression(file, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 512,
+    useWebWorker: true,
+    fileType: "image/webp",
+    initialQuality: 0.9,
+  });
+  const path = `${userId}/server-${serverId}-${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage
+    .from("banners")
+    .upload(path, blob, { contentType: "image/webp", upsert: false });
+  if (error) throw error;
+  return path;
+}

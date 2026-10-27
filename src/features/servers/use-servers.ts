@@ -23,7 +23,7 @@ export function useServers() {
       const supabase = requireSupabase();
       const { data, error } = await supabase
         .from("server_members")
-        .select("role, joined_at, servers!inner(id, name, icon_url, owner_id)")
+        .select("role, joined_at, servers!inner(id, name, icon_url, description, banner_url, owner_id)")
         .eq("user_id", user!.id)
         .order("joined_at", { ascending: true });
 
@@ -35,6 +35,8 @@ export function useServers() {
             id: string;
             name: string;
             icon_url: string | null;
+            description: string | null;
+            banner_url: string | null;
             owner_id: string;
           } | null;
           if (!server) return null;
@@ -42,6 +44,8 @@ export function useServers() {
             id: server.id,
             name: server.name,
             icon_url: server.icon_url,
+            description: server.description,
+            banner_url: server.banner_url,
             owner_id: server.owner_id,
             role: row.role as ServerSummary["role"],
           } satisfies ServerSummary;
@@ -73,7 +77,7 @@ export function useCreateServer() {
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
     onError: () => {
-      toast.error("Sunucu oluşturulamadı.");
+      toast.error("Sunucu oluÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸turulamadÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±.");
     },
   });
 }
@@ -94,7 +98,7 @@ export function useJoinServer() {
       await queryClient.invalidateQueries({ queryKey: ["servers"] });
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
       await queryClient.invalidateQueries({ queryKey: ["members"] });
-      toast.success("Sunucuya katıldın.");
+      toast.success("Sunucuya katÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±ldÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±n.");
     },
   });
 }
@@ -103,11 +107,23 @@ export function useUpdateServer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: { serverId: string; name: string }) => {
+    mutationFn: async (input: {
+      serverId: string;
+      name?: string;
+      description?: string | null;
+      icon_url?: string | null;
+      banner_url?: string | null;
+    }) => {
       const supabase = requireSupabase();
+      const patch: Record<string, unknown> = {};
+      if (input.name !== undefined) patch.name = input.name.trim();
+      if (input.description !== undefined) patch.description = input.description;
+      if (input.icon_url !== undefined) patch.icon_url = input.icon_url;
+      if (input.banner_url !== undefined) patch.banner_url = input.banner_url;
+
       const { error } = await supabase
         .from("servers")
-        .update({ name: input.name.trim() })
+        .update(patch)
         .eq("id", input.serverId);
       if (error) throw error;
     },
@@ -167,7 +183,7 @@ export function useChannels(serverId: string | undefined) {
         .from("channels")
         .select("id, server_id, type, name, topic, position")
         .eq("server_id", serverId!)
-        .eq("type", "text")
+        .in("type", ["text", "voice"])
         .order("position", { ascending: true })
         .order("created_at", { ascending: true });
 
@@ -185,42 +201,20 @@ export function useCreateChannel() {
       serverId: string;
       name: string;
       topic?: string;
+      type?: "text" | "voice";
     }) => {
       const supabase = requireSupabase();
-      const slug = input.name
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-_]/g, "")
-        .slice(0, 100);
-
-      if (!slug) throw new Error("invalid-name");
-
-      const { data: position, error: positionError } = await supabase.rpc(
-        "next_channel_position",
-        { target_server: input.serverId },
-      );
-      if (positionError) throw positionError;
-
-      const { data, error } = await supabase
-        .from("channels")
-        .insert({
-          server_id: input.serverId,
-          type: "text",
-          name: slug,
-          topic: input.topic?.trim() || null,
-          position: (position as number) ?? 0,
-        })
-        .select("id")
-        .single();
-
-      if (error) throw error;
-      return data.id as string;
-    },
-    onSuccess: (_id, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: ["channels", variables.serverId],
+      const { data, error } = await supabase.rpc("create_channel", {
+        target_server: input.serverId,
+        channel_name: input.name,
+        channel_type: input.type ?? "text",
+        channel_topic: input.topic ?? null,
       });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
   });
 }
@@ -231,16 +225,13 @@ export function useDeleteChannel() {
   return useMutation({
     mutationFn: async (input: { channelId: string; serverId: string }) => {
       const supabase = requireSupabase();
-      const { error } = await supabase
-        .from("channels")
-        .delete()
-        .eq("id", input.channelId);
+      const { error } = await supabase.rpc("delete_channel", {
+        target_channel: input.channelId,
+      });
       if (error) throw error;
     },
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: ["channels", variables.serverId],
-      });
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
   });
 }
@@ -256,20 +247,16 @@ export function useUpdateChannel() {
       topic?: string | null;
     }) => {
       const supabase = requireSupabase();
-      const patch: Record<string, unknown> = {};
-      if (input.name !== undefined) patch.name = input.name;
-      if (input.topic !== undefined) patch.topic = input.topic;
-
-      const { error } = await supabase
-        .from("channels")
-        .update(patch)
-        .eq("id", input.channelId);
+      const { error } = await supabase.rpc("update_channel", {
+        target_channel: input.channelId,
+        channel_name: input.name ?? null,
+        channel_topic: input.topic ?? null,
+        update_topic: input.topic !== undefined,
+      });
       if (error) throw error;
     },
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: ["channels", variables.serverId],
-      });
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
   });
 }
@@ -362,13 +349,13 @@ export function useMarkRead() {
 
 export function useAllChannels() {
   return useQuery({
-    queryKey: ["all-channels"],
+    queryKey: ["channels", "all"],
     queryFn: async (): Promise<ChannelRow[]> => {
       const supabase = requireSupabase();
       const { data, error } = await supabase
         .from("channels")
         .select("id, server_id, type, name, topic, position")
-        .eq("type", "text")
+        .in("type", ["text", "voice"])
         .order("position", { ascending: true });
       if (error) throw error;
       return (data ?? []) as ChannelRow[];

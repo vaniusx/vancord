@@ -1,6 +1,6 @@
 export type PresenceStatus = "online" | "idle" | "dnd" | "invisible" | "offline";
 export type ServerRole = "owner" | "admin" | "member";
-export type ChannelType = "text" | "dm";
+export type ChannelType = "text" | "voice" | "dm";
 export type FriendshipStatus = "pending" | "accepted" | "blocked";
 
 export interface ProfileSummary {
@@ -11,12 +11,17 @@ export interface ProfileSummary {
   accent_color: string;
   status: PresenceStatus;
   custom_status: string | null;
+  bio?: string | null;
+  banner_color?: string | null;
+  banner_url?: string | null;
 }
 
 export interface ServerSummary {
   id: string;
   name: string;
   icon_url: string | null;
+  description: string | null;
+  banner_url: string | null;
   owner_id: string;
   role: ServerRole;
 }

@@ -25,7 +25,7 @@ export function useProfile() {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, username, display_name, avatar_url, accent_color, status, custom_status, created_at, updated_at",
+          "id, username, display_name, avatar_url, accent_color, status, custom_status, bio, banner_color, banner_url, created_at, updated_at",
         )
         .eq("id", user!.id)
         .maybeSingle();
@@ -49,6 +49,9 @@ export function useUpdateProfile() {
       custom_status: string | null;
       accent_color: string;
       avatar_url: string;
+      bio: string | null;
+      banner_color: string;
+      banner_url: string;
     }>) => {
       const supabase = requireSupabase();
       const { data, error } = await supabase
@@ -56,7 +59,7 @@ export function useUpdateProfile() {
         .update(patch)
         .eq("id", user!.id)
         .select(
-          "id, username, display_name, avatar_url, accent_color, status, custom_status",
+          "id, username, display_name, avatar_url, accent_color, status, custom_status, bio, banner_color, banner_url",
         )
         .single();
 

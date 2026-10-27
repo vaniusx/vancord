@@ -39,7 +39,8 @@
     "online": "Online",
     "offline": "Offline",
     "noChannels": "No channels yet",
-    "createChannel": "Create channel"
+    "createChannel": "Create channel",
+    "voiceChannels": "Voice channels"
   },
   "servers": {
     "createTitle": "Create a server",
@@ -56,7 +57,10 @@
     "deleteWarning": "The server and all its messages will be permanently deleted. This cannot be undone.",
     "leaveWarning": "Leaving removes your access to its channels. You will need an invite to return.",
     "delete": "Delete server",
-    "leave": "Leave server"
+    "leave": "Leave server",
+    "description": "Server description",
+    "descriptionPlaceholder": "What is this server about?",
+    "changeBanner": "Change banner"
   },
   "channels": {
     "createBody": "Channels are topic-based conversation spaces.",
@@ -64,7 +68,9 @@
     "namePlaceholder": "new-channel",
     "topic": "Topic",
     "topicPlaceholder": "What is this channel about?",
-    "emptyBody": "Start by creating a channel in a server you manage."
+    "emptyBody": "Start by creating a channel in a server you manage.",
+    "typeText": "Text channel",
+    "typeVoice": "Voice channel"
   },
   "invites": {
     "title": "Invite people to {{server}}",
@@ -172,14 +178,21 @@
       "upload": "Upload image",
       "avatarUpdated": "Profile picture updated",
       "customStatus": "Status message",
-      "customStatusPlaceholder": "What are you doing?"
+      "customStatusPlaceholder": "What are you doing?",
+      "bio": "About me",
+      "bioPlaceholder": "A short note about yourself",
+      "bannerColor": "Banner color",
+      "changeBanner": "Change banner",
+      "bannerUpdated": "Banner updated"
     },
     "appearance": {
       "theme": "Theme",
       "themeHint": "Follow the system theme or pin one.",
       "system": "System",
       "dark": "Dark",
-      "light": "Light"
+      "light": "Light",
+      "palette": "Color palette",
+      "paletteHint": "Pick one of six palettes. It works in both dark and light mode."
     },
     "notifications": {
       "desktop": "Desktop notifications",
@@ -238,8 +251,23 @@
       "emailTaken": "An account with this email already exists.",
       "rateLimited": "Too many attempts. Try again in a moment.",
       "notConfigured": "Supabase is not configured. Check your .env.local file.",
-      "generic": "Could not sign in. Try again."
-    }
+      "generic": "Could not sign in. Try again.",
+      "codeInvalid": "That code is wrong or expired.",
+      "codeExpired": "The code expired, request a new one."
+    },
+    "verifyTitle": "Verify your email",
+    "verifyBody": "We sent a 6-digit code to {{email}}.",
+    "verifyCode": "Verification code",
+    "verify": "Verify",
+    "resendIn": "Resend in {{seconds}}s",
+    "resend": "Resend code",
+    "codeSent": "New code sent",
+    "useOtherEmail": "Use a different email",
+    "forgot": "Forgot password",
+    "resetTitle": "Reset your password",
+    "resetBody": "We sent a reset code to {{email}}.",
+    "newPassword": "New password",
+    "resetDone": "Password updated"
   },
   "common": {
     "save": "Save",
@@ -258,5 +286,33 @@
     "reconnecting": "Reconnecting",
     "unknownUser": "Unknown user",
     "offlineBanner": "No connection. Trying to reconnect."
+  },
+  "themes": {
+    "petrol": "Petrol",
+    "graphite": "Graphite",
+    "olive": "Olive",
+    "ember": "Ember",
+    "rose": "Rose",
+    "mint": "Mint"
+  },
+  "voice": {
+    "join": "Join voice",
+    "leave": "Leave voice",
+    "connecting": "Connecting",
+    "connected": "Connected",
+    "screen": "Share screen",
+    "stopScreen": "Stop sharing",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "deafen": "Deafen",
+    "notConfigured": "LiveKit is not configured for voice channels.",
+    "participants": "Participants",
+    "noParticipants": "Nobody here"
+  },
+  "gif": {
+    "title": "GIF",
+    "search": "Search GIFs",
+    "empty": "No GIFs found",
+    "notConfigured": "Set VITE_GIPHY_API_KEY to search GIFs."
   }
 }

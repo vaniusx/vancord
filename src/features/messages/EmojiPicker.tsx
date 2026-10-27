@@ -1,7 +1,29 @@
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
 import { Smile } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
+
+const LazyPicker = lazy(async () => {
+  const [pickerModule, dataModule] = await Promise.all([
+    import("@emoji-mart/react"),
+    import("@emoji-mart/data"),
+  ]);
+  const Picker = pickerModule.default;
+  const data = dataModule.default;
+  return {
+    default: (props: { theme: "dark" | "light"; onSelect: (emoji: string) => void }) => (
+      <Picker
+        data={data}
+        theme={props.theme}
+        previewPosition="none"
+        skinTonePosition="none"
+        navPosition="bottom"
+        perLine={8}
+        maxFrequentRows={2}
+        onEmojiSelect={(emoji: { native: string }) => props.onSelect(emoji.native)}
+      />
+    ),
+  };
+});
 
 import { Button } from "@/components/ui/button";
 import {
@@ -49,16 +71,9 @@ export function EmojiPicker({
         side="top"
         className="w-auto border-none bg-transparent p-0 shadow-none"
       >
-        <Picker
-          data={data}
-          theme={dark ? "dark" : "light"}
-          previewPosition="none"
-          skinTonePosition="none"
-          navPosition="bottom"
-          perLine={8}
-          maxFrequentRows={2}
-          onEmojiSelect={(emoji) => onSelect(emoji.native)}
-        />
+        <Suspense fallback={<div className="h-64 w-72" />}>
+          <LazyPicker theme={dark ? "dark" : "light"} onSelect={onSelect} />
+        </Suspense>
       </PopoverContent>
     </Popover>
   );
