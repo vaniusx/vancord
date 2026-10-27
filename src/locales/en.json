@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Vancord",
+    "tagline": "Where the conversation starts"
+  },
+  "titlebar": {
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  },
+  "rail": {
+    "home": "Home",
+    "addServer": "Add a server",
+    "explore": "Explore",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "channels": "Channels",
+    "textChannels": "Text channels",
+    "members": "Members",
+    "online": "Online",
+    "offline": "Offline",
+    "noChannels": "No channels yet",
+    "createChannel": "Create channel"
+  },
+  "chat": {
+    "welcomeTitle": "Welcome to #{{channel}}",
+    "welcomeBody": "This is the start of the #{{channel}} channel in {{server}}.",
+    "emptyState": "No messages yet. Be the first to say something.",
+    "placeholder": "Message #{{channel}}",
+    "send": "Send",
+    "attach": "Attach a file",
+    "emoji": "Emoji",
+    "loadingMore": "Loading older messages",
+    "jumpToBottom": "Jump to present"
+  },
+  "status": {
+    "online": "Online",
+    "idle": "Idle",
+    "dnd": "Do not disturb",
+    "invisible": "Invisible",
+    "offline": "Offline",
+    "change": "Change status"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "language": "Language",
+      "about": "About"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "system": "Follow system",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "language": {
+      "label": "App language",
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "about": {
+      "version": "Version"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "retry": "Retry",
+    "loading": "Loading",
+    "error": "Something went wrong",
+    "offline": "No connection",
+    "search": "Search"
+  },
+  "dev": {
+    "previewNotice": "Preview data",
+    "phaseNotice": "This area will be finished in a later phase."
+  }
+}

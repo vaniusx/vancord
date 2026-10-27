@@ -1,0 +1,84 @@
+{
+  "app": {
+    "name": "Vancord",
+    "tagline": "Sohbet burada başlar"
+  },
+  "titlebar": {
+    "minimize": "Küçült",
+    "maximize": "Büyült",
+    "restore": "Geri al",
+    "close": "Kapat"
+  },
+  "rail": {
+    "home": "Ana sayfa",
+    "addServer": "Sunucu ekle",
+    "explore": "Keşfet",
+    "settings": "Ayarlar"
+  },
+  "sidebar": {
+    "channels": "Kanallar",
+    "textChannels": "Metin kanalları",
+    "members": "Üyeler",
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "noChannels": "Henüz kanal yok",
+    "createChannel": "Kanal oluştur"
+  },
+  "chat": {
+    "welcomeTitle": "{{channel}} kanalına hoş geldin",
+    "welcomeBody": "{{server}} sunucusundaki bu kanalın başlangıcı.",
+    "emptyState": "Henüz mesaj yok. İlk mesajı sen yaz.",
+    "placeholder": "{{channel}} kanalına mesaj gönder",
+    "send": "Gönder",
+    "attach": "Dosya ekle",
+    "emoji": "Emoji",
+    "loadingMore": "Daha eski mesajlar yükleniyor",
+    "jumpToBottom": "En alta in"
+  },
+  "status": {
+    "online": "Çevrimiçi",
+    "idle": "Boşta",
+    "dnd": "Rahatsız etme",
+    "invisible": "Görünmez",
+    "offline": "Çevrimdışı",
+    "change": "Durumu değiştir"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "sections": {
+      "profile": "Profil",
+      "appearance": "Görünüm",
+      "notifications": "Bildirimler",
+      "language": "Dil",
+      "about": "Hakkında"
+    },
+    "appearance": {
+      "theme": "Tema",
+      "system": "Sistemi takip et",
+      "dark": "Koyu",
+      "light": "Açık"
+    },
+    "language": {
+      "label": "Uygulama dili",
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "about": {
+      "version": "Sürüm"
+    }
+  },
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "retry": "Yeniden dene",
+    "loading": "Yükleniyor",
+    "error": "Bir şeyler ters gitti",
+    "offline": "Bağlantı yok",
+    "search": "Ara"
+  },
+  "dev": {
+    "previewNotice": "Önizleme verisi",
+    "phaseNotice": "Bu bölüm sonraki fazda tamamlanacak."
+  }
+}
