@@ -1,14 +1,17 @@
-import { Copy, Minus, Square, X } from "lucide-react";
+import { Copy, Minus, Search, Square, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useAppStore } from "@/features/app/app-store";
 import { isTauri } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 
-type WindowAction = "minimize" | "toggleMaximize" | "close";
-
-async function performWindowAction(action: WindowAction) {
+async function windowAction(action: "minimize" | "toggleMaximize" | "close") {
   if (!isTauri()) return;
   const { getCurrentWindow } = await import("@tauri-apps/api/window");
   const win = getCurrentWindow();
@@ -46,19 +49,17 @@ function useIsMaximized() {
   return maximized;
 }
 
-interface WindowButtonProps {
-  label: string;
-  onClick: () => void;
-  destructive?: boolean;
-  children: React.ReactNode;
-}
-
 function WindowButton({
   label,
   onClick,
   destructive,
   children,
-}: WindowButtonProps) {
+}: {
+  label: string;
+  onClick: () => void;
+  destructive?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -67,7 +68,7 @@ function WindowButton({
           aria-label={label}
           onClick={onClick}
           className={cn(
-            "flex h-9 w-12 items-center justify-center text-muted-foreground transition-colors",
+            "flex h-11 w-12 items-center justify-center text-muted-foreground transition-colors",
             destructive
               ? "hover:bg-destructive hover:text-white"
               : "hover:bg-accent hover:text-foreground",
@@ -84,37 +85,47 @@ function WindowButton({
 export function TitleBar() {
   const { t } = useTranslation();
   const maximized = useIsMaximized();
+  const setPaletteOpen = useAppStore((state) => state.setPaletteOpen);
 
   return (
     <header
       data-tauri-drag-region
-      className="relative z-50 flex h-9 shrink-0 items-center border-b border-sidebar-border bg-sidebar text-sidebar-foreground select-none"
+      className="relative z-40 flex h-11 shrink-0 items-center border-b border-border/70 bg-sidebar text-sidebar-foreground select-none"
     >
-      <div
-        data-tauri-drag-region
-        className="pointer-events-none flex min-w-0 flex-1 items-center gap-2 px-3"
-      >
-        <div className="brand-gradient flex size-5 items-center justify-center rounded-[6px] text-[11px] font-bold text-white">
+      <div className="flex min-w-0 items-center gap-2.5 px-3">
+        <div className="brand-gradient flex size-6 items-center justify-center rounded-[7px] text-[12px] font-bold text-white shadow-sm">
           V
         </div>
-        <span className="truncate text-[13px] font-semibold tracking-tight">
+        <span className="text-[13px] font-semibold tracking-tight">
           {t("app.name")}
         </span>
       </div>
+
+      <div data-tauri-drag-region className="h-full flex-1" />
+
+      <button
+        type="button"
+        onClick={() => setPaletteOpen(true)}
+        className="mr-2 hidden h-7 items-center gap-2 rounded-lg border border-border/70 bg-background/60 px-2.5 text-[12px] text-muted-foreground transition-colors hover:border-border hover:text-foreground md:flex"
+      >
+        <Search className="size-3.5" />
+        <span>{t("palette.trigger")}</span>
+        <kbd className="ml-6 rounded border border-border/80 bg-muted px-1 font-sans text-[10px] tracking-wide">
+          Ctrl K
+        </kbd>
+      </button>
 
       {isTauri() ? (
         <div className="flex h-full items-stretch">
           <WindowButton
             label={t("titlebar.minimize")}
-            onClick={() => void performWindowAction("minimize")}
+            onClick={() => void windowAction("minimize")}
           >
             <Minus className="size-3.5" />
           </WindowButton>
           <WindowButton
-            label={
-              maximized ? t("titlebar.restore") : t("titlebar.maximize")
-            }
-            onClick={() => void performWindowAction("toggleMaximize")}
+            label={maximized ? t("titlebar.restore") : t("titlebar.maximize")}
+            onClick={() => void windowAction("toggleMaximize")}
           >
             {maximized ? (
               <Copy className="size-3" />
@@ -124,13 +135,15 @@ export function TitleBar() {
           </WindowButton>
           <WindowButton
             label={t("titlebar.close")}
-            onClick={() => void performWindowAction("close")}
+            onClick={() => void windowAction("close")}
             destructive
           >
             <X className="size-4" />
           </WindowButton>
         </div>
-      ) : null}
+      ) : (
+        <div className="w-2" />
+      )}
     </header>
   );
 }

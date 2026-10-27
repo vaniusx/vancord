@@ -10,20 +10,22 @@ const STATUS_CLASS: Record<PresenceStatus, string> = {
   offline: "bg-status-offline",
 };
 
-interface StatusDotProps {
+export function StatusDot({
+  status,
+  className,
+  ring = true,
+}: {
   status: PresenceStatus;
   className?: string;
   ring?: boolean;
-}
-
-export function StatusDot({ status, className, ring = true }: StatusDotProps) {
+}) {
   return (
     <span
       aria-hidden="true"
       className={cn(
         "inline-block size-2.5 rounded-full",
         STATUS_CLASS[status],
-        ring && "ring-2 ring-background",
+        ring && "ring-2 ring-sidebar",
         className,
       )}
     />

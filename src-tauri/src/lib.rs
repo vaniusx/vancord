@@ -15,14 +15,14 @@ fn focus_main_window(app: &tauri::AppHandle) {
 }
 
 fn build_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, "open", "Vancord'u Aç", true, None::<&str>)?;
+    let open = MenuItem::with_id(app, "open", "Vancord'u AÃ§", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Ayarlar", true, None::<&str>)?;
-    let status_online = MenuItem::with_id(app, "status:online", "Çevrimiçi", true, None::<&str>)?;
-    let status_idle = MenuItem::with_id(app, "status:idle", "Boşta", true, None::<&str>)?;
-    let status_dnd = MenuItem::with_id(app, "status:dnd", "Rahatsız Etme", true, None::<&str>)?;
+    let status_online = MenuItem::with_id(app, "status:online", "Ã‡evrimiÃ§i", true, None::<&str>)?;
+    let status_idle = MenuItem::with_id(app, "status:idle", "BoÅŸta", true, None::<&str>)?;
+    let status_dnd = MenuItem::with_id(app, "status:dnd", "RahatsÄ±z Etme", true, None::<&str>)?;
     let status_invisible =
-        MenuItem::with_id(app, "status:invisible", "Görünmez", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Çıkış", true, None::<&str>)?;
+        MenuItem::with_id(app, "status:invisible", "GÃ¶rÃ¼nmez", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Ã‡Ä±kÄ±ÅŸ", true, None::<&str>)?;
     let separator_top = PredefinedMenuItem::separator(app)?;
     let separator_bottom = PredefinedMenuItem::separator(app)?;
 
@@ -84,6 +84,7 @@ pub fn run() {
             focus_main_window(app);
         }))
         .plugin(tauri_plugin_autostart::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .plugin(
             tauri_plugin_log::Builder::new()

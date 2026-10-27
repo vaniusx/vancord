@@ -2,10 +2,18 @@ import { createHashRouter, Navigate } from "react-router-dom";
 
 import { AuthPage } from "@/features/auth/AuthPage";
 import { RequireAuth } from "@/features/auth/RequireAuth";
+import { ChatView } from "@/features/chat/ChatView";
+import { FriendsView } from "@/features/friends/FriendsView";
+import { ServerRedirect } from "@/features/servers/ServerRedirect";
 import { AppShell } from "@/features/shell/AppShell";
-import { ChatArea } from "@/features/shell/ChatArea";
 import { RouteError } from "@/features/shell/RouteError";
-import { WelcomePane } from "@/features/shell/WelcomePane";
+import { useParams } from "react-router-dom";
+
+function ChatRoute() {
+  const { channelId } = useParams<{ channelId: string }>();
+  if (!channelId) return <Navigate to="/" replace />;
+  return <ChatView channelId={channelId} />;
+}
 
 export const router = createHashRouter([
   { path: "/auth", element: <AuthPage />, errorElement: <RouteError /> },
@@ -18,11 +26,10 @@ export const router = createHashRouter([
     ),
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <WelcomePane /> },
-      {
-        path: "channels/:channelId",
-        element: <ChatArea />,
-      },
+      { index: true, element: <FriendsView /> },
+      { path: "dm/:channelId", element: <ChatRoute /> },
+      { path: "s/:serverId", element: <ServerRedirect /> },
+      { path: "s/:serverId/:channelId", element: <ChatRoute /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

@@ -21,6 +21,7 @@
     "os:default",
     "log:default",
     "process:default",
+    "updater:default",
     "autostart:default"
   ]
 }

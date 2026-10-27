@@ -1,6 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+import { setDateLocale } from "@/lib/format";
 import en from "@/locales/en.json";
 import tr from "@/locales/tr.json";
 
@@ -49,9 +50,11 @@ i18n.on("languageChanged", (language) => {
   if (isLanguage(language)) {
     persistLanguage(language);
     document.documentElement.lang = language;
+    setDateLocale(language);
   }
 });
 
 document.documentElement.lang = i18n.language;
+setDateLocale(i18n.language);
 
 export default i18n;

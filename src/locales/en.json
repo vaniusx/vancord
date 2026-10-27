@@ -9,6 +9,196 @@
     "restore": "Restore",
     "close": "Close"
   },
+  "palette": {
+    "trigger": "Search or jump to",
+    "title": "Quick switcher",
+    "placeholder": "Search channels, people or servers...",
+    "empty": "No results."
+  },
+  "rail": {
+    "home": "Messages",
+    "addServer": "Create server",
+    "joinServer": "Join with invite",
+    "explore": "Explore",
+    "settings": "Settings"
+  },
+  "status": {
+    "online": "Online",
+    "idle": "Idle",
+    "dnd": "Do not disturb",
+    "invisible": "Invisible",
+    "offline": "Offline",
+    "change": "Change status"
+  },
+  "sidebar": {
+    "channels": "Channels",
+    "textChannels": "Channels",
+    "members": "Members",
+    "online": "Online",
+    "offline": "Offline",
+    "noChannels": "No channels yet",
+    "createChannel": "Create channel"
+  },
+  "servers": {
+    "createTitle": "Create a server",
+    "createBody": "You can invite your friends once it is ready.",
+    "name": "Server name",
+    "namePlaceholder": "e.g. Design Team",
+    "create": "Create",
+    "joinTitle": "Join with invite",
+    "joinBody": "Enter the invite code you received.",
+    "join": "Join",
+    "settings": "Server settings",
+    "memberCount": "{{count}} members",
+    "dangerZone": "Danger zone",
+    "deleteWarning": "The server and all its messages will be permanently deleted. This cannot be undone.",
+    "leaveWarning": "Leaving removes your access to its channels. You will need an invite to return.",
+    "delete": "Delete server",
+    "leave": "Leave server"
+  },
+  "channels": {
+    "createBody": "Channels are topic-based conversation spaces.",
+    "name": "Channel name",
+    "namePlaceholder": "new-channel",
+    "topic": "Topic",
+    "topicPlaceholder": "What is this channel about?",
+    "emptyBody": "Start by creating a channel in a server you manage."
+  },
+  "invites": {
+    "title": "Invite people to {{server}}",
+    "body": "Share a code so your friends can join. Only share it with people you trust.",
+    "code": "Invite code",
+    "expiry": "Expires",
+    "expiry1h": "1 hour",
+    "expiry24h": "24 hours",
+    "expiry7d": "7 days",
+    "expiryNever": "Never",
+    "maxUses": "Max uses",
+    "generate": "Generate new code",
+    "active": "Active codes",
+    "none": "No codes yet.",
+    "copy": "Copy",
+    "copied": "Invite code copied",
+    "revoke": "Revoke",
+    "invitePeople": "Invite people",
+    "noPermission": "You need to be an admin to create invite codes.",
+    "errors": {
+      "invalid": "That invite code is invalid.",
+      "expired": "That invite has expired.",
+      "exhausted": "That invite has reached its usage limit."
+    }
+  },
+  "chat": {
+    "placeholder": "Message #{{channel}}",
+    "placeholderDm": "Message {{name}}",
+    "noTopic": "No topic set",
+    "emptyTitle": "Be the first to say something",
+    "emptyBody": "There is no conversation here yet. Say hello.",
+    "loadingOlder": "Loading older messages",
+    "jumpToBottom": "Jump to present",
+    "typing": "typing...",
+    "composerHint": "Enter sends · Shift+Enter adds a line · Attach files or emoji",
+    "channelNotFound": "Channel not found.",
+    "copy": "Copy message",
+    "copied": "Message copied",
+    "edit": "Edit",
+    "editingHint": "Enter saves · Esc cancels",
+    "delete": "Delete",
+    "edited": "edited",
+    "addReaction": "Add reaction",
+    "reactWith": "React with {{emoji}}",
+    "attach": "Attach a file",
+    "emoji": "Emoji",
+    "send": "Send",
+    "fileTooLarge": "That file is too large. Maximum size is 5 MB."
+  },
+  "dm": {
+    "title": "Direct messages",
+    "empty": "No DMs yet. Start one from the friends tab."
+  },
+  "friends": {
+    "title": "Friends",
+    "subtitle": "Find your friends and start a conversation.",
+    "addTitle": "Add a friend",
+    "addPlaceholder": "Username or display name",
+    "noResults": "No matching users.",
+    "add": "Add",
+    "requestSent": "Friend request sent to {{name}}",
+    "accept": "Accept",
+    "decline": "Decline",
+    "pending": "Pending",
+    "unblock": "Unblock",
+    "message": "Message",
+    "remove": "Remove friend",
+    "alreadyConnected": "Already connected",
+    "emptyTitle": "No friends yet",
+    "emptyBody": "Search by username to add someone.",
+    "noRequests": "No pending requests",
+    "noRequestsBody": "New requests will appear here.",
+    "noSent": "No sent requests",
+    "noSentBody": "Requests you send are listed here.",
+    "noBlocked": "Nobody blocked",
+    "noBlockedBody": "People you block appear here.",
+    "tabs": {
+      "all": "All",
+      "pending": "Requests",
+      "sent": "Sent",
+      "blocked": "Blocked"
+    }
+  },
+  "members": {
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "language": "Language",
+      "about": "About"
+    },
+    "profile": {
+      "avatar": "Profile picture",
+      "avatarHint": "Pick a square image, it gets cropped automatically.",
+      "upload": "Upload image",
+      "avatarUpdated": "Profile picture updated",
+      "customStatus": "Status message",
+      "customStatusPlaceholder": "What are you doing?"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "themeHint": "Follow the system theme or pin one.",
+      "system": "System",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "notifications": {
+      "desktop": "Desktop notifications",
+      "desktopHint": "Show a notification for new messages while the window is not focused.",
+      "permissionOff": "The operating system notification permission is off.",
+      "hint": "Notifications only fire when you are in another channel or the window is in the background."
+    },
+    "language": {
+      "label": "App language",
+      "tr": "Türkçe",
+      "en": "English",
+      "default": "default",
+      "fallback": "The selected language is unsupported, Turkish is used."
+    },
+    "about": {
+      "version": "Version",
+      "body": "Vancord is a lightweight desktop chat app built for small groups of friends.",
+      "stack": "Tauri 2 · React 19 · Supabase",
+      "checkUpdates": "Check for updates",
+      "upToDate": "You are up to date.",
+      "updateAvailable": "Version {{version}} is available."
+    }
+  },
   "auth": {
     "welcome": "Welcome back",
     "subtitle": "Sign in to your account and join the conversation.",
@@ -22,6 +212,7 @@
     "passwordHint": "At least 8 characters.",
     "signIn": "Sign in",
     "signUp": "Sign up",
+    "signOut": "Sign out",
     "backToSignIn": "Back to sign in",
     "confirmTitle": "Check your email",
     "confirmBody": "We sent a verification link to {{email}}. Click it, then sign in.",
@@ -46,76 +237,21 @@
       "generic": "Could not sign in. Try again."
     }
   },
-  "rail": {
-    "home": "Home",
-    "addServer": "Add a server",
-    "explore": "Explore",
-    "settings": "Settings"
-  },
-  "sidebar": {
-    "channels": "Channels",
-    "textChannels": "Text channels",
-    "members": "Members",
-    "online": "Online",
-    "offline": "Offline",
-    "noChannels": "No channels yet",
-    "createChannel": "Create channel"
-  },
-  "chat": {
-    "welcomeTitle": "Welcome to #{{channel}}",
-    "welcomeBody": "This is the start of the #{{channel}} channel in {{server}}.",
-    "emptyState": "No messages yet. Be the first to say something.",
-    "placeholder": "Message #{{channel}}",
-    "send": "Send",
-    "attach": "Attach a file",
-    "emoji": "Emoji",
-    "loadingMore": "Loading older messages",
-    "jumpToBottom": "Jump to present"
-  },
-  "status": {
-    "online": "Online",
-    "idle": "Idle",
-    "dnd": "Do not disturb",
-    "invisible": "Invisible",
-    "offline": "Offline",
-    "change": "Change status"
-  },
-  "settings": {
-    "title": "Settings",
-    "sections": {
-      "profile": "Profile",
-      "appearance": "Appearance",
-      "notifications": "Notifications",
-      "language": "Language",
-      "about": "About"
-    },
-    "appearance": {
-      "theme": "Theme",
-      "system": "Follow system",
-      "dark": "Dark",
-      "light": "Light"
-    },
-    "language": {
-      "label": "App language",
-      "tr": "Türkçe",
-      "en": "English"
-    },
-    "about": {
-      "version": "Version"
-    }
-  },
   "common": {
     "save": "Save",
+    "saved": "Saved",
     "cancel": "Cancel",
     "close": "Close",
+    "create": "Create",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "open": "Open",
     "retry": "Retry",
     "loading": "Loading",
     "error": "Something went wrong",
-    "offline": "No connection",
-    "search": "Search"
-  },
-  "dev": {
-    "previewNotice": "Preview data",
-    "phaseNotice": "This area will be finished in a later phase."
+    "search": "Search",
+    "connected": "Connected",
+    "reconnecting": "Reconnecting",
+    "unknownUser": "Unknown user"
   }
 }

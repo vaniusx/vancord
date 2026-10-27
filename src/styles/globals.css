@@ -264,3 +264,129 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
+
+/* Chat message body */
+.chat-markdown {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: color-mix(in oklab, var(--foreground) 92%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.chat-markdown > :first-child {
+  margin-top: 0;
+}
+
+.chat-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown p {
+  margin: 0.15rem 0;
+}
+
+.chat-markdown a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chat-markdown a:hover {
+  color: var(--brand-accent);
+}
+
+.chat-markdown strong {
+  font-weight: 650;
+  color: var(--foreground);
+}
+
+.chat-markdown em {
+  font-style: italic;
+}
+
+.chat-markdown del {
+  opacity: 0.65;
+}
+
+.chat-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.1rem 0.32rem;
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--muted-foreground) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+
+.chat-markdown pre {
+  margin: 0.35rem 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 70%, #000 12%);
+  overflow-x: auto;
+}
+
+.chat-markdown pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.chat-markdown blockquote {
+  margin: 0.35rem 0;
+  padding-left: 0.7rem;
+  border-left: 3px solid color-mix(in oklab, var(--brand) 60%, transparent);
+  color: var(--muted-foreground);
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.25rem 0;
+  padding-left: 1.2rem;
+}
+
+.chat-markdown ul {
+  list-style: disc;
+}
+
+.chat-markdown ol {
+  list-style: decimal;
+}
+
+.chat-markdown table {
+  margin: 0.4rem 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.chat-markdown th,
+.chat-markdown td {
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+}
+
+.chat-markdown img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.chat-markdown hr {
+  margin: 0.5rem 0;
+  border-color: var(--border);
+}
+
+/* Emoji mart surface */
+em-emoji-picker {
+  --border-radius: 12px;
+  --category-icon-size: 16px;
+  --font-family: var(--font-sans);
+}

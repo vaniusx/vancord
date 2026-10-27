@@ -9,6 +9,196 @@
     "restore": "Geri al",
     "close": "Kapat"
   },
+  "palette": {
+    "trigger": "Ara veya git",
+    "title": "Hızlı geçiş",
+    "placeholder": "Kanal, kişi veya sunucu ara...",
+    "empty": "Sonuç bulunamadı."
+  },
+  "rail": {
+    "home": "Mesajlar",
+    "addServer": "Sunucu oluştur",
+    "joinServer": "Davetle katıl",
+    "explore": "Keşfet",
+    "settings": "Ayarlar"
+  },
+  "status": {
+    "online": "Çevrimiçi",
+    "idle": "Boşta",
+    "dnd": "Rahatsız etme",
+    "invisible": "Görünmez",
+    "offline": "Çevrimdışı",
+    "change": "Durumu değiştir"
+  },
+  "sidebar": {
+    "channels": "Kanallar",
+    "textChannels": "Kanallar",
+    "members": "Üyeler",
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "noChannels": "Henüz kanal yok",
+    "createChannel": "Kanal oluştur"
+  },
+  "servers": {
+    "createTitle": "Sunucu oluştur",
+    "createBody": "Sunucun hazır olduğunda arkadaşlarını davet edebilirsin.",
+    "name": "Sunucu adı",
+    "namePlaceholder": "Örn. Tasarım Ekibi",
+    "create": "Oluştur",
+    "joinTitle": "Davetle katıl",
+    "joinBody": "Sunucudan aldığın davet kodunu gir.",
+    "join": "Katıl",
+    "settings": "Sunucu ayarları",
+    "memberCount": "{{count}} üye",
+    "dangerZone": "Tehlikeli bölge",
+    "deleteWarning": "Sunucu ve tüm mesajları kalıcı olarak silinir. Bu işlem geri alınamaz.",
+    "leaveWarning": "Sunucudan ayrılırsan kanallara erişimini kaybedersin. Yeniden katılmak için davet gerekir.",
+    "delete": "Sunucuyu sil",
+    "leave": "Sunucudan ayrıl"
+  },
+  "channels": {
+    "createBody": "Kanallar konu bazlı sohbet alanlarıdır.",
+    "name": "Kanal adı",
+    "namePlaceholder": "yeni-kanal",
+    "topic": "Konu",
+    "topicPlaceholder": "Bu kanal ne hakkında?",
+    "emptyBody": "Yönetici olduğun bir sunucuda kanal oluşturarak başla."
+  },
+  "invites": {
+    "title": "{{server}} sunucusuna davet",
+    "body": "Kod paylaş, arkadaşların katılsın. Kodu yalnızca güvendiğin kişilerle paylaş.",
+    "code": "Davet kodu",
+    "expiry": "Geçerlilik",
+    "expiry1h": "1 saat",
+    "expiry24h": "24 saat",
+    "expiry7d": "7 gün",
+    "expiryNever": "Süresiz",
+    "maxUses": "Kullanım limiti",
+    "generate": "Yeni kod oluştur",
+    "active": "Aktif kodlar",
+    "none": "Henüz kod yok.",
+    "copy": "Kopyala",
+    "copied": "Davet kodu kopyalandı",
+    "revoke": "İptal et",
+    "invitePeople": "İnsanları davet et",
+    "noPermission": "Davet kodu oluşturmak için yönetici olman gerekiyor.",
+    "errors": {
+      "invalid": "Bu davet kodu geçersiz.",
+      "expired": "Bu davetin süresi dolmuş.",
+      "exhausted": "Bu davet kodunun kullanım limiti dolmuş."
+    }
+  },
+  "chat": {
+    "placeholder": "{{channel}} kanalına mesaj gönder",
+    "placeholderDm": "{{name}} kişisine mesaj gönder",
+    "noTopic": "Konu belirtilmemiş",
+    "emptyTitle": "İlk mesajı sen yaz",
+    "emptyBody": "Burada henüz konuşma yok. Bir merhaba ile başla.",
+    "loadingOlder": "Daha eski mesajlar yükleniyor",
+    "jumpToBottom": "En alta in",
+    "typing": "yazıyor...",
+    "composerHint": "Enter gönderir · Shift+Enter yeni satır · Emoji ve dosya ekleyebilirsin",
+    "channelNotFound": "Kanal bulunamadı.",
+    "copy": "Mesajı kopyala",
+    "copied": "Mesaj kopyalandı",
+    "edit": "Düzenle",
+    "editingHint": "Enter kaydeder · Esc iptal eder",
+    "delete": "Sil",
+    "edited": "düzenlendi",
+    "addReaction": "Tepki ekle",
+    "reactWith": "{{emoji}} ile tepki ver",
+    "attach": "Dosya ekle",
+    "emoji": "Emoji",
+    "send": "Gönder",
+    "fileTooLarge": "Dosya çok büyük. En fazla 5 MB yükleyebilirsin."
+  },
+  "dm": {
+    "title": "Doğrudan mesajlar",
+    "empty": "Henüz DM yok. Arkadaşlar sekmesinden başlat."
+  },
+  "friends": {
+    "title": "Arkadaşlar",
+    "subtitle": "Arkadaşlarını bul, sohbet başlat.",
+    "addTitle": "Arkadaş ekle",
+    "addPlaceholder": "Kullanıcı adı veya görünen ad",
+    "noResults": "Eşleşen kullanıcı yok.",
+    "add": "Ekle",
+    "requestSent": "{{name}} kişisine istek gönderildi",
+    "accept": "Kabul et",
+    "decline": "Reddet",
+    "pending": "Bekliyor",
+    "unblock": "Engeli kaldır",
+    "message": "Mesaj gönder",
+    "remove": "Arkadaşlıktan çıkar",
+    "alreadyConnected": "Zaten bağlı",
+    "emptyTitle": "Henüz arkadaşın yok",
+    "emptyBody": "Kullanıcı adıyla arayarak arkadaş ekleyebilirsin.",
+    "noRequests": "Bekleyen istek yok",
+    "noRequestsBody": "Yeni bir istek geldiğinde burada görünecek.",
+    "noSent": "Gönderilmiş istek yok",
+    "noSentBody": "Gönderdiğin istekler burada listelenir.",
+    "noBlocked": "Engellenen kimse yok",
+    "noBlockedBody": "Engellediğin kişiler burada görünür.",
+    "tabs": {
+      "all": "Tümü",
+      "pending": "İstekler",
+      "sent": "Gönderilen",
+      "blocked": "Engellenen"
+    }
+  },
+  "members": {
+    "roles": {
+      "owner": "Kurucu",
+      "admin": "Yönetici",
+      "member": "Üye"
+    }
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "sections": {
+      "profile": "Profil",
+      "appearance": "Görünüm",
+      "notifications": "Bildirimler",
+      "language": "Dil",
+      "about": "Hakkında"
+    },
+    "profile": {
+      "avatar": "Profil fotoğrafı",
+      "avatarHint": "Kare bir görsel seç, otomatik olarak kırpılır.",
+      "upload": "Görsel yükle",
+      "avatarUpdated": "Profil fotoğrafı güncellendi",
+      "customStatus": "Durum mesajı",
+      "customStatusPlaceholder": "Ne yapıyorsun?"
+    },
+    "appearance": {
+      "theme": "Tema",
+      "themeHint": "Sistem temasını takip edebilir veya sabitleyebilirsin.",
+      "system": "Sistem",
+      "dark": "Koyu",
+      "light": "Açık"
+    },
+    "notifications": {
+      "desktop": "Masaüstü bildirimleri",
+      "desktopHint": "Pencere odakta değilken yeni mesajlar için bildirim göster.",
+      "permissionOff": "İşletim sistemi bildirim izni kapalı.",
+      "hint": "Bildirimler yalnızca başka bir kanaldaysan veya pencere arka plandaysa gönderilir."
+    },
+    "language": {
+      "label": "Uygulama dili",
+      "tr": "Türkçe",
+      "en": "English",
+      "default": "varsayılan",
+      "fallback": "Seçili dil desteklenmiyor, Türkçe kullanılıyor."
+    },
+    "about": {
+      "version": "Sürüm",
+      "body": "Vancord, küçük arkadaş grupları için tasarlanmış hafif bir masaüstü sohbet uygulamasıdır.",
+      "stack": "Tauri 2 · React 19 · Supabase",
+      "checkUpdates": "Güncellemeleri kontrol et",
+      "upToDate": "Güncel sürümü kullanıyorsun.",
+      "updateAvailable": "{{version}} sürümü hazır."
+    }
+  },
   "auth": {
     "welcome": "Tekrar hoş geldin",
     "subtitle": "Hesabına giriş yap ve sohbete katıl.",
@@ -22,6 +212,7 @@
     "passwordHint": "En az 8 karakter.",
     "signIn": "Giriş yap",
     "signUp": "Kayıt ol",
+    "signOut": "Çıkış yap",
     "backToSignIn": "Girişe dön",
     "confirmTitle": "E-postanı kontrol et",
     "confirmBody": "{{email}} adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.",
@@ -46,76 +237,21 @@
       "generic": "Giriş yapılamadı. Tekrar dene."
     }
   },
-  "rail": {
-    "home": "Ana sayfa",
-    "addServer": "Sunucu ekle",
-    "explore": "Keşfet",
-    "settings": "Ayarlar"
-  },
-  "sidebar": {
-    "channels": "Kanallar",
-    "textChannels": "Metin kanalları",
-    "members": "Üyeler",
-    "online": "Çevrimiçi",
-    "offline": "Çevrimdışı",
-    "noChannels": "Henüz kanal yok",
-    "createChannel": "Kanal oluştur"
-  },
-  "chat": {
-    "welcomeTitle": "{{channel}} kanalına hoş geldin",
-    "welcomeBody": "{{server}} sunucusundaki bu kanalın başlangıcı.",
-    "emptyState": "Henüz mesaj yok. İlk mesajı sen yaz.",
-    "placeholder": "{{channel}} kanalına mesaj gönder",
-    "send": "Gönder",
-    "attach": "Dosya ekle",
-    "emoji": "Emoji",
-    "loadingMore": "Daha eski mesajlar yükleniyor",
-    "jumpToBottom": "En alta in"
-  },
-  "status": {
-    "online": "Çevrimiçi",
-    "idle": "Boşta",
-    "dnd": "Rahatsız etme",
-    "invisible": "Görünmez",
-    "offline": "Çevrimdışı",
-    "change": "Durumu değiştir"
-  },
-  "settings": {
-    "title": "Ayarlar",
-    "sections": {
-      "profile": "Profil",
-      "appearance": "Görünüm",
-      "notifications": "Bildirimler",
-      "language": "Dil",
-      "about": "Hakkında"
-    },
-    "appearance": {
-      "theme": "Tema",
-      "system": "Sistemi takip et",
-      "dark": "Koyu",
-      "light": "Açık"
-    },
-    "language": {
-      "label": "Uygulama dili",
-      "tr": "Türkçe",
-      "en": "English"
-    },
-    "about": {
-      "version": "Sürüm"
-    }
-  },
   "common": {
     "save": "Kaydet",
+    "saved": "Kaydedildi",
     "cancel": "İptal",
     "close": "Kapat",
+    "create": "Oluştur",
+    "confirm": "Onayla",
+    "remove": "Kaldır",
+    "open": "Aç",
     "retry": "Yeniden dene",
     "loading": "Yükleniyor",
     "error": "Bir şeyler ters gitti",
-    "offline": "Bağlantı yok",
-    "search": "Ara"
-  },
-  "dev": {
-    "previewNotice": "Önizleme verisi",
-    "phaseNotice": "Bu bölüm sonraki fazda tamamlanacak."
+    "search": "Ara",
+    "connected": "Bağlı",
+    "reconnecting": "Yeniden bağlanıyor",
+    "unknownUser": "Bilinmeyen kullanıcı"
   }
 }
