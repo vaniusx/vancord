@@ -5,6 +5,7 @@ import { router } from "@/app/router";
 import { ThemeProvider, useIsDark } from "@/app/theme";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/features/auth/AuthProvider";
 import { queryClient } from "@/lib/query";
 
 function AppToaster() {
@@ -22,10 +23,12 @@ export function AppProviders() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <TooltipProvider delayDuration={250}>
-          <RouterProvider router={router} />
-          <AppToaster />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider delayDuration={250}>
+            <RouterProvider router={router} />
+            <AppToaster />
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
