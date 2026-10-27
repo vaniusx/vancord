@@ -45,7 +45,7 @@ export function UserCard() {
   };
 
   return (
-    <div className="flex items-center gap-2 border-t border-sidebar-border/70 px-2 py-2">
+    <div className="flex items-center gap-2 border-t border-sidebar-border/60 px-2.5 py-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
@@ -60,7 +60,7 @@ export function UserCard() {
               />
             </div>
             <div className="min-w-0 flex-1 leading-tight">
-              <p className="truncate text-[13px] font-semibold">
+              <p className="truncate text-[13.5px] font-semibold">
                 {profile.display_name}
               </p>
               <p
@@ -91,7 +91,7 @@ export function UserCard() {
               <StatusDot status={status} ring={false} />
               {t(`status.${status}`)}
               {profile.status === status ? (
-                <span className="ml-auto text-[11px] text-primary">•</span>
+                <span className="ml-auto text-[11px] text-primary">â€¢</span>
               ) : null}
             </DropdownMenuItem>
           ))}

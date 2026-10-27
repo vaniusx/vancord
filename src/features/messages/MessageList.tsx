@@ -85,7 +85,7 @@ export function MessageList({
       <div
         ref={containerRef}
         onScroll={onScroll}
-        className="scrollbar-thin h-full overflow-y-auto overscroll-contain pb-4"
+        className="scrollbar-thin h-full overflow-y-auto overscroll-contain pb-2"
       >
         {loadingOlder ? (
           <div className="flex items-center justify-center gap-2 py-3 text-[11px] text-muted-foreground">
@@ -109,12 +109,11 @@ export function MessageList({
           return (
             <div key={message.id}>
               {newDay ? (
-                <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-                  <div className="h-px flex-1 bg-border/70" />
-                  <span className="text-[10.5px] font-semibold tracking-wide text-muted-foreground uppercase">
+                <div className="flex items-center gap-3 px-4 pt-6 pb-1.5">
+                  <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
                     {dayLabel(message.created_at)}
                   </span>
-                  <div className="h-px flex-1 bg-border/70" />
+                  <div className="h-px flex-1 bg-border/60" />
                 </div>
               ) : null}
               <MessageItem

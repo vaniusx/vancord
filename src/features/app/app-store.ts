@@ -9,8 +9,9 @@ export type SettingsSection =
   | "about";
 
 interface AppState {
-  detailsOpen: boolean;
-  toggleDetails: () => void;
+  membersOpen: boolean;
+  setMembersOpen: (open: boolean) => void;
+  toggleMembers: () => void;
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
   settingsOpen: boolean;
@@ -33,8 +34,9 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      detailsOpen: true,
-      toggleDetails: () => set((state) => ({ detailsOpen: !state.detailsOpen })),
+      membersOpen: false,
+      setMembersOpen: (membersOpen) => set({ membersOpen }),
+      toggleMembers: () => set((state) => ({ membersOpen: !state.membersOpen })),
       paletteOpen: false,
       setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
       settingsOpen: false,
@@ -74,7 +76,7 @@ export const useAppStore = create<AppState>()(
     {
       name: "vancord.app",
       partialize: (state) => ({
-        detailsOpen: state.detailsOpen,
+        membersOpen: state.membersOpen,
         notificationsEnabled: state.notificationsEnabled,
         lastServerId: state.lastServerId,
       }),

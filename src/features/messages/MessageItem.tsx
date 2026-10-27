@@ -197,10 +197,10 @@ export function MessageItem({
           <div className="min-w-0 flex-1">
             {!grouped ? (
               <div className="mb-0.5 flex items-baseline gap-2">
-                <span className="text-[13.5px] font-semibold text-foreground">
+                <span className="text-[14px] font-semibold text-foreground">
                   {author.display_name}
                 </span>
-                <span className="text-[10.5px] text-muted-foreground tabular-nums">
+                <span className="text-[11.5px] text-muted-foreground tabular-nums">
                   {clockTime(message.created_at)}
                 </span>
               </div>
@@ -270,14 +270,14 @@ export function MessageItem({
           </div>
 
           {!editing ? (
-            <div className="absolute -top-3 right-4 hidden items-center gap-0.5 rounded-lg border border-border bg-popover p-0.5 shadow-sm group-hover:flex">
+            <div className="absolute top-0.5 right-3 hidden items-center gap-0.5 rounded-lg border border-border/80 bg-popover p-0.5 shadow-sm group-hover:flex">
               {QUICK_REACTIONS.slice(0, 3).map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => react(emoji)}
                   aria-label={emoji}
-                  className="flex size-7 items-center justify-center rounded text-[14px] transition-colors hover:bg-accent"
+                  className="flex size-6 items-center justify-center rounded text-[13px] transition-colors hover:bg-accent"
                 >
                   {emoji}
                 </button>

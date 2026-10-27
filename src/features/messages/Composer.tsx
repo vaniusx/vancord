@@ -9,8 +9,8 @@ import { useAppStore } from "@/features/app/app-store";
 import { EmojiPicker } from "@/features/messages/EmojiPicker";
 import { useSendMessage } from "@/features/messages/use-messages";
 import { useTypingSender } from "@/features/realtime/realtime";
-import { cn } from "@/lib/utils";
 import { uploadAttachment, type UploadResult } from "@/lib/upload";
+import { cn } from "@/lib/utils";
 
 interface PendingFile {
   id: string;
@@ -43,7 +43,7 @@ export function Composer({
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
   };
 
   const addFiles = (incoming: FileList | File[]) => {
@@ -75,32 +75,25 @@ export function Composer({
         uploads.push(await uploadAttachment(crypto.randomUUID(), item.file));
       }
 
-      await sendMessage.mutateAsync({
-        channelId,
-        content,
-        attachments: uploads,
-      });
+      await sendMessage.mutateAsync({ channelId, content, attachments: uploads });
 
       clearDraft(channelId);
       files.forEach((item) => item.preview && URL.revokeObjectURL(item.preview));
       setFiles([]);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
+      if (textareaRef.current) textareaRef.current.style.height = "auto";
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t("common.error");
-      toast.error(
-        message === "file-too-large" ? t("chat.fileTooLarge") : message,
-      );
+      const message = error instanceof Error ? error.message : t("common.error");
+      toast.error(message === "file-too-large" ? t("chat.fileTooLarge") : message);
     } finally {
       setSending(false);
     }
   };
 
+  const canSend = Boolean(draft.trim()) || files.length > 0;
+
   return (
     <div
-      className="px-4 pb-4"
+      className="relative px-4 pb-4"
       onDragOver={(event) => {
         event.preventDefault();
         setDragging(true);
@@ -112,18 +105,19 @@ export function Composer({
         if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files);
       }}
     >
-      <div
-        className={cn(
-          "rounded-xl border border-border/80 bg-card/80 shadow-sm transition-colors focus-within:border-primary/50",
-          dragging && "border-primary bg-primary/5",
-        )}
-      >
+      {dragging ? (
+        <div className="pointer-events-none absolute inset-x-4 inset-y-2 z-10 flex items-center justify-center rounded-xl border border-dashed border-primary bg-background/90 text-[13px] font-medium text-primary">
+          {t("chat.dropToAttach")}
+        </div>
+      ) : null}
+
+      <div className="rounded-xl border border-border/70 bg-card transition-colors focus-within:border-primary/45">
         {files.length > 0 ? (
           <div className="flex flex-wrap gap-2 border-b border-border/60 p-2">
             {files.map((item) => (
               <div
                 key={item.id}
-                className="group relative flex size-16 items-center justify-center overflow-hidden rounded-lg border border-border bg-secondary"
+                className="group relative flex size-14 items-center justify-center overflow-hidden rounded-lg bg-secondary"
               >
                 {item.preview ? (
                   <img src={item.preview} alt="" className="size-full object-cover" />
@@ -136,7 +130,7 @@ export function Composer({
                   type="button"
                   onClick={() => removeFile(item.id)}
                   aria-label={t("common.remove")}
-                  className="absolute top-0.5 right-0.5 rounded-full bg-background/90 p-0.5 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-0.5 right-0.5 rounded-full bg-background/90 p-0.5 opacity-0 transition-opacity group-hover:opacity-100"
                 >
                   <X className="size-3" />
                 </button>
@@ -145,7 +139,7 @@ export function Composer({
           </div>
         ) : null}
 
-        <div className="flex items-end gap-1 p-1.5">
+        <div className="flex items-end gap-0.5 p-1.5">
           <input
             ref={fileInputRef}
             type="file"
@@ -162,7 +156,7 @@ export function Composer({
             variant="ghost"
             size="icon"
             aria-label={t("chat.attach")}
-            className="size-9 shrink-0 text-muted-foreground"
+            className="size-8 shrink-0 text-muted-foreground"
             onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip className="size-4" />
@@ -191,7 +185,7 @@ export function Composer({
                 void submit();
               }
             }}
-            className="max-h-[200px] min-h-9 flex-1 resize-none border-0 bg-transparent px-1 py-2 text-[14px] shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+            className="max-h-[180px] min-h-8 flex-1 resize-none border-0 bg-transparent px-1 py-1.5 text-[14.5px] shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
           />
 
           <EmojiPicker
@@ -207,21 +201,17 @@ export function Composer({
             size="icon"
             aria-label={t("chat.send")}
             onClick={() => void submit()}
-            disabled={sending || (!draft.trim() && files.length === 0)}
-            className="size-9 shrink-0"
+            disabled={sending || !canSend}
+            className={cn("size-8 shrink-0", !canSend && "opacity-40")}
           >
             {sending ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Send className="size-4" />
+              <Send className="size-3.5" />
             )}
           </Button>
         </div>
       </div>
-
-      <p className="mt-1.5 px-1 text-[10.5px] text-muted-foreground">
-        {t("chat.composerHint")}
-      </p>
     </div>
   );
 }

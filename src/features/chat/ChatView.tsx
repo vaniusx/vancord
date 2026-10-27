@@ -1,15 +1,26 @@
-import { Hash, PanelRight, Users } from "lucide-react";
+import { Hash, Search, Users } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import { Avatar } from "@/components/common/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAppStore } from "@/features/app/app-store";
 import { TypingIndicator } from "@/features/chat/TypingIndicator";
 import { useChannel, useDmPartner } from "@/features/dm/use-dms";
-import { DetailContent } from "@/features/members/DetailsPanel";
+import { MemberList } from "@/features/members/MemberList";
 import { Composer } from "@/features/messages/Composer";
 import { MessageList } from "@/features/messages/MessageList";
 import {
@@ -17,7 +28,11 @@ import {
   useOlderMessages,
 } from "@/features/messages/use-messages";
 import { useLiveStatus } from "@/features/realtime/realtime";
-import { useMarkRead, useMembers, useServer } from "@/features/servers/use-servers";
+import {
+  useMarkRead,
+  useMembers,
+  useServer,
+} from "@/features/servers/use-servers";
 import { StatusDot } from "@/features/shell/presence";
 import { cn } from "@/lib/utils";
 
@@ -30,13 +45,14 @@ export function ChatView({ channelId }: { channelId: string }) {
   const messages = useMessages(channelId);
   const older = useOlderMessages(channelId);
   const markRead = useMarkRead();
-  const detailsOpen = useAppStore((state) => state.detailsOpen);
-  const toggleDetails = useAppStore((state) => state.toggleDetails);
+  const membersOpen = useAppStore((state) => state.membersOpen);
+  const setMembersOpen = useAppStore((state) => state.setMembersOpen);
+  const toggleMembers = useAppStore((state) => state.toggleMembers);
   const setActiveChannelId = useAppStore((state) => state.setActiveChannelId);
 
   const isDm = channel?.type === "dm";
   const { data: partner } = useDmPartner(channelId, Boolean(isDm));
-  const liveStatus = useLiveStatus(
+  const partnerStatus = useLiveStatus(
     partner?.id ?? "",
     partner?.status ?? "offline",
   );
@@ -64,9 +80,9 @@ export function ChatView({ channelId }: { channelId: string }) {
 
   if (channelLoading) {
     return (
-      <section className="flex min-w-0 flex-1 flex-col">
-        <div className="flex h-14 items-center gap-3 border-b border-border px-5">
-          <Skeleton className="size-8 rounded-lg" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-[52px] items-center gap-3 border-b border-border/60 px-4">
+          <Skeleton className="size-7 rounded-lg" />
           <Skeleton className="h-4 w-40" />
         </div>
         <div className="flex-1 space-y-4 p-5">
@@ -80,103 +96,122 @@ export function ChatView({ channelId }: { channelId: string }) {
             </div>
           ))}
         </div>
-      </section>
+      </div>
     );
   }
 
   if (!channel) {
     return (
-      <section className="flex min-w-0 flex-1 items-center justify-center text-sm text-muted-foreground">
+      <div className="flex min-w-0 flex-1 items-center justify-center text-[13.5px] text-muted-foreground">
         {t("chat.channelNotFound")}
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="flex min-w-0 flex-1">
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
-          {isDm && partner ? (
-            <div className="relative">
-              <Avatar profile={partner} size="sm" />
-              <StatusDot
-                status={liveStatus}
-                className="absolute -right-0.5 -bottom-0.5 size-2.5"
-              />
-            </div>
-          ) : (
-            <div className="flex size-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-              <Hash className="size-4" />
-            </div>
-          )}
-
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[14px] font-semibold">
-              {isDm ? title : `#${title}`}
-            </h1>
-            <p className="truncate text-[11px] text-muted-foreground">
-              {isDm
-                ? `@${partner?.username ?? ""}`
-                : channel.topic || t("chat.noTopic")}
-            </p>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-border/60 px-4">
+        {isDm && partner ? (
+          <div className="relative">
+            <Avatar profile={partner} size="sm" />
+            <StatusDot
+              status={partnerStatus}
+              className="absolute -right-0.5 -bottom-0.5 size-2.5"
+            />
           </div>
+        ) : (
+          <div className="flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+            <Hash className="size-4" />
+          </div>
+        )}
 
-          {!isDm ? (
-            <span className="hidden items-center gap-1.5 text-[11px] text-muted-foreground sm:flex">
-              <Users className="size-3.5" />
-              {members.data?.length ?? 0}
-            </span>
-          ) : null}
-
-          {!isDm ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={t("sidebar.members")}
-              onClick={toggleDetails}
-              className={cn(
-                "size-8 text-muted-foreground",
-                detailsOpen && "bg-accent text-foreground",
-              )}
-            >
-              <PanelRight className="size-4" />
-            </Button>
-          ) : null}
-        </header>
-
-        <MessageList
-          messages={messages.data?.messages ?? []}
-          hasMore={messages.data?.hasMore ?? false}
-          loadingOlder={older.isPending}
-          onLoadOlder={() => {
-            const first = messages.data?.messages[0];
-            if (first) older.mutate(first.created_at);
-          }}
-          canManage={isAdmin}
-          ready={messages.isSuccess}
-        />
-
-        <TypingIndicator channelId={channelId} />
-
-        <Composer
-          channelId={channelId}
-          placeholder={
-            isDm
-              ? t("chat.placeholderDm", { name: title })
-              : t("chat.placeholder", { channel: title })
-          }
-        />
-      </div>
-
-      {!isDm && detailsOpen ? (
-        <div className="hidden w-[280px] shrink-0 border-l border-border bg-sidebar/40 xl:block">
-          <DetailContent
-            serverName={server?.name}
-            channel={channel}
-            members={members.data ?? []}
-          />
+        <div className="flex min-w-0 flex-1 items-baseline gap-2.5">
+          <h1 className="truncate text-[14.5px] font-semibold">
+            {title}
+          </h1>
+          <p className="hidden truncate text-[12.5px] text-muted-foreground md:block">
+            {isDm
+              ? `@${partner?.username ?? ""}`
+              : channel.topic || t("chat.noTopic")}
+          </p>
         </div>
+
+        <div className="flex items-center gap-0.5">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("palette.title")}
+                className="size-8 text-muted-foreground"
+                onClick={() => useAppStore.getState().setPaletteOpen(true)}
+              >
+                <Search className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("palette.title")}</TooltipContent>
+          </Tooltip>
+
+          {!isDm ? (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("sidebar.members")}
+                    onClick={toggleMembers}
+                    className={cn(
+                      "size-8 text-muted-foreground",
+                      membersOpen && "bg-accent text-foreground",
+                    )}
+                  >
+                    <Users className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t("sidebar.members")}</TooltipContent>
+              </Tooltip>
+            </>
+          ) : null}
+        </div>
+      </header>
+
+      <MessageList
+        messages={messages.data?.messages ?? []}
+        hasMore={messages.data?.hasMore ?? false}
+        loadingOlder={older.isPending}
+        onLoadOlder={() => {
+          const first = messages.data?.messages[0];
+          if (first) older.mutate(first.created_at);
+        }}
+        canManage={isAdmin}
+        ready={messages.isSuccess}
+      />
+
+      <TypingIndicator channelId={channelId} />
+
+      <Composer
+        channelId={channelId}
+        placeholder={
+          isDm
+            ? t("chat.placeholderDm", { name: title })
+            : t("chat.placeholder", { channel: title })
+        }
+      />
+
+      {!isDm ? (
+        <Sheet open={membersOpen} onOpenChange={setMembersOpen}>
+          <SheetContent
+            side="right"
+            className="w-[300px] max-w-[300px] gap-0 border-l border-border/60 bg-sidebar p-0 data-[side=right]:w-[300px] data-[side=right]:sm:max-w-[300px]"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>{t("sidebar.members")}</SheetTitle>
+            </SheetHeader>
+            <MemberList members={members.data ?? []} />
+          </SheetContent>
+        </Sheet>
       ) : null}
-    </section>
+    </div>
   );
 }

@@ -20,7 +20,9 @@
     "addServer": "Create server",
     "joinServer": "Join with invite",
     "explore": "Explore",
-    "settings": "Settings"
+    "settings": "Settings",
+    "servers": "Servers",
+    "profile": "Profile"
   },
   "status": {
     "online": "Online",
@@ -86,7 +88,8 @@
       "invalid": "That invite code is invalid.",
       "expired": "That invite has expired.",
       "exhausted": "That invite has reached its usage limit."
-    }
+    },
+    "inviteFromSidebar": "Invite from the server menu"
   },
   "chat": {
     "placeholder": "Message #{{channel}}",
@@ -110,7 +113,8 @@
     "attach": "Attach a file",
     "emoji": "Emoji",
     "send": "Send",
-    "fileTooLarge": "That file is too large. Maximum size is 5 MB."
+    "fileTooLarge": "That file is too large. Maximum size is 5 MB.",
+    "dropToAttach": "Drop to attach"
   },
   "dm": {
     "title": "Direct messages",
@@ -252,6 +256,7 @@
     "search": "Search",
     "connected": "Connected",
     "reconnecting": "Reconnecting",
-    "unknownUser": "Unknown user"
+    "unknownUser": "Unknown user",
+    "offlineBanner": "No connection. Trying to reconnect."
   }
 }

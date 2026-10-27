@@ -1,13 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/instrument-sans";
 @import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   --font-heading: var(--font-sans);
   --font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Code", Consolas, monospace;
 
@@ -48,138 +49,137 @@
   --color-rail-foreground: var(--rail-foreground);
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
-  --color-brand-accent: var(--brand-accent);
+  --color-signal: var(--signal);
 
   --color-status-online: var(--status-online);
   --color-status-idle: var(--status-idle);
   --color-status-dnd: var(--status-dnd);
   --color-status-offline: var(--status-offline);
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-xl: calc(var(--radius) * 1.35);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light theme — #F8FAFC canvas, white surfaces */
+/* Warm stone paper, one petrol accent. No gradients except the logo. */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.6875rem;
 
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #fbfaf8;
+  --foreground: #1b1a17;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #1b1a17;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #4f46e5;
+  --popover-foreground: #1b1a17;
+  --primary: #1f5f52;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #eef2ff;
-  --accent-foreground: #312e81;
-  --destructive: #dc2626;
+  --secondary: #f1efea;
+  --secondary-foreground: #2d2b26;
+  --muted: #f1efea;
+  --muted-foreground: #736e65;
+  --accent: #edf1ee;
+  --accent-foreground: #1f3a33;
+  --destructive: #b03a2e;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6366f1;
+  --border: #e2ded6;
+  --input: #dbd6cd;
+  --ring: #1f5f52;
 
-  --chart-1: #6366f1;
-  --chart-2: #8b5cf6;
-  --chart-3: #22c55e;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
+  --chart-1: #1f5f52;
+  --chart-2: #4a8b7c;
+  --chart-3: #b0552f;
+  --chart-4: #8a7a55;
+  --chart-5: #5e6b7a;
 
-  --sidebar: #f1f5f9;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #4f46e5;
+  --sidebar: #f4f2ee;
+  --sidebar-foreground: #2d2b26;
+  --sidebar-primary: #1f5f52;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e2e8f0;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #e7e4dd;
+  --sidebar-accent-foreground: #1b1a17;
+  --sidebar-border: #e2ded6;
+  --sidebar-ring: #1f5f52;
 
-  --rail: #e9eef5;
-  --rail-foreground: #334155;
-  --brand: #6366f1;
-  --brand-strong: #4f46e5;
-  --brand-accent: #8b5cf6;
+  --rail: #efece7;
+  --rail-foreground: #736e65;
+  --brand: #1f5f52;
+  --brand-strong: #184b41;
+  --signal: #b0552f;
 
-  --status-online: #22c55e;
-  --status-idle: #f59e0b;
-  --status-dnd: #ef4444;
-  --status-offline: #6b7280;
+  --status-online: #3f8f5f;
+  --status-idle: #c08a2e;
+  --status-dnd: #b03a2e;
+  --status-offline: #a19c93;
 }
 
-/* Dark theme — #111827 canvas, layered surfaces */
 .dark {
-  --background: #111827;
-  --foreground: #f9fafb;
-  --card: #1a2333;
-  --card-foreground: #f9fafb;
-  --popover: #1f2937;
-  --popover-foreground: #f9fafb;
-  --primary: #4f46e5;
+  --background: #1a1a18;
+  --foreground: #f1efe9;
+  --card: #212120;
+  --card-foreground: #f1efe9;
+  --popover: #262624;
+  --popover-foreground: #f1efe9;
+  --primary: #2e7f6e;
   --primary-foreground: #ffffff;
-  --secondary: #1f2937;
-  --secondary-foreground: #f9fafb;
-  --muted: #1f2937;
-  --muted-foreground: #94a3b8;
-  --accent: #232f42;
-  --accent-foreground: #f9fafb;
-  --destructive: #ef4444;
+  --secondary: #2a2a26;
+  --secondary-foreground: #e9e6df;
+  --muted: #2a2a26;
+  --muted-foreground: #a6a29a;
+  --accent: #2c322e;
+  --accent-foreground: #dcece5;
+  --destructive: #d05a4a;
   --destructive-foreground: #ffffff;
-  --border: #263244;
-  --input: #2b3849;
-  --ring: #6366f1;
+  --border: #34342f;
+  --input: #3d3d37;
+  --ring: #6fbda8;
 
-  --chart-1: #6366f1;
-  --chart-2: #8b5cf6;
-  --chart-3: #22c55e;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
+  --chart-1: #6fbda8;
+  --chart-2: #4a8b7c;
+  --chart-3: #d08a63;
+  --chart-4: #b9a67f;
+  --chart-5: #93a2b3;
 
-  --sidebar: #131c2b;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f9fafb;
-  --sidebar-border: #223046;
-  --sidebar-ring: #6366f1;
+  --sidebar: #1f1f1d;
+  --sidebar-foreground: #e4e1da;
+  --sidebar-primary: #6fbda8;
+  --sidebar-primary-foreground: #14211d;
+  --sidebar-accent: #2b2b27;
+  --sidebar-accent-foreground: #f1efe9;
+  --sidebar-border: #30302b;
+  --sidebar-ring: #6fbda8;
 
-  --rail: #0b1120;
-  --rail-foreground: #94a3b8;
-  --brand: #6366f1;
-  --brand-strong: #4f46e5;
-  --brand-accent: #8b5cf6;
+  --rail: #171715;
+  --rail-foreground: #a6a29a;
+  --brand: #6fbda8;
+  --brand-strong: #2e7f6e;
+  --signal: #d08a63;
 
-  --status-online: #22c55e;
-  --status-idle: #f59e0b;
-  --status-dnd: #ef4444;
-  --status-offline: #6b7280;
+  --status-online: #57b07a;
+  --status-idle: #d3a04a;
+  --status-dnd: #d05a4a;
+  --status-offline: #6f6b64;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   html {
     @apply font-sans antialiased;
+    font-size: 16px;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: "ss01", "cv01";
     overscroll-behavior: none;
   }
 
-  /* Desktop shell: no browser text selection or native drag on chrome */
   body,
   button,
   [role="button"] {
@@ -195,7 +195,7 @@
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--brand) 32%, transparent);
+    background: color-mix(in oklab, var(--brand) 26%, transparent);
   }
 
   :focus-visible {
@@ -203,10 +203,9 @@
     outline-offset: 2px;
   }
 
-  /* Thin, unobtrusive scrollbars */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 30%, transparent) transparent;
   }
 
   ::-webkit-scrollbar {
@@ -219,31 +218,22 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--muted-foreground) 30%, transparent);
-    border: 2px solid transparent;
+    background: color-mix(in oklab, var(--muted-foreground) 26%, transparent);
+    border: 3px solid transparent;
     border-radius: 9999px;
     background-clip: content-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+    background: color-mix(in oklab, var(--muted-foreground) 42%, transparent);
     background-clip: content-box;
   }
 }
 
 @layer utilities {
-  .app-drag {
-    -webkit-app-region: drag;
-    app-region: drag;
-  }
-
   .app-no-drag {
     -webkit-app-region: no-drag;
     app-region: no-drag;
-  }
-
-  .brand-gradient {
-    background-image: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
   }
 
   .scrollbar-none {
@@ -253,29 +243,21 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
-/* Chat message body */
+/* Message body */
 .chat-markdown {
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: color-mix(in oklab, var(--foreground) 92%, transparent);
+  font-size: 15px;
+  line-height: 1.62;
+  color: color-mix(in oklab, var(--foreground) 93%, transparent);
   overflow-wrap: anywhere;
 }
 
@@ -288,69 +270,63 @@
 }
 
 .chat-markdown p {
-  margin: 0.15rem 0;
+  margin: 0.2rem 0;
 }
 
 .chat-markdown a {
   color: var(--brand);
   text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 .chat-markdown a:hover {
-  color: var(--brand-accent);
+  color: var(--brand-strong);
 }
 
 .chat-markdown strong {
-  font-weight: 650;
+  font-weight: 620;
   color: var(--foreground);
 }
 
-.chat-markdown em {
-  font-style: italic;
-}
-
 .chat-markdown del {
-  opacity: 0.65;
+  opacity: 0.6;
 }
 
 .chat-markdown code {
   font-family: var(--font-mono);
-  font-size: 0.86em;
-  padding: 0.1rem 0.32rem;
+  font-size: 0.85em;
+  padding: 0.12rem 0.34rem;
   border-radius: 5px;
-  background: color-mix(in oklab, var(--muted-foreground) 16%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  background: color-mix(in oklab, var(--muted-foreground) 15%, transparent);
 }
 
 .chat-markdown pre {
-  margin: 0.35rem 0;
-  padding: 0.6rem 0.75rem;
+  margin: 0.45rem 0;
+  padding: 0.7rem 0.85rem;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--background) 70%, #000 12%);
+  background: color-mix(in oklab, var(--background) 64%, #000 22%);
   overflow-x: auto;
 }
 
 .chat-markdown pre code {
   padding: 0;
-  border: 0;
   background: transparent;
   font-size: 12.5px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .chat-markdown blockquote {
-  margin: 0.35rem 0;
-  padding-left: 0.7rem;
-  border-left: 3px solid color-mix(in oklab, var(--brand) 60%, transparent);
+  margin: 0.4rem 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid color-mix(in oklab, var(--brand) 55%, transparent);
   color: var(--muted-foreground);
 }
 
 .chat-markdown ul,
 .chat-markdown ol {
-  margin: 0.25rem 0;
-  padding-left: 1.2rem;
+  margin: 0.3rem 0;
+  padding-left: 1.15rem;
 }
 
 .chat-markdown ul {
@@ -361,32 +337,23 @@
   list-style: decimal;
 }
 
-.chat-markdown table {
-  margin: 0.4rem 0;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.chat-markdown th,
-.chat-markdown td {
-  border: 1px solid var(--border);
-  padding: 0.25rem 0.5rem;
-  text-align: left;
-}
-
 .chat-markdown img {
   max-width: 100%;
   border-radius: 10px;
 }
 
-.chat-markdown hr {
-  margin: 0.5rem 0;
-  border-color: var(--border);
-}
-
-/* Emoji mart surface */
 em-emoji-picker {
   --border-radius: 12px;
-  --category-icon-size: 16px;
+  --category-icon-size: 15px;
   --font-family: var(--font-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

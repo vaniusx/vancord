@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BrandMark } from "@/components/common/brand-mark";
 import { supabase } from "@/lib/supabase";
 
 type FieldErrors = Partial<Record<string, string>>;
@@ -318,13 +319,10 @@ export function AuthPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <div className="relative hidden flex-1 flex-col justify-between overflow-hidden p-10 text-white lg:flex">
-        <div className="brand-gradient absolute inset-0" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.22),transparent_55%)]" />
+      <div className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-primary p-10 text-primary-foreground lg:flex">
+        <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:22px_22px]" />
         <div className="relative flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-white/15 text-lg font-bold backdrop-blur">
-            V
-          </div>
+          <BrandMark size={34} tone="inverse" />
           <span className="text-lg font-semibold tracking-tight">
             {t("app.name")}
           </span>
@@ -336,7 +334,7 @@ export function AuthPage() {
         <p className="relative text-xs text-white/60">{t("app.tagline")}</p>
       </div>
 
-      <div className="flex w-full flex-col items-center justify-center px-6 py-10 lg:w-[480px]">
+      <div className="flex w-full flex-col items-center justify-center px-6 py-10 lg:w-[460px]">
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-1 text-center lg:text-left">
             <h2 className="text-xl font-semibold tracking-tight">

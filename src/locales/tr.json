@@ -20,7 +20,9 @@
     "addServer": "Sunucu oluştur",
     "joinServer": "Davetle katıl",
     "explore": "Keşfet",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "servers": "Sunucular",
+    "profile": "Profil"
   },
   "status": {
     "online": "Çevrimiçi",
@@ -86,7 +88,8 @@
       "invalid": "Bu davet kodu geçersiz.",
       "expired": "Bu davetin süresi dolmuş.",
       "exhausted": "Bu davet kodunun kullanım limiti dolmuş."
-    }
+    },
+    "inviteFromSidebar": "Davet, sunucu menüsünden"
   },
   "chat": {
     "placeholder": "{{channel}} kanalına mesaj gönder",
@@ -110,7 +113,8 @@
     "attach": "Dosya ekle",
     "emoji": "Emoji",
     "send": "Gönder",
-    "fileTooLarge": "Dosya çok büyük. En fazla 5 MB yükleyebilirsin."
+    "fileTooLarge": "Dosya çok büyük. En fazla 5 MB yükleyebilirsin.",
+    "dropToAttach": "Bırak, dosya eklensin"
   },
   "dm": {
     "title": "Doğrudan mesajlar",
@@ -252,6 +256,7 @@
     "search": "Ara",
     "connected": "Bağlı",
     "reconnecting": "Yeniden bağlanıyor",
-    "unknownUser": "Bilinmeyen kullanıcı"
+    "unknownUser": "Bilinmeyen kullanıcı",
+    "offlineBanner": "Bağlantı yok. Yeniden bağlanmayı deniyoruz."
   }
 }
