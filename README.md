@@ -4,20 +4,27 @@ A small, calm desktop chat app for a closed group of friends. Built with Tauri 2
 Supabase. There is no server to keep running: the client talks straight to Supabase and row level
 security is the only trust boundary.
 
-**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** Ã¢â‚¬â€ Windows
+**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Windows
 installer (NSIS or MSI). Updates are signed and install in place.
 
 ## Features
 
 - Email/password accounts with a provisioned profile, personal server and starter channel
+- Eight badges (founder, team, beta supporter, early beta developer, bug hunter,
+  active member, moderator, verified bot) shown on profile cards and member rows
+- Profile cards open from any name or avatar with bio, badges, banner and
+  "now playing"; Steam titles are detected locally and can be hidden
+- Floating-panel shell with six palettes and a per-server accent colour
 - Servers with icon, banner, description, invite codes and owner/admin/member roles
-- Text channels with markdown, GIFs, reactions, image attachments and inline editing
+- Text channels with markdown, 48 built-in stickers, reactions, image and GIF
+  attachments (animation preserved), inline editing and jumbo emoji
 - Voice channels with camera and screen sharing (LiveKit)
 - Live message updates, typing indicators and presence over Supabase Realtime
 - Direct messages, but only in the messages view; servers stay focused on channels
 - Six colour palettes with dark and light mode, switchable from settings
 - Profile customisation: avatar, banner, bio, status and accent
 - Desktop notifications, system tray, window state, autostart and signed auto-updates
+- Windows and Android from one codebase; the APK ships on every release
 - Turkish and English UI
 
 ## Optional integrations
@@ -57,7 +64,7 @@ dashboard SQL editor, or `supabase db push`.
 
 ### Required Supabase settings
 
-- Authentication Ã¢â€ â€™ Sign In / Providers Ã¢â€ â€™ Email: turn **Confirm email** off while developing,
+- Authentication ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Sign In / Providers ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Email: turn **Confirm email** off while developing,
   otherwise sign-up returns no session until the address is verified.
 - Storage buckets `avatars` and `attachments` are created by the migration, together with their
   policies.
@@ -124,3 +131,38 @@ src/
 src-tauri/      Rust shell, tray, capabilities, updater config
 supabase/       SQL migrations
 ```
+
+## Bot platform
+
+Bots receive signed webhook events and act through a small REST API. The SDK lives
+in `packages/vancord.js` with two runnable examples.
+
+1. Settings â†’ Developer â†’ **New bot**, enter an HTTPS webhook and pick permissions.
+2. Run **Test**: eleven checks execute server-side (HTTPS, SSRF guard, signature
+   echo, envelope, latency, duplicate delivery, credential-in-URL, malformed
+   payload, declared permissions, reachability, redirect target).
+3. Tier 1 and 2 permission sets are approved on a passing run; tier 3
+   (`members.moderate`, `channels.manage`) waits for the founder's review.
+4. Install the bot in a server you administer.
+
+Events are delivered by `bot-dispatch`, which verifies an internal HMAC before
+signing the payload with a per-bot secret. A token is 41+ characters, stored only
+as a SHA-256 hash with a queryable prefix, and shown once.
+
+## Moderation
+
+Every server gets an automatic `#mod-log` channel. `server_automod` blocks invite
+links, banned words, mention floods and message floods at the database level, so
+the rule applies even if a client is out of date. Moderators also get timeout,
+kick and ban actions from the member list.
+
+## Android
+
+`pnpm tauri android build --apk --target aarch64` produces a signed APK. Signing
+reads `VANCORD_ANDROID_KEYSTORE`, `VANCORD_ANDROID_KEYSTORE_PASSWORD`,
+`VANCORD_ANDROID_KEY_ALIAS` and `VANCORD_ANDROID_KEY_PASSWORD` from the
+environment, so no keystore or password is committed. CI restores the keystore
+from `ANDROID_KEYSTORE_BASE64` and attaches the APK to the release.
+
+Screen sharing stays desktop-only: Android WebView does not implement
+`getDisplayMedia`. Microphone and camera work on both.
