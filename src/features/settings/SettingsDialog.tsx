@@ -80,9 +80,9 @@ function ProfileSection() {
     if (!file) return;
     setBusy("avatar");
     try {
-      const path = await uploadAvatar(profile.id, file);
+      const { path, animated } = await uploadAvatar(profile.id, file);
       updateProfile.mutate(
-        { avatar_url: publicUrl("avatars", path) },
+        { avatar_url: publicUrl("avatars", path), animated_avatar: animated },
         { onSuccess: () => toast.success(t("settings.profile.avatarUpdated")) },
       );
     } catch {
@@ -96,7 +96,7 @@ function ProfileSection() {
     if (!file) return;
     setBusy("banner");
     try {
-      const path = await uploadBanner(profile.id, file);
+      const { path } = await uploadBanner(profile.id, file);
       updateProfile.mutate(
         { banner_url: publicUrl("banners", path) },
         { onSuccess: () => toast.success(t("settings.profile.bannerUpdated")) },

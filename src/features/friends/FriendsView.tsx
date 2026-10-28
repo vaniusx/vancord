@@ -173,7 +173,7 @@ export function FriendsView() {
   };
 
   return (
-    <section className="flex min-w-0 flex-1 flex-col bg-background">
+    <section className="flex min-w-0 flex-1 flex-col">
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
         <div className="flex size-8 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
           <UserPlus className="size-4" />

@@ -71,6 +71,10 @@
 
 :root {
   --radius: 0.6875rem;
+  /* The window behind the floating panels: a shade deeper than the cards so the
+     panels read as separate surfaces in both light and dark. Derived from the
+     palette, so every theme inherits it automatically. */
+  --stage: color-mix(in oklab, var(--background) 82%, var(--foreground) 18%);
 
   --background: #fbfaf8;
   --foreground: #1b1a17;
@@ -119,7 +123,7 @@
   --status-offline: #a19c93;
 }
 
-/* Graphite â€” cool neutral, navy accent */
+/* Graphite ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â cool neutral, navy accent */
 [data-theme="graphite"] {
   --background: #f7f8fa;
   --foreground: #16181c;
@@ -156,7 +160,7 @@
   --status-offline: #a1a7b0;
 }
 
-/* Olive â€” warm paper, olive accent */
+/* Olive ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â warm paper, olive accent */
 [data-theme="olive"] {
   --background: #faf8f3;
   --foreground: #1e1c17;
@@ -193,7 +197,7 @@
   --status-offline: #a29a8c;
 }
 
-/* Ember â€” dark-first warm, ember accent */
+/* Ember ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dark-first warm, ember accent */
 [data-theme="ember"] {
   --background: #fbf7f4;
   --foreground: #1c1815;
@@ -230,7 +234,7 @@
   --status-offline: #a89b91;
 }
 
-/* Rose â€” soft neutral, plum accent */
+/* Rose ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soft neutral, plum accent */
 [data-theme="rose"] {
   --background: #fcf9fa;
   --foreground: #1d181b;
@@ -267,7 +271,7 @@
   --status-offline: #ab9aa1;
 }
 
-/* Mint â€” airy neutral, deep teal accent */
+/* Mint ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â airy neutral, deep teal accent */
 [data-theme="mint"] {
   --background: #f7faf9;
   --foreground: #141a19;
@@ -305,6 +309,7 @@
 }
 
 .dark {
+  --stage: color-mix(in oklab, var(--background) 68%, #000 32%);
   --background: #1a1a18;
   --foreground: #f1efe9;
   --card: #212120;
@@ -600,6 +605,45 @@
 }
 
 @layer utilities {
+  /* Floating panel language: the window is a tinted stage and each region is a
+     card resting on it. Nothing is flush to the window edge. */
+  .panel {
+    border-radius: var(--radius-xl);
+    border: 1px solid color-mix(in oklab, var(--border) 82%, transparent);
+    background-color: var(--card);
+    box-shadow:
+      0 1px 2px color-mix(in oklab, #000 6%, transparent),
+      0 8px 24px -18px color-mix(in oklab, #000 45%, transparent);
+  }
+
+  .panel-quiet {
+    border-radius: var(--radius-lg);
+    background-color: color-mix(in oklab, var(--card) 62%, transparent);
+    border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  }
+
+  .stage {
+    background-color: var(--stage);
+    background-image:
+      radial-gradient(
+        circle at 0% 0%,
+        color-mix(in oklab, var(--server-accent, var(--brand)) 7%, transparent),
+        transparent 42%
+      );
+  }
+
+  .accent-bar {
+    background-image: linear-gradient(
+      180deg,
+      var(--server-accent, var(--brand)) 0%,
+      color-mix(in oklab, var(--server-accent, var(--brand)) 55%, transparent) 100%
+    );
+  }
+
+  .no-drag {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
   .app-no-drag {
     -webkit-app-region: no-drag;
     app-region: no-drag;
@@ -725,4 +769,51 @@ em-emoji-picker {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Sticker motion. Kept short and gentle so a busy channel never feels jittery. */
+@keyframes sticker-pop-kf {
+  0% { transform: scale(0.86); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+@keyframes sticker-bounce-kf {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes sticker-wobble-kf {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes sticker-pulse-kf {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes sticker-float-kf {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(2px); }
+}
+@keyframes sticker-shake-kf {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.sticker-pop { animation: sticker-pop-kf 320ms ease-out; }
+.sticker-bounce { animation: sticker-bounce-kf 2.4s ease-in-out infinite; }
+.sticker-wobble { animation: sticker-wobble-kf 2.8s ease-in-out infinite; }
+.sticker-pulse { animation: sticker-pulse-kf 2.2s ease-in-out infinite; }
+.sticker-float { animation: sticker-float-kf 3.2s ease-in-out infinite; }
+.sticker-shake { animation: sticker-shake-kf 2.6s ease-in-out infinite; }
+
+.sticker-glyph {
+  line-height: 1;
+  font-size: inherit;
+}
+
+/* Jumbo emoji: an emoji-only message renders large, like a reaction card. */
+.jumbo-emoji {
+  font-size: 36px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
 }

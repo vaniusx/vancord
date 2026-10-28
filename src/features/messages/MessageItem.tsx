@@ -27,6 +27,8 @@ import {
   useEditMessage,
   useToggleReaction,
 } from "@/features/messages/use-messages";
+import { isJumboEmoji, parseSticker } from "@/features/stickers/catalog";
+import { StickerMessage } from "@/features/stickers/Sticker";
 import { QUICK_REACTIONS } from "@/lib/emoji";
 import { accentFor, clockTime, fullTime, initials } from "@/lib/format";
 import type { AttachmentRow, MessageRow } from "@/lib/models";
@@ -169,6 +171,7 @@ export function MessageItem({
   const editMessage = useEditMessage();
   const deleteMessage = useDeleteMessage();
 
+  const sticker = parseSticker(message.content);
   const author = message.author ?? {
     id: message.author_id,
     username: "unknown",
@@ -275,8 +278,12 @@ export function MessageItem({
             ) : (
               <>
                 {message.content ? (
-                  GIF_URL.test(message.content.trim()) ? (
+                  sticker ? (
+                    <StickerMessage sticker={sticker} />
+                  ) : GIF_URL.test(message.content.trim()) ? (
                     <GifEmbed url={message.content.trim()} />
+                  ) : isJumboEmoji(message.content) ? (
+                    <p className="jumbo-emoji select-text">{message.content.trim()}</p>
                   ) : (
                     <Markdown content={message.content} />
                   )

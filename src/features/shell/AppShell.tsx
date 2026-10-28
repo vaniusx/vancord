@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { WifiOff } from "lucide-react";
 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useAppStore } from "@/features/app/app-store";
 import { useDms } from "@/features/dm/use-dms";
 import { RealtimeProvider } from "@/features/realtime/realtime";
@@ -20,13 +27,14 @@ import {
   useUnreadCounts,
 } from "@/features/servers/use-servers";
 import { SettingsDialog } from "@/features/settings/SettingsDialog";
+import { ChannelPanel, type SidebarMode } from "@/features/shell/ChannelPanel";
 import { CommandPalette } from "@/features/shell/CommandPalette";
+import { MobileNav } from "@/features/shell/MobileNav";
 import { ServerRail } from "@/features/shell/ServerRail";
-import { Sidebar } from "@/features/shell/Sidebar";
 import { TitleBar } from "@/features/shell/TitleBar";
 import { VoiceBar } from "@/features/voice/VoiceBar";
-import { WifiOff } from "lucide-react";
 import { isTauri } from "@/lib/tauri";
+import { accentFor } from "@/lib/format";
 
 type DialogName =
   | "createServer"
@@ -74,6 +82,8 @@ function useTrayEvents() {
 function useShortcuts() {
   const setPaletteOpen = useAppStore((state) => state.setPaletteOpen);
   const openSettings = useAppStore((state) => state.openSettings);
+  const toggleChannels = useAppStore((state) => state.toggleChannels);
+  const toggleMembers = useAppStore((state) => state.toggleMembers);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -86,10 +96,18 @@ function useShortcuts() {
         event.preventDefault();
         openSettings("profile");
       }
+      if (mod && event.key.toLowerCase() === "b") {
+        event.preventDefault();
+        toggleChannels();
+      }
+      if (mod && event.shiftKey && event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        toggleMembers();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [setPaletteOpen, openSettings]);
+  }, [setPaletteOpen, openSettings, toggleChannels, toggleMembers]);
 }
 
 function useOnline() {
@@ -132,13 +150,18 @@ function ShellLayout() {
     location.pathname.match(/^\/s\/[^/]+\/([^/]+)/) ??
     location.pathname.match(/^\/dm\/([^/]+)/);
   const activeChannelId = channelMatch?.[1];
-  const sidebarMode: "friends" | "server" | "dm" = activeServerId
+
+  const sidebarMode: SidebarMode = activeServerId
     ? "server"
     : location.pathname.startsWith("/dm/")
       ? "dm"
       : "friends";
 
   const [dialog, setDialog] = useState<DialogName>(null);
+  const [mobileChannels, setMobileChannels] = useState(false);
+
+  const channelsOpen = useAppStore((state) => state.channelsOpen);
+  const setChannelsOpen = useAppStore((state) => state.setChannelsOpen);
 
   const unreadByServer: Record<string, boolean> = {};
   if (unread && allChannels) {
@@ -151,22 +174,43 @@ function ShellLayout() {
   const channels = (allChannels ?? []).filter(
     (channel) => channel.server_id === activeServerId,
   );
+  const unreadDm = (dms ?? []).some((dm) => (unread?.[dm.id] ?? 0) > 0);
 
   const canManage =
     activeServer?.role === "owner" || activeServer?.role === "admin";
 
+  const accent = activeServer?.accent_color || accentFor(activeServer?.id ?? "home");
+
+  const panelProps = {
+    activeServer,
+    channels: activeServer ? channels : [],
+    activeChannelId,
+    unread: unread ?? {},
+    dms: dms ?? [],
+    mode: sidebarMode,
+    onInvite: () => setDialog("invite"),
+    onServerSettings: () => setDialog("serverSettings"),
+    onCreateChannel: () => setDialog("createChannel"),
+    onLeaveServer: () => setDialog("serverSettings"),
+    onDeleteServer: () => setDialog("serverSettings"),
+    onClose: () => setChannelsOpen(false),
+  };
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
+    <div
+      className="stage flex h-screen flex-col overflow-hidden text-foreground"
+      style={{ ["--server-accent" as string]: accent }}
+    >
       <TitleBar />
 
       {!online ? (
-        <div className="flex items-center justify-center gap-2 bg-destructive/10 px-4 py-1.5 text-[12.5px] text-destructive">
+        <div className="mx-2 mb-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-1.5 text-[12px] text-destructive">
           <WifiOff className="size-3.5" />
           {t("common.offlineBanner")}
         </div>
       ) : null}
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 gap-2 px-2 pt-1 pb-2">
         <ServerRail
           servers={servers ?? []}
           activeServerId={activeServerId}
@@ -177,27 +221,47 @@ function ShellLayout() {
           onSettings={() => useAppStore.getState().openSettings("appearance")}
         />
 
-        <Sidebar
-          activeServer={activeServer}
-          channels={activeServer ? channels : []}
-          activeChannelId={activeChannelId}
-          unread={unread ?? {}}
-          dms={dms ?? []}
-          mode={sidebarMode}
-          onInvite={() => setDialog("invite")}
-          onServerSettings={() => setDialog("serverSettings")}
-          onCreateChannel={() => setDialog("createChannel")}
-          onLeaveServer={() => setDialog("serverSettings")}
-          onDeleteServer={() => setDialog("serverSettings")}
-        />
+        {channelsOpen ? (
+          <div className="hidden md:flex">
+            <ChannelPanel {...panelProps} />
+          </div>
+        ) : null}
 
-        <main className="flex min-w-0 flex-1 flex-col">
-          <div className="flex min-h-0 flex-1">
+        <main className="panel flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-1 flex-col">
             <Outlet />
           </div>
           <VoiceBar />
         </main>
       </div>
+
+      <MobileNav
+        servers={servers ?? []}
+        activeServerId={activeServerId}
+        unreadByServer={unreadByServer}
+        unreadDm={unreadDm}
+        onSelectServer={(serverId) => navigate(`/s/${serverId}`)}
+        onAddServer={() => setDialog("createServer")}
+        onJoinServer={() => setDialog("joinServer")}
+        onOpenChannels={() => setMobileChannels(true)}
+      />
+
+      <Sheet open={mobileChannels} onOpenChange={setMobileChannels}>
+        <SheetContent
+          side="left"
+          className="w-[286px] max-w-[86vw] border-none bg-transparent p-0 shadow-none"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>{t("sidebar.channels")}</SheetTitle>
+          </SheetHeader>
+          <div className="h-full p-2">
+            <ChannelPanel
+              {...panelProps}
+              onClose={() => setMobileChannels(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <CreateServerDialog
         open={dialog === "createServer"}

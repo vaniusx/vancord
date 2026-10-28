@@ -314,5 +314,9 @@
     "search": "GIF ara",
     "empty": "GIF bulunamadı",
     "notConfigured": "GIF aramak için VITE_GIPHY_API_KEY gerekli."
+  },
+  "stickers": {
+    "title": "Sticker",
+    "count": "sticker"
   }
 }

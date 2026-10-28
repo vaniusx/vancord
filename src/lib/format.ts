@@ -18,8 +18,8 @@ export function clockTime(value: string | Date) {
 
 export function dayLabel(value: string | Date) {
   const date = new Date(value);
-  if (isToday(date)) return currentLocale === "tr" ? "Bugün" : "Today";
-  if (isYesterday(date)) return currentLocale === "tr" ? "Dün" : "Yesterday";
+  if (isToday(date)) return currentLocale === "tr" ? "BugÃ¼n" : "Today";
+  if (isYesterday(date)) return currentLocale === "tr" ? "DÃ¼n" : "Yesterday";
   return format(date, "d MMMM yyyy", { locale: locale() });
 }
 
@@ -41,24 +41,7 @@ export function initials(name: string) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-const ACCENTS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#ec4899",
-  "#0ea5e9",
-  "#14b8a6",
-  "#f59e0b",
-  "#ef4444",
-  "#84cc16",
-];
-
-export function accentFor(id: string) {
-  let hash = 0;
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) % 100000;
-  }
-  return ACCENTS[hash % ACCENTS.length];
-}
+export { accentFor, ACCENT_OPTIONS } from "@/lib/accents";
 
 export function canGroup(previousAt: string, nextAt: string) {
   return new Date(nextAt).getTime() - new Date(previousAt).getTime() < 5 * 60_000;

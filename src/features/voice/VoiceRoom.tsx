@@ -17,7 +17,7 @@ export function VoiceRoom({ channelId, channelName }: { channelId: string; chann
 
   if (!isHere) {
     return (
-      <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4 bg-background p-8 text-center">
+      <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
         <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Mic className="size-6" />
         </div>
@@ -37,7 +37,7 @@ export function VoiceRoom({ channelId, channelName }: { channelId: string; chann
   }
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col bg-background">
+    <div className="flex min-w-0 flex-1 flex-col">
       <header className="flex h-[52px] shrink-0 items-center gap-3 border-b border-border/60 px-4">
         <div className="flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
           <Mic className="size-4" />
@@ -48,7 +48,7 @@ export function VoiceRoom({ channelId, channelName }: { channelId: string; chann
             {connecting
               ? t("voice.connecting")
               : connected
-                ? `${t("voice.connected")} Â· ${participants.length}`
+                ? `${t("voice.connected")} Ã‚Â· ${participants.length}`
                 : t("common.error")}
           </p>
         </div>

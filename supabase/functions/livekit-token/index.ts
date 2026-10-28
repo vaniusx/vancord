@@ -20,9 +20,25 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
-  const url = Deno.env.get("LIVEKIT_URL");
-  const apiKey = Deno.env.get("LIVEKIT_API_KEY");
-  const apiSecret = Deno.env.get("LIVEKIT_API_SECRET");
+  // Secrets live in the private schema and are only reachable with the
+  // service role key that Supabase injects into every function.
+  const admin = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}")["default"] ??
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      "",
+  );
+
+  const readSecret = async (key: string) => {
+    const { data } = await admin.rpc("get_integration_secret", { secret_key: key });
+    return typeof data === "string" && data.length > 0 ? data : undefined;
+  };
+
+  const [url, apiKey, apiSecret] = await Promise.all([
+    readSecret("livekit_url"),
+    readSecret("livekit_api_key"),
+    readSecret("livekit_api_secret"),
+  ]);
 
   if (!url || !apiKey || !apiSecret) {
     return json({ error: "livekit_not_configured" }, 503);

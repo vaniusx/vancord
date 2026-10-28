@@ -14,6 +14,27 @@ export interface ProfileSummary {
   bio?: string | null;
   banner_color?: string | null;
   banner_url?: string | null;
+  animated_avatar?: boolean;
+  activity?: ActivityState | null;
+  activity_visible?: boolean;
+}
+
+export interface ActivityState {
+  type: "game";
+  name: string;
+  appId?: number;
+  startedAt: string;
+}
+
+export interface BadgeRow {
+  id: string;
+  name_tr: string;
+  name_en: string;
+  description_tr: string;
+  description_en: string;
+  color: string;
+  icon: string;
+  sort: number;
 }
 
 export interface ServerSummary {
@@ -22,6 +43,7 @@ export interface ServerSummary {
   icon_url: string | null;
   description: string | null;
   banner_url: string | null;
+  accent_color: string | null;
   owner_id: string;
   role: ServerRole;
 }

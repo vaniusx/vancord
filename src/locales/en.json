@@ -314,5 +314,9 @@
     "search": "Search GIFs",
     "empty": "No GIFs found",
     "notConfigured": "Set VITE_GIPHY_API_KEY to search GIFs."
+  },
+  "stickers": {
+    "title": "Stickers",
+    "count": "stickers"
   }
 }

@@ -89,7 +89,7 @@ export function TitleBar() {
   return (
     <header
       data-tauri-drag-region
-      className="relative z-40 flex h-10 shrink-0 items-center border-b border-border/60 bg-background select-none"
+      className="relative z-40 flex h-10 shrink-0 items-center bg-transparent select-none"
     >
       <div className="flex items-center gap-2 pl-3">
         <BrandMark size={18} />

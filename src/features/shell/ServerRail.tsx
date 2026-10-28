@@ -22,13 +22,17 @@ function RailButton({
   active,
   onClick,
   unread,
+  accent,
   children,
+  className,
 }: {
   label: string;
   active?: boolean;
   onClick?: () => void;
   unread?: boolean;
+  accent?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Tooltip>
@@ -39,15 +43,20 @@ function RailButton({
           aria-label={label}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "relative flex size-10 items-center justify-center overflow-hidden rounded-[13px] text-[13px] font-semibold transition-colors duration-150",
+            "group relative flex size-10 shrink-0 items-center justify-center rounded-[13px] text-[13px] font-semibold transition-all duration-150",
             active
-              ? "bg-primary text-primary-foreground"
-              : "bg-card/80 text-muted-foreground hover:bg-card hover:text-foreground dark:bg-white/[0.06] dark:hover:bg-white/[0.11]",
+              ? "text-white shadow-sm"
+              : "text-muted-foreground hover:bg-card hover:text-foreground",
+            className,
           )}
+          style={active && accent ? { backgroundColor: accent } : undefined}
         >
           {children}
           {unread && !active ? (
-            <span className="absolute right-1 bottom-1 size-1.5 rounded-full bg-signal" />
+            <span
+              className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full ring-2 ring-background"
+              style={{ backgroundColor: accent ?? "var(--signal)" }}
+            />
           ) : null}
         </button>
       </TooltipTrigger>
@@ -82,42 +91,52 @@ export function ServerRail({
   return (
     <nav
       aria-label={t("rail.servers")}
-      className="flex w-14 shrink-0 flex-col items-center gap-1.5 border-r border-sidebar-border/60 bg-rail py-3"
+      className="hidden w-14 shrink-0 flex-col items-center gap-1.5 py-1 md:flex"
     >
       <RailButton
         label={t("rail.home")}
         active={activeServerId === null}
         onClick={() => navigate("/")}
+        className={activeServerId === null ? "bg-primary text-primary-foreground" : undefined}
       >
         <MessageCircle className="size-[18px]" />
       </RailButton>
 
-      <div className="my-1 h-px w-6 shrink-0 bg-sidebar-border" />
+      <div className="my-1 h-px w-6 shrink-0 bg-border/70" />
 
       <div className="scrollbar-none flex w-full flex-1 flex-col items-center gap-1.5 overflow-y-auto">
-        {servers.map((server) => (
-          <RailButton
-            key={server.id}
-            label={server.name}
-            active={activeServerId === server.id}
-            unread={unreadByServer[server.id]}
-            onClick={() => onSelectServer(server.id)}
-          >
-            {server.icon_url ? (
-              <img src={server.icon_url} alt="" className="size-full object-cover" />
-            ) : (
-              <span
-                style={
-                  activeServerId === server.id
-                    ? undefined
-                    : { color: accentFor(server.id) }
-                }
-              >
-                {initials(server.name)}
-              </span>
-            )}
-          </RailButton>
-        ))}
+        {servers.map((server) => {
+          const accent = server.accent_color || accentFor(server.id);
+          return (
+            <RailButton
+              key={server.id}
+              label={server.name}
+              active={activeServerId === server.id}
+              accent={accent}
+              unread={unreadByServer[server.id]}
+              onClick={() => onSelectServer(server.id)}
+            >
+              {server.icon_url ? (
+                <img
+                  src={server.icon_url}
+                  alt=""
+                  className="size-full rounded-[13px] object-cover"
+                />
+              ) : (
+                <span
+                  className="flex size-full items-center justify-center rounded-[13px]"
+                  style={
+                    activeServerId === server.id
+                      ? undefined
+                      : { backgroundColor: `color-mix(in oklab, ${accent} 14%, transparent)`, color: accent }
+                  }
+                >
+                  {initials(server.name)}
+                </span>
+              )}
+            </RailButton>
+          );
+        })}
 
         <RailButton label={t("rail.addServer")} onClick={onAddServer}>
           <Plus className="size-[18px]" />
@@ -145,10 +164,7 @@ export function ServerRail({
               ) : (
                 <BrandMark size={28} />
               )}
-              <StatusDot
-                status={status}
-                className="absolute -right-0.5 -bottom-0.5 size-2.5"
-              />
+              <StatusDot status={status} className="absolute -right-0.5 -bottom-0.5 size-2.5" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">

@@ -23,7 +23,7 @@ export function useServers() {
       const supabase = requireSupabase();
       const { data, error } = await supabase
         .from("server_members")
-        .select("role, joined_at, servers!inner(id, name, icon_url, description, banner_url, owner_id)")
+        .select("role, joined_at, servers!inner(id, name, icon_url, description, banner_url, accent_color, owner_id)")
         .eq("user_id", user!.id)
         .order("joined_at", { ascending: true });
 
@@ -37,6 +37,7 @@ export function useServers() {
             icon_url: string | null;
             description: string | null;
             banner_url: string | null;
+            accent_color: string | null;
             owner_id: string;
           } | null;
           if (!server) return null;
@@ -46,6 +47,7 @@ export function useServers() {
             icon_url: server.icon_url,
             description: server.description,
             banner_url: server.banner_url,
+            accent_color: server.accent_color,
             owner_id: server.owner_id,
             role: row.role as ServerSummary["role"],
           } satisfies ServerSummary;
@@ -77,7 +79,7 @@ export function useCreateServer() {
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
     onError: () => {
-      toast.error("Sunucu oluÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€¦Ã‚Â¸turulamadÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±.");
+      toast.error("Sunucu oluÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸turulamadÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±.");
     },
   });
 }
@@ -98,7 +100,7 @@ export function useJoinServer() {
       await queryClient.invalidateQueries({ queryKey: ["servers"] });
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
       await queryClient.invalidateQueries({ queryKey: ["members"] });
-      toast.success("Sunucuya katÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±ldÃƒÆ’Ã¢â‚¬ÂÃƒâ€šÃ‚Â±n.");
+      toast.success("Sunucuya katÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±ldÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±n.");
     },
   });
 }

@@ -12,6 +12,9 @@ interface AppState {
   membersOpen: boolean;
   setMembersOpen: (open: boolean) => void;
   toggleMembers: () => void;
+  channelsOpen: boolean;
+  setChannelsOpen: (open: boolean) => void;
+  toggleChannels: () => void;
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
   settingsOpen: boolean;
@@ -37,6 +40,9 @@ export const useAppStore = create<AppState>()(
       membersOpen: false,
       setMembersOpen: (membersOpen) => set({ membersOpen }),
       toggleMembers: () => set((state) => ({ membersOpen: !state.membersOpen })),
+      channelsOpen: true,
+      setChannelsOpen: (channelsOpen) => set({ channelsOpen }),
+      toggleChannels: () => set((state) => ({ channelsOpen: !state.channelsOpen })),
       paletteOpen: false,
       setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
       settingsOpen: false,
@@ -77,6 +83,7 @@ export const useAppStore = create<AppState>()(
       name: "vancord.app",
       partialize: (state) => ({
         membersOpen: state.membersOpen,
+        channelsOpen: state.channelsOpen,
         notificationsEnabled: state.notificationsEnabled,
         lastServerId: state.lastServerId,
       }),

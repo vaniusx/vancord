@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { Avatar } from "@/components/common/avatar";
-import {
-  Collapsible,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +17,11 @@ import { useAppStore } from "@/features/app/app-store";
 import { useLiveStatus } from "@/features/realtime/realtime";
 import { StatusDot } from "@/features/shell/presence";
 import { UserCard } from "@/features/shell/UserCard";
-import type { ChannelRow, DmChannel, ServerSummary } from "@/lib/models";
 import { accentFor, initials } from "@/lib/format";
+import type { ChannelRow, DmChannel, ServerSummary } from "@/lib/models";
 import { cn } from "@/lib/utils";
+
+export type SidebarMode = "friends" | "server" | "dm";
 
 function SectionLabel({
   open,
@@ -40,7 +39,7 @@ function SectionLabel({
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-1 text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+        className="flex items-center gap-1 text-[10.5px] font-semibold tracking-[0.08em] text-muted-foreground uppercase transition-colors hover:text-foreground"
       >
         <ChevronDown
           className={cn("size-3 transition-transform duration-150", !open && "-rotate-90")}
@@ -52,18 +51,21 @@ function SectionLabel({
   );
 }
 
-function ChannelRowButton({
+function ChannelButton({
   channel,
   active,
   unread,
+  accent,
   onClick,
 }: {
   channel: ChannelRow;
   active: boolean;
   unread: number;
+  accent: string;
   onClick: () => void;
 }) {
   const isVoice = channel.type === "voice";
+  const Icon = isVoice ? Volume2 : Hash;
 
   return (
     <button
@@ -71,25 +73,25 @@ function ChannelRowButton({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-[14px] transition-colors",
+        "group relative flex h-9 w-full items-center gap-2 rounded-full px-3 text-left text-[13.5px] transition-colors",
         active
-          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+          ? "font-medium text-white"
           : unread > 0
-            ? "font-medium text-sidebar-foreground hover:bg-sidebar-accent/60"
-            : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+            ? "font-medium text-foreground hover:bg-accent/60"
+            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
       )}
+      style={active ? { backgroundColor: accent } : undefined}
     >
-      {active ? (
-        <span className="absolute top-1.5 bottom-1.5 -left-2 w-[2px] rounded-full bg-primary" />
-      ) : null}
-      {isVoice ? (
-        <Volume2 className="size-4 shrink-0 opacity-60" />
-      ) : (
-        <Hash className="size-4 shrink-0 opacity-60" />
-      )}
+      <Icon className={cn("size-4 shrink-0", active ? "opacity-90" : "opacity-60")} />
       <span className="truncate">{channel.name}</span>
-      {unread > 0 && !isVoice ? (
-        <span className="ml-auto rounded-full bg-signal/15 px-1.5 text-[11px] font-semibold text-signal tabular-nums">
+      {unread > 0 && !active && !isVoice ? (
+        <span
+          className="ml-auto rounded-full px-1.5 text-[10.5px] font-semibold tabular-nums"
+          style={{
+            backgroundColor: `color-mix(in oklab, ${accent} 18%, transparent)`,
+            color: accent,
+          }}
+        >
           {unread > 99 ? "99+" : unread}
         </span>
       ) : null}
@@ -101,10 +103,12 @@ function DmRow({
   dm,
   active,
   unread,
+  accent,
 }: {
   dm: DmChannel;
   active: boolean;
   unread: number;
+  accent: string;
 }) {
   const navigate = useNavigate();
   const other = dm.members[0];
@@ -117,10 +121,8 @@ function DmRow({
       type="button"
       onClick={() => navigate(`/dm/${dm.id}`)}
       className={cn(
-        "relative flex h-11 w-full items-center gap-2.5 rounded-lg px-2.5 text-left transition-colors",
-        active
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/60",
+        "flex h-11 w-full items-center gap-2.5 rounded-xl px-2.5 text-left transition-colors",
+        active ? "bg-accent" : "hover:bg-accent/60",
       )}
     >
       <div className="relative">
@@ -128,33 +130,37 @@ function DmRow({
         <StatusDot status={status} className="absolute -right-0.5 -bottom-0.5 size-2.5" />
       </div>
       <div className="min-w-0 flex-1 leading-tight">
-        <p className="truncate text-[14px] font-medium">{other.display_name}</p>
-        <p className="truncate text-[12px] text-muted-foreground">
+        <p className="truncate text-[13.5px] font-medium">{other.display_name}</p>
+        <p className="truncate text-[11.5px] text-muted-foreground">
           {other.custom_status || `@${other.username}`}
         </p>
       </div>
       {unread > 0 && !active ? (
-        <span className="size-2 shrink-0 rounded-full bg-signal" />
+        <span
+          className="size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: accent }}
+        />
       ) : null}
     </button>
   );
 }
 
-interface SidebarProps {
+interface ChannelPanelProps {
   activeServer: ServerSummary | undefined;
   channels: ChannelRow[];
   activeChannelId: string | undefined;
   unread: Record<string, number>;
   dms: DmChannel[];
-  mode: "friends" | "server" | "dm";
+  mode: SidebarMode;
   onInvite: () => void;
   onServerSettings: () => void;
   onCreateChannel: () => void;
   onLeaveServer: () => void;
   onDeleteServer: () => void;
+  onClose: () => void;
 }
 
-export function Sidebar({
+export function ChannelPanel({
   activeServer,
   channels,
   activeChannelId,
@@ -166,34 +172,35 @@ export function Sidebar({
   onCreateChannel,
   onLeaveServer,
   onDeleteServer,
-}: SidebarProps) {
+  onClose,
+}: ChannelPanelProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const setPaletteOpen = useAppStore((state) => state.setPaletteOpen);
   const [channelsOpen, setChannelsOpen] = useState(true);
   const [dmsOpen, setDmsOpen] = useState(true);
 
+  const accent = activeServer?.accent_color || accentFor(activeServer?.id ?? "home");
   const isAdmin = activeServer?.role === "owner" || activeServer?.role === "admin";
   const isOwner = activeServer?.role === "owner";
 
   const textChannels = channels.filter((channel) => channel.type === "text");
   const voiceChannels = channels.filter((channel) => channel.type === "voice");
-
   const showDms = mode !== "server";
 
   return (
-    <aside className="flex w-[272px] shrink-0 flex-col border-r border-sidebar-border/60 bg-sidebar text-sidebar-foreground">
-      <div className="flex h-[52px] shrink-0 items-center gap-2 px-2.5">
+    <aside className="panel flex h-full w-[262px] shrink-0 flex-col overflow-hidden">
+      <div className="flex h-[54px] shrink-0 items-center gap-2 px-2.5">
         {mode === "server" && activeServer ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1.5 py-1 text-left transition-colors hover:bg-sidebar-accent/70"
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-1.5 py-1.5 text-left transition-colors hover:bg-accent/60"
               >
                 <div
                   className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-[8px] text-[11px] font-semibold text-white"
-                  style={{ backgroundColor: accentFor(activeServer.id) }}
+                  style={{ backgroundColor: accent }}
                 >
                   {activeServer.icon_url ? (
                     <img src={activeServer.icon_url} alt="" className="size-full object-cover" />
@@ -241,17 +248,26 @@ export function Sidebar({
             </span>
           </div>
         )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("common.close")}
+          className="flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <ChevronDown className="size-4 rotate-90" />
+        </button>
       </div>
 
       <div className="px-2.5 pb-2">
         <button
           type="button"
           onClick={() => setPaletteOpen(true)}
-          className="flex h-8 w-full items-center gap-2 rounded-lg bg-background/70 px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-background dark:bg-black/20 dark:hover:bg-black/30"
+          className="flex h-8 w-full items-center gap-2 rounded-xl bg-background/70 px-2.5 text-[12.5px] text-muted-foreground transition-colors hover:bg-background dark:bg-black/20 dark:hover:bg-black/30"
         >
           <Search className="size-3.5" />
           <span>{t("palette.trigger")}</span>
-          <kbd className="ml-auto font-sans text-[10.5px] tracking-wide opacity-70">Ctrl K</kbd>
+          <kbd className="ml-auto font-sans text-[10px] tracking-wide opacity-70">Ctrl K</kbd>
         </button>
       </div>
 
@@ -269,7 +285,7 @@ export function Sidebar({
                         type="button"
                         onClick={onCreateChannel}
                         aria-label={t("sidebar.createChannel")}
-                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                       >
                         <Plus className="size-3.5" />
                       </button>
@@ -280,16 +296,17 @@ export function Sidebar({
                 </SectionLabel>
                 <CollapsibleContent className="space-y-0.5">
                   {textChannels.map((channel) => (
-                    <ChannelRowButton
+                    <ChannelButton
                       key={channel.id}
                       channel={channel}
                       active={channel.id === activeChannelId}
                       unread={unread[channel.id] ?? 0}
+                      accent={accent}
                       onClick={() => navigate(`/s/${activeServer.id}/${channel.id}`)}
                     />
                   ))}
                   {textChannels.length === 0 ? (
-                    <p className="px-2.5 py-1.5 text-[13px] text-muted-foreground">
+                    <p className="px-3 py-1.5 text-[12.5px] text-muted-foreground">
                       {t("sidebar.noChannels")}
                     </p>
                   ) : null}
@@ -303,11 +320,12 @@ export function Sidebar({
                   </SectionLabel>
                   <div className="space-y-0.5">
                     {voiceChannels.map((channel) => (
-                      <ChannelRowButton
+                      <ChannelButton
                         key={channel.id}
                         channel={channel}
                         active={channel.id === activeChannelId}
                         unread={0}
+                        accent={accent}
                         onClick={() => navigate(`/s/${activeServer.id}/${channel.id}`)}
                       />
                     ))}
@@ -327,7 +345,7 @@ export function Sidebar({
                     type="button"
                     onClick={() => navigate("/")}
                     aria-label={t("friends.title")}
-                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     <Users className="size-3.5" />
                   </button>
@@ -339,7 +357,7 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={() => navigate("/")}
-                  className="flex h-9 w-full items-center gap-2 rounded-lg px-2.5 text-[14px] text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                  className="flex h-9 w-full items-center gap-2 rounded-xl px-3 text-[13.5px] text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
                 >
                   <Users className="size-4 opacity-60" />
                   {t("friends.title")}
@@ -350,10 +368,11 @@ export function Sidebar({
                     dm={dm}
                     active={dm.id === activeChannelId}
                     unread={unread[dm.id] ?? 0}
+                    accent={accent}
                   />
                 ))}
                 {dms.length === 0 ? (
-                  <p className="px-2.5 py-1.5 text-[13px] text-muted-foreground">
+                  <p className="px-3 py-1.5 text-[12.5px] text-muted-foreground">
                     {t("dm.empty")}
                   </p>
                 ) : null}
