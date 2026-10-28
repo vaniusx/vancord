@@ -1,3 +1,5 @@
+mod games;
+
 use tauri::{
     Emitter, Manager, WindowEvent,
     menu::{Menu, MenuItem, PredefinedMenuItem},
@@ -15,14 +17,14 @@ fn focus_main_window(app: &tauri::AppHandle) {
 }
 
 fn build_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, "open", "Vancord'u AÃ§", true, None::<&str>)?;
+    let open = MenuItem::with_id(app, "open", "Vancord'u AÃƒÂ§", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Ayarlar", true, None::<&str>)?;
-    let status_online = MenuItem::with_id(app, "status:online", "Ã‡evrimiÃ§i", true, None::<&str>)?;
-    let status_idle = MenuItem::with_id(app, "status:idle", "BoÅŸta", true, None::<&str>)?;
-    let status_dnd = MenuItem::with_id(app, "status:dnd", "RahatsÄ±z Etme", true, None::<&str>)?;
+    let status_online = MenuItem::with_id(app, "status:online", "Ãƒâ€¡evrimiÃƒÂ§i", true, None::<&str>)?;
+    let status_idle = MenuItem::with_id(app, "status:idle", "BoÃ…Å¸ta", true, None::<&str>)?;
+    let status_dnd = MenuItem::with_id(app, "status:dnd", "RahatsÃ„Â±z Etme", true, None::<&str>)?;
     let status_invisible =
-        MenuItem::with_id(app, "status:invisible", "GÃ¶rÃ¼nmez", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Ã‡Ä±kÄ±ÅŸ", true, None::<&str>)?;
+        MenuItem::with_id(app, "status:invisible", "GÃƒÂ¶rÃƒÂ¼nmez", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Ãƒâ€¡Ã„Â±kÃ„Â±Ã…Å¸", true, None::<&str>)?;
     let separator_top = PredefinedMenuItem::separator(app)?;
     let separator_bottom = PredefinedMenuItem::separator(app)?;
 
@@ -105,6 +107,11 @@ pub fn run() {
                 let _ = window.hide();
             }
         })
+        .invoke_handler(tauri::generate_handler![
+            games::detect_running_game,
+            games::detect_running_games,
+            games::steam_library
+        ])
         .run(tauri::generate_context!())
         .expect("error while running Vancord");
 }

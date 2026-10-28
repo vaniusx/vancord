@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/features/auth/auth-store";
 import { useProfileCache } from "@/features/profiles/profile-cache";
 import type {
   AttachmentRow,
+  BotSummary,
   MessageRow,
   ProfileSummary,
   ReactionRow,
@@ -14,10 +15,11 @@ import type { UploadResult } from "@/lib/upload";
 const PAGE_SIZE = 40;
 
 const MESSAGE_SELECT = `
-  id, channel_id, author_id, content, created_at, edited_at,
+  id, channel_id, author_id, bot_id, content, created_at, edited_at,
   author:profiles!messages_author_profile_fkey(
     id, username, display_name, avatar_url, accent_color, status, custom_status
   ),
+  bot:bots(id, name, avatar_url),
   message_attachments(id, message_id, storage_path, mime, width, height, size_bytes),
   reactions(message_id, user_id, emoji)
 `;
@@ -25,15 +27,18 @@ const MESSAGE_SELECT = `
 export const messagesKey = (channelId: string | undefined) =>
   ["messages", channelId] as const;
 
-type RawMessage = Omit<MessageRow, "author"> & {
+type RawMessage = Omit<MessageRow, "author" | "bot"> & {
   author: ProfileSummary | ProfileSummary[] | null;
+  bot: BotSummary | BotSummary[] | null;
 };
 
 function normalize(row: RawMessage): MessageRow {
   const author = Array.isArray(row.author) ? row.author[0] : row.author;
+  const bot = Array.isArray(row.bot) ? row.bot[0] : row.bot;
   return {
     ...row,
     author: author ?? null,
+    bot: bot ?? null,
     message_attachments: (row.message_attachments ?? []) as AttachmentRow[],
     reactions: (row.reactions ?? []) as ReactionRow[],
   };

@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 export type SettingsSection =
   | "profile"
   | "appearance"
+  | "activity"
   | "notifications"
   | "language"
   | "about";
@@ -27,6 +28,10 @@ interface AppState {
   setLastServerId: (serverId: string | null) => void;
   notificationsEnabled: boolean;
   setNotificationsEnabled: (enabled: boolean) => void;
+  gameDetection: boolean;
+  setGameDetection: (enabled: boolean) => void;
+  manualGame: string | null;
+  setManualGame: (game: string | null) => void;
   drafts: Record<string, string>;
   setDraft: (channelId: string, value: string) => void;
   clearDraft: (channelId: string) => void;
@@ -56,6 +61,10 @@ export const useAppStore = create<AppState>()(
       setLastServerId: (lastServerId) => set({ lastServerId }),
       notificationsEnabled: true,
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
+      gameDetection: true,
+      setGameDetection: (gameDetection) => set({ gameDetection }),
+      manualGame: null,
+      setManualGame: (manualGame) => set({ manualGame }),
       drafts: {},
       setDraft: (channelId, value) =>
         set((state) => ({ drafts: { ...state.drafts, [channelId]: value } })),
@@ -85,6 +94,8 @@ export const useAppStore = create<AppState>()(
         membersOpen: state.membersOpen,
         channelsOpen: state.channelsOpen,
         notificationsEnabled: state.notificationsEnabled,
+        gameDetection: state.gameDetection,
+        manualGame: state.manualGame,
         lastServerId: state.lastServerId,
       }),
     },

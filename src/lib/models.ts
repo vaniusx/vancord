@@ -80,14 +80,22 @@ export interface ReactionRow {
   emoji: string;
 }
 
+export interface BotSummary {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+}
+
 export interface MessageRow {
   id: string;
   channel_id: string;
-  author_id: string;
+  author_id: string | null;
+  bot_id: string | null;
   content: string;
   created_at: string;
   edited_at: string | null;
   author: ProfileSummary | null;
+  bot: BotSummary | null;
   message_attachments: AttachmentRow[];
   reactions: ReactionRow[];
 }

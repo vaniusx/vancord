@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useGameActivity } from "@/features/activity/use-activity";
 import { useAppStore } from "@/features/app/app-store";
 import { useDms } from "@/features/dm/use-dms";
 import { RealtimeProvider } from "@/features/realtime/realtime";
@@ -159,6 +160,14 @@ function ShellLayout() {
 
   const [dialog, setDialog] = useState<DialogName>(null);
   const [mobileChannels, setMobileChannels] = useState(false);
+
+  const gameDetection = useAppStore((state) => state.gameDetection);
+  const manualGame = useAppStore((state) => state.manualGame);
+  useGameActivity({
+    enabled: gameDetection,
+    manual: manualGame,
+    visible: true,
+  });
 
   const channelsOpen = useAppStore((state) => state.channelsOpen);
   const setChannelsOpen = useAppStore((state) => state.setChannelsOpen);

@@ -25,6 +25,8 @@ import { requestNotificationPermission } from "@/features/realtime/realtime";
 import { DEFAULT_LANGUAGE, isLanguage } from "@/lib/i18n";
 import { publicUrl } from "@/lib/supabase";
 import { uploadAvatar, uploadBanner } from "@/lib/upload";
+import { listSteamLibrary } from "@/features/activity/use-activity";
+import { DeveloperSection } from "@/features/bots/DeveloperSection";
 import { checkForUpdate } from "@/lib/updater";
 import { cn } from "@/lib/utils";
 
@@ -337,6 +339,114 @@ function AppearanceSection() {
   );
 }
 
+function ActivitySection() {
+  const { t } = useTranslation();
+  const { data: profile } = useProfile();
+  const updateProfile = useUpdateProfile();
+  const gameDetection = useAppStore((state) => state.gameDetection);
+  const setGameDetection = useAppStore((state) => state.setGameDetection);
+  const manualGame = useAppStore((state) => state.manualGame);
+  const setManualGame = useAppStore((state) => state.setManualGame);
+  const [manual, setManual] = useState(manualGame ?? "");
+  const [library, setLibrary] = useState<Array<{ appId: number; name: string }>>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    void listSteamLibrary().then((games) => {
+      setLibrary(games.slice(0, 60));
+      setLoading(false);
+    });
+  }, [profile?.id]);
+
+  if (!profile) return null;
+
+  const visible = profile.activity_visible ?? true;
+
+  const toggleVisible = (value: boolean) => {
+    updateProfile.mutate(
+      { activity_visible: value } as never,
+      { onError: () => toast.error(t("common.error")) },
+    );
+  };
+
+  const saveManual = () => {
+    const value = manual.trim();
+    setManualGame(value || null);
+    toast.success(value ? t("activity.manualSaved") : t("activity.manualCleared"));
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-start justify-between gap-4 rounded-xl border border-border p-4">
+        <div className="space-y-1">
+          <p className="text-[13px] font-semibold">{t("activity.visible")}</p>
+          <p className="text-[12px] leading-relaxed text-muted-foreground">
+            {t("activity.visibleHint")}
+          </p>
+        </div>
+        <Switch checked={visible} onCheckedChange={toggleVisible} />
+      </div>
+
+      <div className="flex items-start justify-between gap-4 rounded-xl border border-border p-4">
+        <div className="space-y-1">
+          <p className="text-[13px] font-semibold">{t("activity.detect")}</p>
+          <p className="text-[12px] leading-relaxed text-muted-foreground">
+            {t("activity.detectHint")}
+          </p>
+        </div>
+        <Switch checked={gameDetection} onCheckedChange={setGameDetection} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="manual-game">{t("activity.manual")}</Label>
+        <div className="flex gap-2">
+          <Input
+            id="manual-game"
+            value={manual}
+            maxLength={64}
+            placeholder={t("activity.manualPlaceholder")}
+            onChange={(event) => setManual(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") saveManual();
+            }}
+          />
+          <Button variant="outline" onClick={saveManual}>
+            {t("common.save")}
+          </Button>
+        </div>
+        <p className="text-[11.5px] text-muted-foreground">{t("activity.manualHint")}</p>
+      </div>
+
+      {library.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-[12px] font-semibold">{t("activity.library")}</p>
+          <div className="scrollbar-thin flex max-h-40 flex-wrap gap-1.5 overflow-y-auto">
+            {library.map((game) => (
+              <button
+                key={game.appId}
+                type="button"
+                onClick={() => {
+                  setManual(game.name);
+                  setManualGame(game.name);
+                  toast.success(t("activity.manualSaved"));
+                }}
+                className="rounded-full border border-border px-2.5 py-1 text-[11.5px] text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+              >
+                {game.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : loading ? (
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+          <Loader2 className="size-3.5 animate-spin" />
+          {t("common.loading")}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 function NotificationsSection() {
   const { t } = useTranslation();
   const enabled = useAppStore((state) => state.notificationsEnabled);
@@ -490,7 +600,7 @@ export function SettingsDialog() {
           <div className="border-b border-border px-4 pt-3">
             <TabsList className="flex w-full justify-start gap-1 bg-transparent p-0">
               {(
-                ["profile", "appearance", "notifications", "language", "about"] as const
+                ["profile", "appearance", "activity", "notifications", "language", "developer", "about"] as const
               ).map((value) => (
                 <TabsTrigger
                   key={value}
@@ -510,11 +620,17 @@ export function SettingsDialog() {
             <TabsContent value="appearance" className="m-0">
               <AppearanceSection />
             </TabsContent>
+            <TabsContent value="activity" className="m-0">
+              <ActivitySection />
+            </TabsContent>
             <TabsContent value="notifications" className="m-0">
               <NotificationsSection />
             </TabsContent>
             <TabsContent value="language" className="m-0">
               <LanguageSection />
+            </TabsContent>
+            <TabsContent value="developer" className="m-0">
+              <DeveloperSection />
             </TabsContent>
             <TabsContent value="about" className="m-0">
               <AboutSection />

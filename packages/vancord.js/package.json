@@ -1,0 +1,18 @@
+{
+  "name": "vancord.js",
+  "version": "0.1.0",
+  "description": "Official bot SDK for Vancord",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start:ping": "node examples/ping.js",
+    "start:moderation": "node examples/moderation.js"
+  }
+}

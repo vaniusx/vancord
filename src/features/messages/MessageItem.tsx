@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/features/auth/auth-store";
+import { ProfilePopover } from "@/features/profiles/ProfilePopover";
 import { EmojiPicker } from "@/features/messages/EmojiPicker";
 import {
   useDeleteMessage,
@@ -31,7 +32,7 @@ import { isJumboEmoji, parseSticker } from "@/features/stickers/catalog";
 import { StickerMessage } from "@/features/stickers/Sticker";
 import { QUICK_REACTIONS } from "@/lib/emoji";
 import { accentFor, clockTime, fullTime, initials } from "@/lib/format";
-import type { AttachmentRow, MessageRow } from "@/lib/models";
+import type { AttachmentRow, MessageRow, ProfileSummary } from "@/lib/models";
 import { publicUrl } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
@@ -162,7 +163,7 @@ export function MessageItem({
 }) {
   const { t } = useTranslation();
   const user = useCurrentUser();
-  const isMine = message.author_id === user?.id;
+  const isMine = message.author_id === user?.id && !message.bot_id;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(message.content);
   const [copied, setCopied] = useState(false);
@@ -172,12 +173,14 @@ export function MessageItem({
   const deleteMessage = useDeleteMessage();
 
   const sticker = parseSticker(message.content);
-  const author = message.author ?? {
-    id: message.author_id,
-    username: "unknown",
-    display_name: t("common.unknownUser"),
-    avatar_url: null,
-    accent_color: accentFor(message.author_id),
+  const isBot = Boolean(message.bot_id);
+
+  const author: ProfileSummary = message.author ?? {
+    id: message.author_id ?? message.bot_id ?? message.id,
+    username: message.bot?.name ?? "unknown",
+    display_name: message.bot?.name ?? t("common.unknownUser"),
+    avatar_url: message.bot?.avatar_url ?? null,
+    accent_color: accentFor(message.bot_id ?? message.id),
     status: "offline" as const,
     custom_status: null,
   };
@@ -221,17 +224,34 @@ export function MessageItem({
               <span className="mt-1 hidden text-[10px] text-muted-foreground group-hover:block">
                 {clockTime(message.created_at)}
               </span>
-            ) : (
+            ) : isBot ? (
               <Avatar profile={author} size="md" className="mt-0.5" />
+            ) : (
+              <ProfilePopover profile={author}>
+                <Avatar profile={author} size="md" className="mt-0.5" />
+              </ProfilePopover>
             )}
           </div>
 
           <div className="min-w-0 flex-1">
             {!grouped ? (
               <div className="mb-0.5 flex items-baseline gap-2">
-                <span className="text-[14px] font-semibold text-foreground">
-                  {author.display_name}
-                </span>
+                {isBot ? (
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-[14px] font-semibold text-foreground">
+                      {author.display_name}
+                    </span>
+                    <span className="rounded bg-primary/15 px-1 py-px text-[9.5px] font-bold tracking-wide text-primary uppercase">
+                      {t("bots.badge")}
+                    </span>
+                  </span>
+                ) : (
+                  <ProfilePopover profile={author}>
+                    <span className="text-[14px] font-semibold text-foreground hover:underline">
+                      {author.display_name}
+                    </span>
+                  </ProfilePopover>
+                )}
                 <span className="text-[11.5px] text-muted-foreground tabular-nums">
                   {clockTime(message.created_at)}
                 </span>
@@ -427,7 +447,7 @@ export function MessageMeta({ message }: { message: MessageRow }) {
   const author = message.author;
   return (
     <span title={fullTime(message.created_at)}>
-      {author?.display_name ?? initials(message.author_id)}
+      {author?.display_name ?? message.bot?.name ?? initials(message.author_id ?? message.id)}
     </span>
   );
 }

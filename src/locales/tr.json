@@ -170,7 +170,9 @@
       "appearance": "Görünüm",
       "notifications": "Bildirimler",
       "language": "Dil",
-      "about": "Hakkında"
+      "about": "Hakkında",
+      "activity": "Etkinlik",
+      "developer": "Geliştirici"
     },
     "profile": {
       "avatar": "Profil fotoğrafı",
@@ -318,5 +320,85 @@
   "stickers": {
     "title": "Sticker",
     "count": "sticker"
+  },
+  "profile": {
+    "nowPlaying": "şu an oynuyor",
+    "memberSince": "{{date}} tarihinden beri üye",
+    "message": "Mesaj",
+    "thisIsYou": "Bu sensin"
+  },
+  "activity": {
+    "visible": "Oyun durumumu göster",
+    "visibleHint": "Arkadaşların hangi oyunu oynadığını görsün. Kapatırsan kimse görmez.",
+    "detect": "Oyunları otomatik algıla",
+    "detectHint": "Çalışan Steam oyunlarını algılar. Sadece bu bilgisayarda çalışır.",
+    "manual": "Elle oyun seç",
+    "manualPlaceholder": "Örn. Counter-Strike 2",
+    "manualHint": "Algılama çalışmazsa buraya yazdığın oyun gösterilir.",
+    "manualSaved": "Oyun durumu güncellendi",
+    "manualCleared": "Oyun durumu kaldırıldı",
+    "library": "Steam kütüphanen"
+  },
+  "bots": {
+    "title": "Bot geliştirme",
+    "subtitle": "Kendi botunu yaz, test et ve sunucuna ekle.",
+    "new": "Yeni bot",
+    "createTitle": "Yeni bot",
+    "createBody": "Webhook adresin HTTPS olmalı. Token yalnızca bir kez gösterilir.",
+    "name": "Bot adı",
+    "webhook": "Webhook adresi",
+    "webhookHint": "Vancord olayları bu adrese imzalı POST olarak gönderir.",
+    "description": "Açıklama",
+    "create": "Oluştur",
+    "tokenTitle": "Bot tokenı",
+    "tokenOnce": "Bu token yalnızca bir kez gösterilir. Şimdi kopyala.",
+    "quickstart": "Hızlı başlangıç",
+    "runTest": "Test et",
+    "rotate": "Tokenı yenile",
+    "deleted": "Bot silindi",
+    "tier": "Kademe {{tier}}",
+    "risky": "yüksek risk",
+    "badge": "BOT",
+    "emptyTitle": "Henüz botun yok",
+    "emptyBody": "İlk botunu oluştur, testi geçince sunuculara eklenebilir.",
+    "docsHint": "SDK ve örnekler: packages/vancord.js",
+    "permissions": {
+      "title": "Yetkiler",
+      "messages.read": "mesajları oku",
+      "messages.write": "mesaj gönder",
+      "messages.manage": "mesajları yönet",
+      "reactions.write": "tepki ekle",
+      "members.read": "üyeleri gör",
+      "members.moderate": "sustur/at/banla",
+      "channels.read": "kanalları listele",
+      "channels.manage": "kanalları yönet"
+    },
+    "status": {
+      "draft": "Taslak",
+      "testing": "Test bekliyor",
+      "pending_review": "İncelemede",
+      "approved": "Onaylı",
+      "rejected": "Reddedildi",
+      "suspended": "Askıda"
+    },
+    "errors": {
+      "limit": "En fazla 5 bot oluşturabilirsin.",
+      "https": "Webhook HTTPS olmalı.",
+      "nameShort": "Bot adı en az 2 karakter olmalı."
+    },
+    "directory": {
+      "title": "Bot ekle",
+      "body": "Onaylı botları sunucuna ekleyebilirsin.",
+      "installed": "Kurulu",
+      "add": "Ekle",
+      "remove": "Kaldır",
+      "empty": "Henüz onaylı bot yok.",
+      "riskyWarning": "Bu bot yüksek riskli yetkiler istiyor."
+    },
+    "review": {
+      "title": "İnceleme bekleyen {{count}} bot",
+      "approve": "Onayla",
+      "approved": "Bot onaylandı"
+    }
   }
 }

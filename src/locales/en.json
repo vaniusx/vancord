@@ -170,7 +170,9 @@
       "appearance": "Appearance",
       "notifications": "Notifications",
       "language": "Language",
-      "about": "About"
+      "about": "About",
+      "activity": "Activity",
+      "developer": "Developer"
     },
     "profile": {
       "avatar": "Profile picture",
@@ -318,5 +320,85 @@
   "stickers": {
     "title": "Stickers",
     "count": "stickers"
+  },
+  "profile": {
+    "nowPlaying": "playing now",
+    "memberSince": "Member since {{date}}",
+    "message": "Message",
+    "thisIsYou": "This is you"
+  },
+  "activity": {
+    "visible": "Show my game status",
+    "visibleHint": "Friends can see what you are playing. Turn this off to hide it.",
+    "detect": "Detect games automatically",
+    "detectHint": "Detects running Steam games. Local to this computer only.",
+    "manual": "Pick a game manually",
+    "manualPlaceholder": "e.g. Counter-Strike 2",
+    "manualHint": "Shown when detection is unavailable.",
+    "manualSaved": "Game status updated",
+    "manualCleared": "Game status cleared",
+    "library": "Your Steam library"
+  },
+  "bots": {
+    "title": "Bot development",
+    "subtitle": "Build a bot, test it and install it in your server.",
+    "new": "New bot",
+    "createTitle": "New bot",
+    "createBody": "The webhook must use HTTPS. The token is shown once.",
+    "name": "Bot name",
+    "webhook": "Webhook URL",
+    "webhookHint": "Vancord posts signed events to this address.",
+    "description": "Description",
+    "create": "Create",
+    "tokenTitle": "Bot token",
+    "tokenOnce": "This token is shown once. Copy it now.",
+    "quickstart": "Quickstart",
+    "runTest": "Run test",
+    "rotate": "Rotate token",
+    "deleted": "Bot deleted",
+    "tier": "Tier {{tier}}",
+    "risky": "high risk",
+    "badge": "BOT",
+    "emptyTitle": "No bots yet",
+    "emptyBody": "Create your first bot; once it passes review it can be installed.",
+    "docsHint": "SDK and examples: packages/vancord.js",
+    "permissions": {
+      "title": "Permissions",
+      "messages.read": "read messages",
+      "messages.write": "send messages",
+      "messages.manage": "manage messages",
+      "reactions.write": "add reactions",
+      "members.read": "see members",
+      "members.moderate": "mute/kick/ban",
+      "channels.read": "list channels",
+      "channels.manage": "manage channels"
+    },
+    "status": {
+      "draft": "Draft",
+      "testing": "Awaiting test",
+      "pending_review": "In review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "suspended": "Suspended"
+    },
+    "errors": {
+      "limit": "You can own at most 5 bots.",
+      "https": "The webhook must use HTTPS.",
+      "nameShort": "Bot name needs at least 2 characters."
+    },
+    "directory": {
+      "title": "Add a bot",
+      "body": "Install approved bots into this server.",
+      "installed": "Installed",
+      "add": "Add",
+      "remove": "Remove",
+      "empty": "No approved bots yet.",
+      "riskyWarning": "This bot requests high risk permissions."
+    },
+    "review": {
+      "title": "{{count}} bot(s) awaiting review",
+      "approve": "Approve",
+      "approved": "Bot approved"
+    }
   }
 }
