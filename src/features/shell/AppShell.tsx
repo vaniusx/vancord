@@ -207,8 +207,11 @@ function ShellLayout() {
 
   return (
     <div
-      className="stage flex h-screen flex-col overflow-hidden text-foreground"
-      style={{ ["--server-accent" as string]: accent }}
+      className="stage flex h-[100dvh] flex-col overflow-hidden text-foreground"
+      style={{
+        ["--server-accent" as string]: accent,
+        paddingTop: "env(safe-area-inset-top)",
+      }}
     >
       <TitleBar />
 

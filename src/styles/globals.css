@@ -817,3 +817,23 @@ em-emoji-picker {
   line-height: 1.2;
   letter-spacing: 0.04em;
 }
+
+/* Touch targets. Android and iOS need 44px hit areas even when the visual is
+   smaller, and pinch-zoom is disabled elsewhere. */
+@media (pointer: coarse) {
+  .panel {
+    border-radius: 0;
+    border-width: 0;
+    box-shadow: none;
+  }
+
+  button,
+  [role="button"] {
+    min-height: 40px;
+  }
+
+  /* Keep text readable when the system font is scaled up. */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}

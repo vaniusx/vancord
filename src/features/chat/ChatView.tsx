@@ -208,7 +208,11 @@ export function ChatView({ channelId }: { channelId: string }) {
             <SheetHeader className="sr-only">
               <SheetTitle>{t("sidebar.members")}</SheetTitle>
             </SheetHeader>
-            <MemberList members={members.data ?? []} />
+            <MemberList
+              members={members.data ?? []}
+              serverId={serverId}
+              canModerate={server?.role === "owner" || server?.role === "admin"}
+            />
           </SheetContent>
         </Sheet>
       ) : null}

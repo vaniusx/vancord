@@ -400,5 +400,24 @@
       "approve": "Onayla",
       "approved": "Bot onaylandı"
     }
+  },
+  "moderation": {
+    "automod": "Otomatik moderasyon",
+    "automodHint": "Spam, davet linki ve yasaklı kelimeleri anında engeller.",
+    "maxMentions": "Maksimum mention",
+    "rateLimit": "10 sn içinde maksimum mesaj",
+    "blockInvites": "Davet linklerini engelle",
+    "bannedWords": "Yasaklı kelimeler",
+    "bannedWordsPlaceholder": "virgülle ayır",
+    "bannedWordsHint": "Virgülle ayrılmış liste. Boş bırakırsan kelime filtresi kapanır.",
+    "bans": "Yasaklı üyeler",
+    "unban": "Yasağı kaldır",
+    "timedOut": "{{duration}} susturuldu",
+    "kicked": "Üye atıldı",
+    "banned": "Üye yasaklandı",
+    "kick": "At",
+    "ban": "Yasakla",
+    "modLog": "Moderasyon kaydı",
+    "muted": "susturuldu"
   }
 }

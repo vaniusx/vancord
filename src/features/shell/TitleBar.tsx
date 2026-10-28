@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { isTauri } from "@/lib/tauri";
+import { isTauri, useIsMobile } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 
 async function windowAction(action: "minimize" | "toggleMaximize" | "close") {
@@ -85,11 +85,16 @@ function WindowButton({
 export function TitleBar() {
   const { t } = useTranslation();
   const maximized = useIsMaximized();
+  const mobile = useIsMobile();
+
+  // Android and iOS draw their own status bar; a fake window chrome would only
+  // waste vertical space.
+  if (mobile) return null;
 
   return (
     <header
       data-tauri-drag-region
-      className="relative z-40 flex h-10 shrink-0 items-center bg-transparent select-none"
+      className="relative z-40 flex h-10 shrink-0 items-center bg-transparent pt-[env(safe-area-inset-top)] select-none"
     >
       <div className="flex items-center gap-2 pl-3">
         <BrandMark size={18} />

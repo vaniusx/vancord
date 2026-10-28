@@ -400,5 +400,24 @@
       "approve": "Approve",
       "approved": "Bot approved"
     }
+  },
+  "moderation": {
+    "automod": "Automatic moderation",
+    "automodHint": "Blocks spam, invite links and banned words immediately.",
+    "maxMentions": "Maximum mentions",
+    "rateLimit": "Maximum messages per 10s",
+    "blockInvites": "Block invite links",
+    "bannedWords": "Banned words",
+    "bannedWordsPlaceholder": "comma separated",
+    "bannedWordsHint": "Comma separated. Leave empty to disable the word filter.",
+    "bans": "Banned members",
+    "unban": "Unban",
+    "timedOut": "Timed out for {{duration}}",
+    "kicked": "Member kicked",
+    "banned": "Member banned",
+    "kick": "Kick",
+    "ban": "Ban",
+    "modLog": "Moderation log",
+    "muted": "muted"
   }
 }

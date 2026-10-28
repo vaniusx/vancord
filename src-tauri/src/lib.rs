@@ -1,14 +1,19 @@
+#[cfg(desktop)]
 mod games;
 
+#[cfg(desktop)]
 use tauri::{
-    Emitter, Manager, WindowEvent,
+    Emitter, WindowEvent,
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
 
+#[cfg(desktop)]
 const TRAY_ID: &str = "main";
 
+#[cfg(desktop)]
 fn focus_main_window(app: &tauri::AppHandle) {
+    use tauri::Manager;
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.unminimize();
         let _ = window.show();
@@ -16,6 +21,7 @@ fn focus_main_window(app: &tauri::AppHandle) {
     }
 }
 
+#[cfg(desktop)]
 fn build_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     let open = MenuItem::with_id(app, "open", "Vancord'u AÃƒÂ§", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Ayarlar", true, None::<&str>)?;
@@ -81,37 +87,57 @@ fn build_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            focus_main_window(app);
-        }))
-        .plugin(tauri_plugin_autostart::Builder::new().build())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(tauri_plugin_log::log::LevelFilter::Info)
                 .build(),
         )
-        .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_window_state::Builder::default().build())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_opener::init());
+
+    // Desktop-only plugins: tray, autostart, single instance, updater and
+    // window state have no meaning (or no implementation) on Android and iOS.
+    #[cfg(desktop)]
+    let builder = builder
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            focus_main_window(app);
+        }))
+        .plugin(tauri_plugin_autostart::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_window_state::Builder::default().build());
+
+    let builder = builder
         .setup(|app| {
-            build_tray(app.handle())?;
+            #[cfg(desktop)]
+            {
+                build_tray(app.handle())?;
+            }
+            #[cfg(not(desktop))]
+            let _ = app;
             Ok(())
         })
         .on_window_event(|window, event| {
+            if !cfg!(desktop) {
+                return;
+            }
+            #[cfg(desktop)]
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
                 let _ = window.hide();
             }
-        })
-        .invoke_handler(tauri::generate_handler![
-            games::detect_running_game,
-            games::detect_running_games,
-            games::steam_library
-        ])
+        });
+
+    #[cfg(desktop)]
+    let builder = builder.invoke_handler(tauri::generate_handler![
+        games::detect_running_game,
+        games::detect_running_games,
+        games::steam_library
+    ]);
+
+    builder
         .run(tauri::generate_context!())
         .expect("error while running Vancord");
 }
