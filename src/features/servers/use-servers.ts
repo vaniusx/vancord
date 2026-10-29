@@ -79,7 +79,7 @@ export function useCreateServer() {
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
     },
     onError: () => {
-      toast.error("Sunucu oluÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸turulamadÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±.");
+      toast.error("Sunucu oluşturulamadı.");
     },
   });
 }
@@ -100,7 +100,7 @@ export function useJoinServer() {
       await queryClient.invalidateQueries({ queryKey: ["servers"] });
       await queryClient.invalidateQueries({ queryKey: ["channels"] });
       await queryClient.invalidateQueries({ queryKey: ["members"] });
-      toast.success("Sunucuya katÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±ldÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±n.");
+      toast.success("Sunucuya katıldın.");
     },
   });
 }

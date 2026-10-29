@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useVoice } from "@/features/voice/use-voice";
 import { useVoiceStore } from "@/features/voice/voice-store";
-import { ParticipantTile, VideoTile } from "@/features/voice/VoiceTiles";
+import { ParticipantTile, SCREEN_SHARE, VideoTile } from "@/features/voice/VoiceTiles";
 import { cn } from "@/lib/utils";
 
 export function VoiceBar() {
@@ -86,7 +86,7 @@ export function VoiceBar() {
                 key={`${participant.identity}-screen`}
                 room={room}
                 participant={participant}
-                source={undefined as never}
+                source={SCREEN_SHARE}
               />
             ))}
             {participants

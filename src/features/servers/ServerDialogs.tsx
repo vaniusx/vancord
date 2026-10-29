@@ -291,7 +291,7 @@ export function InviteDialog({
                         {invite.code}
                       </code>
                       <span className="text-[10.5px] text-muted-foreground tabular-nums">
-                        {invite.uses}/{invite.max_uses ?? "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬ÂÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¹ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â"}
+                        {invite.uses}/{invite.max_uses ?? "∞"}
                       </span>
                       <Button
                         size="icon"
@@ -676,5 +676,66 @@ export function ServerSettingsDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+export type ServerDialogName =
+  | "createServer"
+  | "joinServer"
+  | "invite"
+  | "serverSettings"
+  | "createChannel";
+
+/** One lazily-loaded entry point for every server dialog. */
+export function ServerDialogs({
+  dialog,
+  onClose,
+  server,
+  canManage,
+  memberCount,
+}: {
+  dialog: ServerDialogName | null;
+  onClose: () => void;
+  server: ServerSummary | undefined;
+  canManage: boolean;
+  memberCount: number;
+}) {
+  if (!dialog) return null;
+
+  const setOpen = () => (open: boolean) => {
+    if (!open) onClose();
+  };
+
+  return (
+    <>
+      {dialog === "createServer" ? (
+        <CreateServerDialog open onOpenChange={setOpen()} />
+      ) : null}
+      {dialog === "joinServer" ? (
+        <JoinServerDialog open onOpenChange={setOpen()} />
+      ) : null}
+      {dialog === "invite" ? (
+        <InviteDialog
+          open
+          onOpenChange={setOpen()}
+          server={server}
+          canManage={canManage}
+        />
+      ) : null}
+      {dialog === "createChannel" ? (
+        <CreateChannelDialog
+          open
+          onOpenChange={setOpen()}
+          serverId={server?.id}
+        />
+      ) : null}
+      {dialog === "serverSettings" ? (
+        <ServerSettingsDialog
+          open
+          onOpenChange={setOpen()}
+          server={server}
+          memberCount={memberCount}
+        />
+      ) : null}
+    </>
   );
 }

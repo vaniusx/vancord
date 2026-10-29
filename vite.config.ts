@@ -6,7 +6,7 @@ import process from "node:process";
 
 const host = process.env.TAURI_DEV_HOST;
 
-// https://vite.dev/config/
+// Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
 
@@ -16,11 +16,40 @@ export default defineConfig(() => ({
     },
   },
 
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent Vite from obscuring rust errors
+  build: {
+    // The Tauri webview on Windows, Android and iOS is evergreen, so there is no
+    // need to down-compile anything.
+    target: "esnext",
+    cssMinify: true,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        // Splitting the heavy, independently-cacheable dependencies keeps the
+        // entry chunk small and lets a UI-only change avoid re-downloading
+        // Supabase, LiveKit or the icon set.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (id.includes("livekit")) return "livekit";
+          if (id.includes("@supabase")) return "supabase";
+          if (id.includes("emoji-mart")) return "emoji";
+          if (id.includes("marked") || id.includes("dompurify")) return "markdown";
+          if (id.includes("@radix-ui") || id.includes("radix-ui")) return "radix";
+          if (id.includes("lucide-react")) return "icons";
+          if (
+            id.includes("react-dom") ||
+            id.includes("react-router") ||
+            id.includes("scheduler") ||
+            id.includes("react/")
+          ) {
+            return "react";
+          }
+          return undefined;
+        },
+      },
+    },
+  },
+
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
   server: {
     port: 1420,
     strictPort: true,
@@ -33,7 +62,6 @@ export default defineConfig(() => ({
         }
       : undefined,
     watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
   },

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="petrol" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2A7B68"/>
+      <stop offset="0.55" stop-color="#1F5F52"/>
+      <stop offset="1" stop-color="#15453C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded speech bubble with a tail, the V cut out of it as a hole. -->
+  <path
+    fill="url(#petrol)"
+    fill-rule="evenodd"
+    d="
+      M256 168 H768 A120 120 0 0 1 888 288 V680 A120 120 0 0 1 768 800 H612
+      L470 918 C448 936 414 920 414 892 V800 H256 A120 120 0 0 1 136 680
+      V288 A120 120 0 0 1 256 168 Z
+      M352 322 H466 L512 620 L558 322 H672 L556 700 H468 Z
+    "
+  />
+</svg>

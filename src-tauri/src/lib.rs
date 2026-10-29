@@ -23,14 +23,16 @@ fn focus_main_window(app: &tauri::AppHandle) {
 
 #[cfg(desktop)]
 fn build_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, "open", "Vancord'u AÃƒÂ§", true, None::<&str>)?;
+    // Kept in one place so the Turkish labels cannot drift between the menu and
+    // the client: the ids are stable, the text lives here.
+    let open = MenuItem::with_id(app, "open", "Vancord'u Aç", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Ayarlar", true, None::<&str>)?;
-    let status_online = MenuItem::with_id(app, "status:online", "Ãƒâ€¡evrimiÃƒÂ§i", true, None::<&str>)?;
-    let status_idle = MenuItem::with_id(app, "status:idle", "BoÃ…Å¸ta", true, None::<&str>)?;
-    let status_dnd = MenuItem::with_id(app, "status:dnd", "RahatsÃ„Â±z Etme", true, None::<&str>)?;
+    let status_online = MenuItem::with_id(app, "status:online", "Çevrimiçi", true, None::<&str>)?;
+    let status_idle = MenuItem::with_id(app, "status:idle", "Boşta", true, None::<&str>)?;
+    let status_dnd = MenuItem::with_id(app, "status:dnd", "Rahatsız Etme", true, None::<&str>)?;
     let status_invisible =
-        MenuItem::with_id(app, "status:invisible", "GÃƒÂ¶rÃƒÂ¼nmez", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Ãƒâ€¡Ã„Â±kÃ„Â±Ã…Å¸", true, None::<&str>)?;
+        MenuItem::with_id(app, "status:invisible", "Görünmez", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Çıkış", true, None::<&str>)?;
     let separator_top = PredefinedMenuItem::separator(app)?;
     let separator_bottom = PredefinedMenuItem::separator(app)?;
 
@@ -91,15 +93,15 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::new()
-                .level(tauri_plugin_log::log::LevelFilter::Info)
+                .level(tauri_plugin_log::log::LevelFilter::Warn)
                 .build(),
-        )
-        .plugin(tauri_plugin_opener::init());
+        );
 
-    // Desktop-only plugins: tray, autostart, single instance, updater and
-    // window state have no meaning (or no implementation) on Android and iOS.
+    // Desktop-only plugins: tray, autostart, single instance, updater and window
+    // state have no meaning (or no implementation) on Android and iOS.
     #[cfg(desktop)]
     let builder = builder
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {

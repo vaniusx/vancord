@@ -57,21 +57,27 @@ export function BadgeChip({
 }) {
   const label = language === "tr" ? badge.name_tr : badge.name_en;
   const description = language === "tr" ? badge.description_tr : badge.description_en;
-  const box = size === "lg" ? "size-9" : size === "sm" ? "size-5" : "size-6";
-  const glyph = size === "lg" ? 19 : size === "sm" ? 12 : 14;
+
+  // A medallion rather than a rounded square: it reads as an award, keeps its
+  // silhouette at 18px, and the inner radial gradient gives it depth without an
+  // image asset.
+  const box =
+    size === "lg" ? "size-10" : size === "sm" ? "size-[18px]" : "size-[22px]";
+  const glyph = size === "lg" ? 22 : size === "sm" ? 12 : 14;
+  const color = badge.color;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-[7px]",
+            "flex shrink-0 items-center justify-center rounded-full",
             box,
           )}
           style={{
-            color: badge.color,
-            backgroundColor: `color-mix(in oklab, ${badge.color} 14%, transparent)`,
-            boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${badge.color} 28%, transparent)`,
+            color,
+            background: `radial-gradient(120% 120% at 30% 22%, color-mix(in oklab, ${color} 42%, transparent), color-mix(in oklab, ${color} 12%, transparent) 62%, color-mix(in oklab, ${color} 7%, transparent))`,
+            boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${color} 55%, transparent), inset 0 1px 0 color-mix(in oklab, white 22%, transparent), 0 1px 2px rgb(0 0 0 / 0.18)`,
           }}
         >
           <BadgeGlyph icon={badge.icon} size={glyph} />
@@ -84,7 +90,6 @@ export function BadgeChip({
     </Tooltip>
   );
 }
-
 export function BadgeRowList({
   badges,
   language,
@@ -99,7 +104,7 @@ export function BadgeRowList({
   if (badges.length === 0) return null;
   const visible = limit ? badges.slice(0, limit) : badges;
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex flex-wrap items-center gap-1">
       {visible.map((badge) => (
         <BadgeChip key={badge.id} badge={badge} language={language} size={size} />
       ))}

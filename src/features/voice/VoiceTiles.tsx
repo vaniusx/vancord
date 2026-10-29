@@ -1,4 +1,3 @@
-import { Track } from "livekit-client";
 import { useEffect, useRef } from "react";
 
 import { Avatar } from "@/components/common/avatar";
@@ -7,7 +6,12 @@ import { trackOf } from "@/features/voice/use-voice";
 import type { VoiceParticipant } from "@/features/voice/voice-store";
 import { accentFor } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Room } from "livekit-client";
+import type { Room, Track } from "livekit-client";
+
+// Plain strings so this module never pulls livekit-client into the initial
+// bundle: the values match Track.Source exactly.
+export const CAMERA = "camera" as Track.Source;
+export const SCREEN_SHARE = "screen_share" as Track.Source;
 
 function useTrackAttach(
   room: Room | null,
@@ -32,7 +36,7 @@ function useTrackAttach(
 export function VideoTile({
   room,
   participant,
-  source = Track.Source.Camera,
+  source = CAMERA,
 }: {
   room: Room | null;
   participant: VoiceParticipant;
@@ -40,9 +44,7 @@ export function VideoTile({
 }) {
   const videoRef = useTrackAttach(room, participant.identity, source);
   const hasVideo =
-    source === Track.Source.ScreenShare
-      ? participant.screenShare
-      : participant.cameraEnabled;
+    source === SCREEN_SHARE ? participant.screenShare : participant.cameraEnabled;
 
   if (!hasVideo) {
     return (
@@ -71,7 +73,7 @@ export function VideoTile({
       />
       <span className="absolute bottom-2 left-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[11px] font-medium text-white">
         {participant.name}
-        {source === Track.Source.ScreenShare ? " · ekran" : ""}
+        {source === SCREEN_SHARE ? " · ekran" : ""}
       </span>
     </div>
   );

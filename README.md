@@ -4,7 +4,7 @@ A small, calm desktop chat app for a closed group of friends. Built with Tauri 2
 Supabase. There is no server to keep running: the client talks straight to Supabase and row level
 security is the only trust boundary.
 
-**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Windows
+**[Download the latest release](https://github.com/vaniusx/vancord/releases/latest)** → Windows
 installer (NSIS or MSI). Updates are signed and install in place.
 
 ## Features
@@ -64,7 +64,7 @@ dashboard SQL editor, or `supabase db push`.
 
 ### Required Supabase settings
 
-- Authentication ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Sign In / Providers ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€Â¢ Email: turn **Confirm email** off while developing,
+- Authentication → Sign In / Providers → Email: turn **Confirm email** off while developing,
   otherwise sign-up returns no session until the address is verified.
 - Storage buckets `avatars` and `attachments` are created by the migration, together with their
   policies.
@@ -137,7 +137,7 @@ supabase/       SQL migrations
 Bots receive signed webhook events and act through a small REST API. The SDK lives
 in `packages/vancord.js` with two runnable examples.
 
-1. Settings â†’ Developer â†’ **New bot**, enter an HTTPS webhook and pick permissions.
+1. Settings → Developer → **New bot**, enter an HTTPS webhook and pick permissions.
 2. Run **Test**: eleven checks execute server-side (HTTPS, SSRF guard, signature
    echo, envelope, latency, duplicate delivery, credential-in-URL, malformed
    payload, declared permissions, reachability, redirect target).

@@ -1,19 +1,46 @@
-import { createHashRouter, Navigate } from "react-router-dom";
+import { lazy, Suspense, type ReactNode } from "react";
+import { createHashRouter, Navigate, useParams } from "react-router-dom";
 
-import { AuthPage } from "@/features/auth/AuthPage";
 import { RequireAuth } from "@/features/auth/RequireAuth";
-import { ChatView } from "@/features/chat/ChatView";
+import { RouteError } from "@/features/shell/RouteError";
 import { useChannel } from "@/features/dm/use-dms";
-import { lazy, Suspense } from "react";
 
+// Every top-level screen is split so the auth page never pays for the shell, the
+// chat view or the voice stack.
+const AuthPage = lazy(() =>
+  import("@/features/auth/AuthPage").then((module) => ({ default: module.AuthPage })),
+);
+const AppShell = lazy(() =>
+  import("@/features/shell/AppShell").then((module) => ({ default: module.AppShell })),
+);
+const FriendsView = lazy(() =>
+  import("@/features/friends/FriendsView").then((module) => ({ default: module.FriendsView })),
+);
+const ChatView = lazy(() =>
+  import("@/features/chat/ChatView").then((module) => ({ default: module.ChatView })),
+);
 const VoiceRoom = lazy(() =>
   import("@/features/voice/VoiceRoom").then((module) => ({ default: module.VoiceRoom })),
 );
-import { FriendsView } from "@/features/friends/FriendsView";
-import { ServerRedirect } from "@/features/servers/ServerRedirect";
-import { AppShell } from "@/features/shell/AppShell";
-import { RouteError } from "@/features/shell/RouteError";
-import { useParams } from "react-router-dom";
+const ServerRedirect = lazy(() =>
+  import("@/features/servers/ServerRedirect").then((module) => ({
+    default: module.ServerRedirect,
+  })),
+);
+
+function Screen({ children }: { children: ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full min-h-[120px] flex-1 items-center justify-center text-[13px] text-muted-foreground">
+          …
+        </div>
+      }
+    >
+      {children}
+    </Suspense>
+  );
+}
 
 function ChatRoute() {
   const { channelId } = useParams<{ channelId: string }>();
@@ -23,31 +50,60 @@ function ChatRoute() {
 
 function ChannelRoute({ channelId }: { channelId: string }) {
   const { data: channel, isLoading } = useChannel(channelId);
-  if (isLoading) return <ChatView channelId={channelId} />;
-  if (channel?.type === "voice") {
+
+  if (!isLoading && channel?.type === "voice") {
     return (
-      <Suspense fallback={<div className="flex flex-1 items-center justify-center text-[13px] text-muted-foreground">…</div>}>
+      <Screen>
         <VoiceRoom channelId={channelId} channelName={channel.name ?? ""} />
-      </Suspense>
+      </Screen>
     );
   }
-  return <ChatView channelId={channelId} />;
+
+  return (
+    <Screen>
+      <ChatView channelId={channelId} />
+    </Screen>
+  );
 }
 
 export const router = createHashRouter([
-  { path: "/auth", element: <AuthPage />, errorElement: <RouteError /> },
+  {
+    path: "/auth",
+    element: (
+      <Screen>
+        <AuthPage />
+      </Screen>
+    ),
+    errorElement: <RouteError />,
+  },
   {
     path: "/",
     element: (
       <RequireAuth>
-        <AppShell />
+        <Screen>
+          <AppShell />
+        </Screen>
       </RequireAuth>
     ),
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <FriendsView /> },
+      {
+        index: true,
+        element: (
+          <Screen>
+            <FriendsView />
+          </Screen>
+        ),
+      },
       { path: "dm/:channelId", element: <ChatRoute /> },
-      { path: "s/:serverId", element: <ServerRedirect /> },
+      {
+        path: "s/:serverId",
+        element: (
+          <Screen>
+            <ServerRedirect />
+          </Screen>
+        ),
+      },
       { path: "s/:serverId/:channelId", element: <ChatRoute /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],

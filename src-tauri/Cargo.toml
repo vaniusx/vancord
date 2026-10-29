@@ -1,7 +1,7 @@
 [package]
 name = "vancord"
-version = "0.3.0"
-description = "Vancord ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â a lightweight Discord-style desktop client"
+version = "0.3.1"
+description = "Vancord — a lightweight Discord-style desktop client"
 authors = ["Vancord"]
 edition = "2024"
 

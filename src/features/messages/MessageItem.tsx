@@ -1,5 +1,5 @@
 import { Check, Copy, Pencil, SmilePlus, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -152,7 +152,7 @@ function ReactionBar({
   );
 }
 
-export function MessageItem({
+export const MessageItem = memo(function MessageItem({
   message,
   grouped,
   canManage,
@@ -441,7 +441,7 @@ export function MessageItem({
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+});
 
 export function MessageMeta({ message }: { message: MessageRow }) {
   const author = message.author;
@@ -451,3 +451,5 @@ export function MessageMeta({ message }: { message: MessageRow }) {
     </span>
   );
 }
+
+export { MessageItem as default };

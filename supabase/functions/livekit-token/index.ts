@@ -1,5 +1,5 @@
 // Mints a LiveKit access token for the calling user.
-// Secrets: LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL
+// Secrets: livekit_url, livekit_api_key, livekit_api_secret (private.integration_secrets)
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { AccessToken } from "npm:livekit-server-sdk@2.9.5";
 
@@ -20,8 +20,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
-  // Secrets live in the private schema and are only reachable with the
-  // service role key that Supabase injects into every function.
   const admin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}")["default"] ??
@@ -47,7 +45,7 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get("Authorization") ?? "";
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "",
     { global: { headers: { Authorization: authHeader } } },
   );
 
@@ -63,7 +61,6 @@ Deno.serve(async (req) => {
   }
   if (!channelId) return json({ error: "missing_channel" }, 400);
 
-  // Row level security decides whether this user may see the channel at all.
   const { data: channel, error: channelError } = await supabase
     .from("channels")
     .select("id, type, server_id")
@@ -71,7 +68,24 @@ Deno.serve(async (req) => {
     .maybeSingle();
 
   if (channelError || !channel) return json({ error: "forbidden" }, 403);
-  if (channel.type !== "voice") return json({ error: "not_a_voice_channel" }, 400);
+
+  // Voice channels are already protected by the server membership policies.
+  // Direct messages are not, so membership is checked explicitly.
+  let room: string;
+  if (channel.type === "voice") {
+    room = `voice_${channelId}`;
+  } else if (channel.type === "dm" || channel.type === "text") {
+    const { data: membership } = await supabase
+      .from("channel_members")
+      .select("user_id")
+      .eq("channel_id", channelId)
+      .eq("user_id", userData.user.id)
+      .maybeSingle();
+    if (!membership) return json({ error: "forbidden" }, 403);
+    room = `dm_${channelId}`;
+  } else {
+    return json({ error: "not_a_callable_channel" }, 400);
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -79,7 +93,6 @@ Deno.serve(async (req) => {
     .eq("id", userData.user.id)
     .maybeSingle();
 
-  const room = `voice_${channelId}`;
   const token = new AccessToken(apiKey, apiSecret, {
     identity: userData.user.id,
     name: profile?.display_name ?? userData.user.email ?? "Vancord",

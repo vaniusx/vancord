@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,22 +14,30 @@ import { useGameActivity } from "@/features/activity/use-activity";
 import { useAppStore } from "@/features/app/app-store";
 import { useDms } from "@/features/dm/use-dms";
 import { RealtimeProvider } from "@/features/realtime/realtime";
-import {
-  CreateChannelDialog,
-  CreateServerDialog,
-  InviteDialog,
-  JoinServerDialog,
-  ServerSettingsDialog,
-} from "@/features/servers/ServerDialogs";
+// Dialogs are heavy (server settings alone is 24 KB of JSX) and most sessions
+// never open them, so they are fetched on first use instead of at startup.
+const ServerDialogs = lazy(() =>
+  import("@/features/servers/ServerDialogs").then((module) => ({
+    default: module.ServerDialogs,
+  })),
+);
 import {
   useAllChannels,
   useMembers,
   useServers,
   useUnreadCounts,
 } from "@/features/servers/use-servers";
-import { SettingsDialog } from "@/features/settings/SettingsDialog";
+const SettingsDialog = lazy(() =>
+  import("@/features/settings/SettingsDialog").then((module) => ({
+    default: module.SettingsDialog,
+  })),
+);
 import { ChannelPanel, type SidebarMode } from "@/features/shell/ChannelPanel";
-import { CommandPalette } from "@/features/shell/CommandPalette";
+const CommandPalette = lazy(() =>
+  import("@/features/shell/CommandPalette").then((module) => ({
+    default: module.CommandPalette,
+  })),
+);
 import { MobileNav } from "@/features/shell/MobileNav";
 import { ServerRail } from "@/features/shell/ServerRail";
 import { TitleBar } from "@/features/shell/TitleBar";
@@ -170,6 +178,8 @@ function ShellLayout() {
   });
 
   const channelsOpen = useAppStore((state) => state.channelsOpen);
+  const settingsOpen = useAppStore((state) => state.settingsOpen);
+  const paletteOpen = useAppStore((state) => state.paletteOpen);
   const setChannelsOpen = useAppStore((state) => state.setChannelsOpen);
 
   const unreadByServer: Record<string, boolean> = {};
@@ -275,34 +285,19 @@ function ShellLayout() {
         </SheetContent>
       </Sheet>
 
-      <CreateServerDialog
-        open={dialog === "createServer"}
-        onOpenChange={(open) => setDialog(open ? "createServer" : null)}
-      />
-      <JoinServerDialog
-        open={dialog === "joinServer"}
-        onOpenChange={(open) => setDialog(open ? "joinServer" : null)}
-      />
-      <InviteDialog
-        open={dialog === "invite"}
-        onOpenChange={(open) => setDialog(open ? "invite" : null)}
-        server={activeServer}
-        canManage={Boolean(canManage)}
-      />
-      <CreateChannelDialog
-        open={dialog === "createChannel"}
-        onOpenChange={(open) => setDialog(open ? "createChannel" : null)}
-        serverId={activeServer?.id}
-      />
-      <ServerSettingsDialog
-        open={dialog === "serverSettings"}
-        onOpenChange={(open) => setDialog(open ? "serverSettings" : null)}
-        server={activeServer}
-        memberCount={members?.length ?? 0}
-      />
-
-      <SettingsDialog />
-      <CommandPalette />
+      <Suspense fallback={null}>
+        {dialog ? (
+          <ServerDialogs
+            dialog={dialog}
+            onClose={() => setDialog(null)}
+            server={activeServer}
+            canManage={Boolean(canManage)}
+            memberCount={members?.length ?? 0}
+          />
+        ) : null}
+        {settingsOpen ? <SettingsDialog /> : null}
+        {paletteOpen ? <CommandPalette /> : null}
+      </Suspense>
     </div>
   );
 }

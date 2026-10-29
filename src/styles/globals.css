@@ -123,7 +123,7 @@
   --status-offline: #a19c93;
 }
 
-/* Graphite ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â cool neutral, navy accent */
+/* Graphite — cool neutral, navy accent */
 [data-theme="graphite"] {
   --background: #f7f8fa;
   --foreground: #16181c;
@@ -160,7 +160,7 @@
   --status-offline: #a1a7b0;
 }
 
-/* Olive ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â warm paper, olive accent */
+/* Olive — warm paper, olive accent */
 [data-theme="olive"] {
   --background: #faf8f3;
   --foreground: #1e1c17;
@@ -197,7 +197,7 @@
   --status-offline: #a29a8c;
 }
 
-/* Ember ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â dark-first warm, ember accent */
+/* Ember — dark-first warm, ember accent */
 [data-theme="ember"] {
   --background: #fbf7f4;
   --foreground: #1c1815;
@@ -234,7 +234,7 @@
   --status-offline: #a89b91;
 }
 
-/* Rose ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soft neutral, plum accent */
+/* Rose — soft neutral, plum accent */
 [data-theme="rose"] {
   --background: #fcf9fa;
   --foreground: #1d181b;
@@ -271,7 +271,7 @@
   --status-offline: #ab9aa1;
 }
 
-/* Mint ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â airy neutral, deep teal accent */
+/* Mint — airy neutral, deep teal accent */
 [data-theme="mint"] {
   --background: #f7faf9;
   --foreground: #141a19;

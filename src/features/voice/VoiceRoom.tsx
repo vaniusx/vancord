@@ -48,7 +48,7 @@ export function VoiceRoom({ channelId, channelName }: { channelId: string; chann
             {connecting
               ? t("voice.connecting")
               : connected
-                ? `${t("voice.connected")} Ã‚Â· ${participants.length}`
+                ? `${t("voice.connected")} · ${participants.length}`
                 : t("common.error")}
           </p>
         </div>

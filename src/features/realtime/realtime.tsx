@@ -13,7 +13,8 @@ import { useCurrentUser } from "@/features/auth/auth-store";
 import { useAppStore } from "@/features/app/app-store";
 import { useProfile } from "@/features/profiles/use-profile";
 import { useProfileCache } from "@/features/profiles/profile-cache";
-import type { PresenceStatus } from "@/lib/models";
+import type { MessageRow, PresenceStatus, ReactionRow } from "@/lib/models";
+import { messagesKey } from "@/features/messages/use-messages";
 import { supabase } from "@/lib/supabase";
 import { isTauri } from "@/lib/tauri";
 
@@ -116,9 +117,53 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     });
     channelRef.current = channel;
 
-    const invalidateMessages = () => {
-      void queryClient.invalidateQueries({ queryKey: ["messages"] });
-      void queryClient.invalidateQueries({ queryKey: ["unread"] });
+    type MessagesData = { messages: MessageRow[]; hasMore: boolean };
+
+    // Realtime used to invalidate the whole message list on every event, which
+    // refetched 40 messages (with four nested joins) for each chat line and made
+    // busy channels stutter. The cache is now patched in place instead.
+    const patchChannel = (
+      channelId: string,
+      mutate: (messages: MessageRow[]) => MessageRow[],
+    ) => {
+      queryClient.setQueryData<MessagesData>(messagesKey(channelId), (current) =>
+        current ? { ...current, messages: mutate(current.messages) } : current,
+      );
+    };
+
+    const removeEverywhere = (messageId: string) => {
+      queryClient.setQueriesData<MessagesData>({ queryKey: ["messages"] }, (current) =>
+        current
+          ? {
+              ...current,
+              messages: current.messages.filter((message) => message.id !== messageId),
+            }
+          : current,
+      );
+    };
+
+    const patchReaction = (
+      messageId: string,
+      userId: string,
+      emoji: string,
+      active: boolean,
+    ) => {
+      queryClient.setQueriesData<MessagesData>({ queryKey: ["messages"] }, (current) => {
+        if (!current?.messages.some((message) => message.id === messageId)) return current;
+        return {
+          ...current,
+          messages: current.messages.map((message) => {
+            if (message.id !== messageId) return message;
+            const without = message.reactions.filter(
+              (reaction) => !(reaction.user_id === userId && reaction.emoji === emoji),
+            );
+            const reactions: ReactionRow[] = active
+              ? [...without, { message_id: messageId, user_id: userId, emoji }]
+              : without;
+            return { ...message, reactions };
+          }),
+        };
+      });
     };
 
     channel
@@ -126,23 +171,70 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
         (payload) => {
-          invalidateMessages();
+          void queryClient.invalidateQueries({ queryKey: ["unread"] });
 
-          if (payload.eventType !== "INSERT") return;
+          if (payload.eventType === "DELETE") {
+            const removed = (payload.old as { id?: string } | null)?.id;
+            if (removed) removeEverywhere(removed);
+            return;
+          }
+
           const row = payload.new as {
             id: string;
             channel_id: string;
-            author_id: string;
-            content: string;
+            author_id: string | null;
+            bot_id?: string | null;
+            content?: string;
+            created_at: string;
+            edited_at?: string | null;
           };
-          if (row.author_id === user.id) return;
+
+          if (payload.eventType === "UPDATE") {
+            patchChannel(row.channel_id, (messages) =>
+              messages.map((message) =>
+                message.id === row.id
+                  ? {
+                      ...message,
+                      content: row.content ?? "",
+                      edited_at: row.edited_at ?? null,
+                    }
+                  : message,
+              ),
+            );
+            return;
+          }
+
+          const cachedAuthor = row.author_id
+            ? (useProfileCache.getState().profiles[row.author_id] ?? null)
+            : null;
+
+          const buildMessage = (author: MessageRow["author"]): MessageRow => ({
+            id: row.id,
+            channel_id: row.channel_id,
+            author_id: row.author_id,
+            bot_id: row.bot_id ?? null,
+            content: row.content ?? "",
+            created_at: row.created_at,
+            edited_at: row.edited_at ?? null,
+            author,
+            bot: null,
+            message_attachments: [],
+            reactions: [],
+          });
+
+          patchChannel(row.channel_id, (messages) =>
+            messages.some((message) => message.id === row.id)
+              ? messages
+              : [...messages, buildMessage(cachedAuthor)],
+          );
+
+          if (!row.author_id || row.author_id === user.id) return;
 
           const state = useAppStore.getState();
           if (document.hasFocus() && state.activeChannelId === row.channel_id) {
             void client.rpc("mark_channel_read", {
               target_channel: row.channel_id,
             });
-            void queryClient.invalidateQueries({ queryKey: ["unread"] });
             return;
           }
 
@@ -153,21 +245,28 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
           void (async () => {
             const cached = useProfileCache.getState().profiles;
-            let authorName = cached[row.author_id]?.display_name;
+            let authorName = cached[row.author_id!]?.display_name;
             if (!authorName) {
               const { data } = await client
                 .from("profiles")
                 .select("id, username, display_name, avatar_url, accent_color, status, custom_status")
-                .eq("id", row.author_id)
+                .eq("id", row.author_id!)
                 .maybeSingle();
               if (data) {
                 upsertProfiles([data as never]);
                 authorName = (data as { display_name: string }).display_name;
+                patchChannel(row.channel_id, (messages) =>
+                  messages.map((message) =>
+                    message.id === row.id
+                      ? { ...message, author: data as never }
+                      : message,
+                  ),
+                );
               }
             }
             await notify(
               authorName ?? "Vancord",
-              row.content.slice(0, 140) || "Yeni bir mesaj",
+              (row.content ?? "").slice(0, 140) || "Yeni bir mesaj",
             );
           })();
         },
@@ -175,11 +274,22 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "reactions" },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: ["messages"] });
+        (payload) => {
+          const row = (payload.eventType === "DELETE" ? payload.old : payload.new) as {
+            message_id?: string;
+            user_id?: string;
+            emoji?: string;
+          } | null;
+          if (!row?.message_id || !row?.user_id || !row?.emoji) return;
+          patchReaction(
+            row.message_id,
+            row.user_id,
+            row.emoji,
+            payload.eventType !== "DELETE",
+          );
         },
       )
-      .on(
+.on(
         "postgres_changes",
         { event: "*", schema: "public", table: "channels" },
         () => {

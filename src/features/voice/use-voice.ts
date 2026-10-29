@@ -1,16 +1,11 @@
-import {
-  ConnectionState,
-  Room,
-  RoomEvent,
-  Track,
-  type Participant,
-} from "livekit-client";
-import { useCallback, useEffect, useRef } from "react";
+import type { Participant, Room, Track } from "livekit-client";
+import { useCallback, useEffect } from "react";
 
 import { useVoiceStore, type VoiceParticipant } from "@/features/voice/voice-store";
 import { requireSupabase } from "@/lib/supabase";
 
 type TokenResponse = { token: string; url: string; room: string };
+type LiveKit = typeof import("livekit-client");
 
 function toParticipant(
   participant: Participant,
@@ -49,9 +44,27 @@ function collect(room: Room, speakingIdentities: Set<string>) {
   return list;
 }
 
+function describe(error: unknown): string {
+  if (error instanceof Error) {
+    const name = (error as { name?: string }).name;
+    if (name === "NotAllowedError" || /permission|denied/i.test(error.message)) {
+      return "voice_mic_denied";
+    }
+    if (name === "NotFoundError") return "voice_no_device";
+    return error.message;
+  }
+  return "voice_connect_failed";
+}
+
+// The LiveKit room is owned by the module, not by a hook instance. Several
+// components (the call bar, the full room view, the DM header) all need the same
+// connection; keeping it per-hook made every one of them see a different, empty
+// room.
+const roomRef: { current: Room | null } = { current: null };
+const lkRef: { current: LiveKit | null } = { current: null };
+const speaking: { current: Set<string> } = { current: new Set() };
+
 export function useVoice() {
-  const roomRef = useRef<Room | null>(null);
-  const speaking = useRef<Set<string>>(new Set());
   const { channelId, connected, connecting } = useVoiceStore();
 
   const sync = useCallback(() => {
@@ -59,7 +72,7 @@ export function useVoice() {
     if (!room) return;
     useVoiceStore.getState().setState({
       participants: collect(room, speaking.current),
-      connected: room.state === ConnectionState.Connected,
+      connected: room.state === "connected",
     });
   }, []);
 
@@ -92,48 +105,57 @@ export function useVoice() {
         if (error) throw error;
         if (!data?.token || !data?.url) throw new Error("livekit_not_configured");
 
-        const room = new Room({
+        // livekit-client is ~450 KB and only needed once the user actually
+        // joins a call, so it is loaded on demand instead of at boot.
+        const lk = lkRef.current ?? (await import("livekit-client"));
+        lkRef.current = lk;
+
+        const room = new lk.Room({
           adaptiveStream: true,
           dynacast: true,
           videoCaptureDefaults: { resolution: { width: 1280, height: 720 } },
-        } as never);
+        });
         roomRef.current = room;
 
         room
-          .on(RoomEvent.ParticipantConnected, sync)
-          .on(RoomEvent.ParticipantDisconnected, sync)
-          .on(RoomEvent.TrackMuted, sync)
-          .on(RoomEvent.TrackUnmuted, sync)
-          .on(RoomEvent.LocalTrackPublished, sync)
-          .on(RoomEvent.LocalTrackUnpublished, sync)
-          .on(RoomEvent.TrackSubscribed, sync)
-          .on(RoomEvent.TrackUnsubscribed, sync)
-          .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
+          .on(lk.RoomEvent.ParticipantConnected, sync)
+          .on(lk.RoomEvent.ParticipantDisconnected, sync)
+          .on(lk.RoomEvent.TrackMuted, sync)
+          .on(lk.RoomEvent.TrackUnmuted, sync)
+          .on(lk.RoomEvent.LocalTrackPublished, sync)
+          .on(lk.RoomEvent.LocalTrackUnpublished, sync)
+          .on(lk.RoomEvent.TrackSubscribed, sync)
+          .on(lk.RoomEvent.TrackUnsubscribed, sync)
+          .on(lk.RoomEvent.ActiveSpeakersChanged, (speakers) => {
             speaking.current = new Set(speakers.map((speaker) => speaker.identity));
             sync();
           })
-          .on(RoomEvent.ConnectionStateChanged, sync)
-          .on(RoomEvent.Disconnected, () => {
+          .on(lk.RoomEvent.ConnectionStateChanged, sync)
+          .on(lk.RoomEvent.Disconnected, () => {
             roomRef.current = null;
             useVoiceStore.getState().reset();
           });
 
         await room.connect(data.url, data.token);
-        await room.localParticipant.setMicrophoneEnabled(true);
+
+        try {
+          await room.localParticipant.setMicrophoneEnabled(true);
+          useVoiceStore.getState().setState({ micEnabled: true });
+        } catch (micError) {
+          // Joining with the mic off is better than not joining at all.
+          useVoiceStore.getState().setState({ micEnabled: false, error: describe(micError) });
+        }
 
         useVoiceStore.getState().setState({
           connecting: false,
           connected: true,
-          micEnabled: true,
         });
         sync();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "voice_connect_failed";
         useVoiceStore.getState().setState({
           connecting: false,
           connected: false,
-          error: message,
+          error: describe(error),
           channelId: null,
           channelName: null,
         });
@@ -146,8 +168,12 @@ export function useVoice() {
     const room = roomRef.current;
     if (!room) return;
     const next = !room.localParticipant.isMicrophoneEnabled;
-    await room.localParticipant.setMicrophoneEnabled(next);
-    useVoiceStore.getState().setState({ micEnabled: next });
+    try {
+      await room.localParticipant.setMicrophoneEnabled(next);
+      useVoiceStore.getState().setState({ micEnabled: next, error: null });
+    } catch (error) {
+      useVoiceStore.getState().setState({ error: describe(error) });
+    }
     sync();
   }, [sync]);
 
@@ -155,8 +181,12 @@ export function useVoice() {
     const room = roomRef.current;
     if (!room) return;
     const next = !room.localParticipant.isCameraEnabled;
-    await room.localParticipant.setCameraEnabled(next);
-    useVoiceStore.getState().setState({ cameraEnabled: next });
+    try {
+      await room.localParticipant.setCameraEnabled(next);
+      useVoiceStore.getState().setState({ cameraEnabled: next });
+    } catch (error) {
+      useVoiceStore.getState().setState({ cameraEnabled: false, error: describe(error) });
+    }
     sync();
   }, [sync]);
 
@@ -169,7 +199,7 @@ export function useVoice() {
         audio: true,
         selfBrowserSurface: "exclude",
         surfaceSwitching: "include",
-      } as never);
+      });
       useVoiceStore.getState().setState({ screenSharing: next });
     } catch {
       useVoiceStore.getState().setState({ screenSharing: false });
@@ -180,11 +210,9 @@ export function useVoice() {
   const getRoom = useCallback(() => roomRef.current, []);
 
   useEffect(() => {
-    return () => {
-      const room = roomRef.current;
-      roomRef.current = null;
-      if (room) void room.disconnect().catch(() => {});
-    };
+    // No teardown on unmount: the room outlives any single component and is
+    // closed explicitly by `leave`.
+    return undefined;
   }, []);
 
   return {

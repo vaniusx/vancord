@@ -7,6 +7,7 @@ export type SettingsSection =
   | "activity"
   | "notifications"
   | "language"
+  | "developer"
   | "about";
 
 interface AppState {

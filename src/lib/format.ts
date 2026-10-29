@@ -18,8 +18,8 @@ export function clockTime(value: string | Date) {
 
 export function dayLabel(value: string | Date) {
   const date = new Date(value);
-  if (isToday(date)) return currentLocale === "tr" ? "BugÃ¼n" : "Today";
-  if (isYesterday(date)) return currentLocale === "tr" ? "DÃ¼n" : "Yesterday";
+  if (isToday(date)) return currentLocale === "tr" ? "Bugün" : "Today";
+  if (isYesterday(date)) return currentLocale === "tr" ? "Dün" : "Yesterday";
   return format(date, "d MMMM yyyy", { locale: locale() });
 }
 

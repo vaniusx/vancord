@@ -120,7 +120,12 @@
     "emoji": "Emoji",
     "send": "Gönder",
     "fileTooLarge": "Dosya çok büyük. En fazla 5 MB yükleyebilirsin.",
-    "dropToAttach": "Bırak, dosya eklensin"
+    "dropToAttach": "Bırak, dosya eklensin",
+    "gif": "GIF",
+    "gifSearch": "GIF ara",
+    "gifNoKey": "GIF anahtarı ayarlanmadı (VITE_GIPHY_API_KEY).",
+    "gifError": "GIF yüklenemedi.",
+    "gifEmpty": "Sonuç yok."
   },
   "dm": {
     "title": "Doğrudan mesajlar",
@@ -216,6 +221,12 @@
       "checkUpdates": "Güncellemeleri kontrol et",
       "upToDate": "Güncel sürümü kullanıyorsun.",
       "updateAvailable": "{{version}} sürümü hazır."
+    },
+    "groups": {
+      "account": "Hesap",
+      "app": "Uygulama",
+      "developer": "Geliştirici",
+      "misc": "Diğer"
     }
   },
   "auth": {
@@ -309,7 +320,9 @@
     "deafen": "Kulaklığı kapat",
     "notConfigured": "Sesli kanal için LiveKit yapılandırılmadı.",
     "participants": "Katılımcılar",
-    "noParticipants": "Kimse yok"
+    "noParticipants": "Kimse yok",
+    "camera": "Kamera",
+    "call": "Ara"
   },
   "gif": {
     "title": "GIF",

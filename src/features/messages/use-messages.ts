@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useCurrentUser } from "@/features/auth/auth-store";
 import { useProfileCache } from "@/features/profiles/profile-cache";
+import { useProfile } from "@/features/profiles/use-profile";
 import type {
   AttachmentRow,
   BotSummary,
@@ -114,6 +115,7 @@ export function useOlderMessages(channelId: string | undefined) {
 export function useSendMessage() {
   const queryClient = useQueryClient();
   const user = useCurrentUser();
+  const { data: profile } = useProfile();
 
   return useMutation({
     mutationFn: async (input: {
@@ -153,10 +155,38 @@ export function useSendMessage() {
 
       return messageId;
     },
-    onSuccess: (_id, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: messagesKey(variables.channelId),
-      });
+    onSuccess: (messageId, variables) => {
+      // Append locally so the message appears instantly; the realtime INSERT
+      // arrives moments later and is de-duplicated by id.
+      if (!user?.id) return;
+      const optimistic: MessageRow = {
+        id: messageId,
+        channel_id: variables.channelId,
+        author_id: user.id,
+        bot_id: null,
+        content: variables.content,
+        created_at: new Date().toISOString(),
+        edited_at: null,
+        author:
+          profile ??
+          useProfileCache.getState().profiles[user.id] ??
+          null,
+        bot: null,
+        message_attachments: [],
+        reactions: [],
+      };
+      queryClient.setQueryData<{ messages: MessageRow[]; hasMore: boolean }>(
+        messagesKey(variables.channelId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                messages: current.messages.some((message) => message.id === messageId)
+                  ? current.messages
+                  : [...current.messages, optimistic],
+              }
+            : current,
+      );
     },
   });
 }
@@ -178,9 +208,20 @@ export function useEditMessage() {
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: messagesKey(variables.channelId),
-      });
+      queryClient.setQueryData<{ messages: MessageRow[]; hasMore: boolean }>(
+        messagesKey(variables.channelId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                messages: current.messages.map((message) =>
+                  message.id === variables.messageId
+                    ? { ...message, content: variables.content, edited_at: new Date().toISOString() }
+                    : message,
+                ),
+              }
+            : current,
+      );
     },
   });
 }
@@ -198,9 +239,18 @@ export function useDeleteMessage() {
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: messagesKey(variables.channelId),
-      });
+      queryClient.setQueryData<{ messages: MessageRow[]; hasMore: boolean }>(
+        messagesKey(variables.channelId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                messages: current.messages.filter(
+                  (message) => message.id !== variables.messageId,
+                ),
+              }
+            : current,
+      );
     },
   });
 }
@@ -235,9 +285,38 @@ export function useToggleReaction() {
       }
     },
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: messagesKey(variables.channelId),
-      });
+      queryClient.setQueryData<{ messages: MessageRow[]; hasMore: boolean }>(
+        messagesKey(variables.channelId),
+        (current) =>
+          current
+            ? {
+                ...current,
+                messages: current.messages.map((message) => {
+                  if (message.id !== variables.messageId) return message;
+                  const without = message.reactions.filter(
+                    (reaction) =>
+                      !(
+                        reaction.user_id === user!.id &&
+                        reaction.emoji === variables.emoji
+                      ),
+                  );
+                  return {
+                    ...message,
+                    reactions: variables.active
+                      ? [
+                          ...without,
+                          {
+                            message_id: variables.messageId,
+                            user_id: user!.id,
+                            emoji: variables.emoji,
+                          },
+                        ]
+                      : without,
+                  };
+                }),
+              }
+            : current,
+      );
     },
   });
 }

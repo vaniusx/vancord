@@ -120,7 +120,12 @@
     "emoji": "Emoji",
     "send": "Send",
     "fileTooLarge": "That file is too large. Maximum size is 5 MB.",
-    "dropToAttach": "Drop to attach"
+    "dropToAttach": "Drop to attach",
+    "gif": "GIF",
+    "gifSearch": "Search GIFs",
+    "gifNoKey": "No GIF key configured (VITE_GIPHY_API_KEY).",
+    "gifError": "Could not load GIFs.",
+    "gifEmpty": "No results."
   },
   "dm": {
     "title": "Direct messages",
@@ -216,6 +221,12 @@
       "checkUpdates": "Check for updates",
       "upToDate": "You are up to date.",
       "updateAvailable": "Version {{version}} is available."
+    },
+    "groups": {
+      "account": "Account",
+      "app": "App",
+      "developer": "Developer",
+      "misc": "Other"
     }
   },
   "auth": {
@@ -309,7 +320,9 @@
     "deafen": "Deafen",
     "notConfigured": "LiveKit is not configured for voice channels.",
     "participants": "Participants",
-    "noParticipants": "Nobody here"
+    "noParticipants": "Nobody here",
+    "camera": "Camera",
+    "call": "Call"
   },
   "gif": {
     "title": "GIF",

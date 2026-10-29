@@ -32,7 +32,7 @@ client.on("messageCreate", async (event) => {
   const message = event.message;
   if (!message?.content) return;
 
-  // 1 â€” duplicate flooding inside 8 seconds
+  // 1 — duplicate flooding inside 8 seconds
   const bucket = recent.get(key(message)) ?? [];
   const now = Date.now();
   const windowed = [...bucket, { at: now, content: message.content }].filter(
@@ -48,32 +48,32 @@ client.on("messageCreate", async (event) => {
     warnings.set(message.authorId, count);
 
     await log(
-      `âš ï¸ <${message.authorId}> flood (${total} mesaj / 8sn) â€” uyarÄ± ${count}/${WARN_THRESHOLD}`,
+      `⚠️ <${message.authorId}> flood (${total} mesaj / 8sn) — uyarı ${count}/${WARN_THRESHOLD}`,
     );
 
     if (count >= WARN_THRESHOLD) {
       warnings.set(message.authorId, 0);
       await log(
-        `ğŸ”¨ <${message.authorId}> ${WARN_THRESHOLD} uyarÄ±ya ulaÅŸtÄ±, moderasyon panelinden susturulmalÄ±.`,
+        `🔨 <${message.authorId}> ${WARN_THRESHOLD} uyarıya ulaştı, moderasyon panelinden susturulmalı.`,
       );
     }
     return;
   }
 
-  // 2 â€” shout in caps
+  // 2 — shout in caps
   const letters = message.content.replace(/[^\p{L}]/gu, "");
   if (letters.length >= 12) {
-    const upper = letters.replace(/[^A-ZÃ‡ÄÄ°Ã–ÅÃœ]/g, "").length;
+    const upper = letters.replace(/[^A-ZÇĞİÖŞÜ]/g, "").length;
     if (upper / letters.length > 0.85) {
-      await client.send(message.channelId, "LÃ¼tfen bÃ¼yÃ¼k harfle yazmayÄ± azalt.");
-      await log(`ğŸ”Š <${message.authorId}> caps-lock mesajÄ±`);
+      await client.send(message.channelId, "Lütfen büyük harfle yazmayı azalt.");
+      await log(`🔊 <${message.authorId}> caps-lock mesajı`);
     }
   }
 });
 
 client.on("memberJoin", async (event) => {
-  const name = event.member?.displayName ?? "yeni Ã¼ye";
-  await log(`â• ${name} sunucuya katÄ±ldÄ±`);
+  const name = event.member?.displayName ?? "yeni üye";
+  await log(`➜ ${name} sunucuya katıldı`);
 });
 
 await client.listen();

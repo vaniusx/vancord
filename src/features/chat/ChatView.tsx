@@ -1,4 +1,4 @@
-import { Hash, Search, Users } from "lucide-react";
+import { Hash, Phone, Search, Users, Video } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -34,6 +34,8 @@ import {
   useServer,
 } from "@/features/servers/use-servers";
 import { StatusDot } from "@/features/shell/presence";
+import { useVoice } from "@/features/voice/use-voice";
+import { useVoiceStore } from "@/features/voice/voice-store";
 import { cn } from "@/lib/utils";
 
 export function ChatView({ channelId }: { channelId: string }) {
@@ -52,6 +54,8 @@ export function ChatView({ channelId }: { channelId: string }) {
 
   const isDm = channel?.type === "dm";
   const { data: partner } = useDmPartner(channelId, Boolean(isDm));
+  const voice = useVoice();
+  const callActive = useVoiceStore((state) => state.channelId === channelId);
   const partnerStatus = useLiveStatus(
     partner?.id ?? "",
     partner?.status ?? "offline",
@@ -137,6 +141,50 @@ export function ChatView({ channelId }: { channelId: string }) {
         </div>
 
         <div className="flex items-center gap-0.5">
+          {isDm ? (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={callActive ? "destructive" : "ghost"}
+                    size="icon"
+                    aria-label={callActive ? t("voice.leave") : t("voice.join")}
+                    className="size-8 text-muted-foreground"
+                    onClick={() => {
+                      if (callActive) void voice.leave();
+                      else void voice.join(channelId, title);
+                    }}
+                  >
+                    <Phone className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {callActive ? t("voice.leave") : t("voice.join")}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={callActive ? "destructive" : "ghost"}
+                    size="icon"
+                    aria-label={t("voice.camera")}
+                    className="size-8 text-muted-foreground"
+                    onClick={async () => {
+                      if (callActive) {
+                        await voice.leave();
+                        return;
+                      }
+                      await voice.join(channelId, title);
+                      await voice.toggleCamera();
+                    }}
+                  >
+                    <Video className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{t("voice.camera")}</TooltipContent>
+              </Tooltip>
+            </>
+          ) : null}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

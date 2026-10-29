@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload } from "lucide-react";
+import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppStore } from "@/features/app/app-store";
 import { useProfile, useUpdateProfile } from "@/features/profiles/use-profile";
@@ -558,7 +557,7 @@ function AboutSection() {
         <div>
           <p className="font-semibold">Vancord</p>
           <p className="text-[12px] text-muted-foreground">
-            {t("settings.about.version")} 0.2.0
+            {t("settings.about.version")} 0.3.1
           </p>
         </div>
       </div>
@@ -577,6 +576,13 @@ function AboutSection() {
   );
 }
 
+const SECTIONS = [
+  { group: "account", items: ["profile"] },
+  { group: "app", items: ["appearance", "activity", "notifications", "language"] },
+  { group: "developer", items: ["developer"] },
+  { group: "misc", items: ["about"] },
+] as const;
+
 export function SettingsDialog() {
   const { t } = useTranslation();
   const open = useAppStore((state) => state.settingsOpen);
@@ -586,57 +592,91 @@ export function SettingsDialog() {
 
   return (
     <Dialog open={open} onOpenChange={(value) => (value ? null : close())}>
-      <DialogContent className="max-h-[85vh] overflow-hidden p-0 sm:max-w-3xl">
-        <DialogHeader className="border-b border-border px-6 py-4">
+      <DialogContent className="h-[86vh] max-h-[720px] gap-0 overflow-hidden p-0 sm:max-w-[880px]">
+        <DialogHeader className="sr-only">
           <DialogTitle>{t("settings.title")}</DialogTitle>
-          <DialogDescription className="sr-only">{t("settings.title")}</DialogDescription>
+          <DialogDescription>{t("settings.title")}</DialogDescription>
         </DialogHeader>
 
-        <Tabs
-          value={section}
-          onValueChange={(value) => openSettings(value as typeof section)}
-          className="flex min-h-0 flex-col"
-        >
-          <div className="border-b border-border px-4 pt-3">
-            <TabsList className="flex w-full justify-start gap-1 bg-transparent p-0">
-              {(
-                ["profile", "appearance", "activity", "notifications", "language", "developer", "about"] as const
-              ).map((value) => (
-                <TabsTrigger
-                  key={value}
-                  value={value}
-                  className="rounded-lg px-3 py-1.5 text-[12.5px] data-[state=active]:bg-accent"
-                >
-                  {t(`settings.sections.${value}`)}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+        <div className="flex min-h-0 flex-1">
+          {/* Left navigation, Discord style: a quiet rail with grouped items. */}
+          <aside className="flex w-[208px] shrink-0 flex-col border-r border-border/60 bg-sidebar/70">
+            <div className="px-3 pt-4 pb-2">
+              <p className="px-2 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                {t("settings.title")}
+              </p>
+            </div>
 
-          <div className="scrollbar-thin max-h-[62vh] overflow-y-auto p-6">
-            <TabsContent value="profile" className="m-0">
-              <ProfileSection />
-            </TabsContent>
-            <TabsContent value="appearance" className="m-0">
-              <AppearanceSection />
-            </TabsContent>
-            <TabsContent value="activity" className="m-0">
-              <ActivitySection />
-            </TabsContent>
-            <TabsContent value="notifications" className="m-0">
-              <NotificationsSection />
-            </TabsContent>
-            <TabsContent value="language" className="m-0">
-              <LanguageSection />
-            </TabsContent>
-            <TabsContent value="developer" className="m-0">
-              <DeveloperSection />
-            </TabsContent>
-            <TabsContent value="about" className="m-0">
-              <AboutSection />
-            </TabsContent>
-          </div>
-        </Tabs>
+            <nav className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+              {SECTIONS.map((group) => (
+                <div key={group.group} className="mb-2">
+                  <p className="px-2 pt-2 pb-1 text-[10.5px] font-semibold tracking-[0.07em] text-muted-foreground/70 uppercase">
+                    {t(`settings.groups.${group.group}`)}
+                  </p>
+                  {group.items.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => openSettings(value)}
+                      aria-current={section === value ? "page" : undefined}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] transition-colors",
+                        section === value
+                          ? "bg-accent font-medium text-foreground"
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                      )}
+                    >
+                      <span className="truncate">{t(`settings.sections.${value}`)}</span>
+                      {section === value ? (
+                        <span className="size-1.5 rounded-full bg-primary" />
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </nav>
+
+            <div className="border-t border-border/60 p-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-[12.5px] text-muted-foreground"
+                onClick={close}
+              >
+                {t("common.close")}
+              </Button>
+            </div>
+          </aside>
+
+          <section className="flex min-w-0 flex-1 flex-col">
+            <header className="flex h-[52px] shrink-0 items-center justify-between border-b border-border/60 px-6">
+              <h2 className="truncate text-[15px] font-semibold">
+                {t(`settings.sections.${section}`)}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("common.close")}
+                className="size-8 text-muted-foreground"
+                onClick={close}
+              >
+                <X className="size-4" />
+              </Button>
+            </header>
+
+            <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-6 py-5">
+              <div className="mx-auto w-full max-w-[560px]">
+                {section === "profile" ? <ProfileSection /> : null}
+                {section === "appearance" ? <AppearanceSection /> : null}
+                {section === "activity" ? <ActivitySection /> : null}
+                {section === "notifications" ? <NotificationsSection /> : null}
+                {section === "language" ? <LanguageSection /> : null}
+                {section === "developer" ? <DeveloperSection /> : null}
+                {section === "about" ? <AboutSection /> : null}
+              </div>
+            </div>
+          </section>
+        </div>
       </DialogContent>
     </Dialog>
   );

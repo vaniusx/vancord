@@ -2,7 +2,6 @@
 //! the running process list; elsewhere it reports nothing and the client falls
 //! back to the manual "playing" picker.
 
-
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DetectedGame {
@@ -11,16 +10,43 @@ pub struct DetectedGame {
     pub process: String,
 }
 
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryGame {
+    pub app_id: u32,
+    pub name: String,
+}
+
 #[cfg(windows)]
 mod platform {
     use super::DetectedGame;
     use std::fs;
     use std::path::{Path, PathBuf};
+    use std::process::{Command, Stdio};
+
+    /// Spawning a console program from a GUI app flashes a black window unless
+    /// the child is created without one. Every Command in this module goes
+    /// through this helper.
+    #[cfg(windows)]
+    fn quiet_command(program: &str) -> Command {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        let mut command = Command::new(program);
+        command
+            .creation_flags(CREATE_NO_WINDOW)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null());
+        command
+    }
 
     fn steam_roots() -> Vec<PathBuf> {
         let mut roots = Vec::new();
 
-        for key in ["HKCU\\Software\\Valve\\Steam", "HKLM\\SOFTWARE\\WOW6432Node\\Valve\\Steam"] {
+        for key in [
+            "HKCU\\Software\\Valve\\Steam",
+            "HKLM\\SOFTWARE\\WOW6432Node\\Valve\\Steam",
+        ] {
             if let Some(path) = read_registry_string(key, "SteamPath") {
                 roots.push(PathBuf::from(path));
             }
@@ -36,7 +62,7 @@ mod platform {
     }
 
     fn read_registry_string(key: &str, value: &str) -> Option<String> {
-        let output = std::process::Command::new("reg")
+        let output = quiet_command("reg")
             .args(["query", key, "/v", value])
             .output()
             .ok()?;
@@ -45,8 +71,9 @@ mod platform {
         }
         let text = String::from_utf8_lossy(&output.stdout);
         let line = text.lines().find(|line| line.contains(value))?;
-        let parts: Vec<&str> = line.split("REG_SZ").collect();
-        parts.get(1).map(|value| value.trim().to_string())
+        line.split("REG_SZ")
+            .nth(1)
+            .map(|value| value.trim().to_string())
     }
 
     fn library_paths(root: &Path) -> Vec<PathBuf> {
@@ -85,7 +112,8 @@ mod platform {
                     let Ok(content) = fs::read_to_string(entry.path()) else {
                         continue;
                     };
-                    let app_id = extract(&content, "appid").and_then(|value| value.parse::<u32>().ok());
+                    let app_id =
+                        extract(&content, "appid").and_then(|value| value.parse::<u32>().ok());
                     let game_name = extract(&content, "name");
                     let install_dir = extract(&content, "installdir");
                     if let (Some(app_id), Some(game_name), Some(install_dir)) =
@@ -102,18 +130,18 @@ mod platform {
 
     fn extract(content: &str, key: &str) -> Option<String> {
         let needle = format!("\"{key}\"");
-        content.lines().find(|line| line.trim_start().starts_with(&needle)).and_then(|line| {
-            let mut parts = line.split('"').filter(|part| !part.trim().is_empty());
-            parts.next();
-            parts.next().map(|value| value.trim().to_string())
-        })
+        content
+            .lines()
+            .find(|line| line.trim_start().starts_with(&needle))
+            .and_then(|line| {
+                let mut parts = line.split('"').filter(|part| !part.trim().is_empty());
+                parts.next();
+                parts.next().map(|value| value.trim().to_string())
+            })
     }
 
     fn running_processes() -> Vec<String> {
-        let output = std::process::Command::new("tasklist")
-            .args(["/fo", "csv", "/nh"])
-            .output();
-        let Ok(output) = output else {
+        let Ok(output) = quiet_command("tasklist").args(["/fo", "csv", "/nh"]).output() else {
             return Vec::new();
         };
         String::from_utf8_lossy(&output.stdout)
@@ -121,6 +149,37 @@ mod platform {
             .filter_map(|line| line.split(',').next())
             .map(|name| name.trim_matches('"').to_lowercase())
             .collect()
+    }
+
+    fn executables_in(directory: &Path) -> Vec<String> {
+        let Ok(entries) = fs::read_dir(directory) else {
+            return Vec::new();
+        };
+        let mut executables = Vec::new();
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let file_name = entry.file_name().to_string_lossy().to_lowercase();
+            if path.is_file() && file_name.ends_with(".exe") {
+                executables.push(file_name);
+                continue;
+            }
+            if !path.is_dir() {
+                continue;
+            }
+            if let Ok(inner) = fs::read_dir(&path) {
+                for nested in inner.flatten() {
+                    let inner_name = nested.file_name().to_string_lossy().to_lowercase();
+                    if inner_name.ends_with(".exe")
+                        && (inner_name.contains("shipping")
+                            || inner_name.contains("win64")
+                            || inner_name.contains("game"))
+                    {
+                        executables.push(inner_name);
+                    }
+                }
+            }
+        }
+        executables
     }
 
     pub fn installed() -> Vec<(u32, String)> {
@@ -137,43 +196,22 @@ mod platform {
         }
 
         let processes = running_processes();
+        if processes.is_empty() {
+            return Vec::new();
+        }
+
         let mut found: Vec<DetectedGame> = Vec::new();
 
         for (app_id, name, directory) in games {
-            // The executable name is the same as the install directory in most
-            // Steam titles, but not all of them, so both are checked.
-            let Ok(entries) = fs::read_dir(&directory) else {
-                continue;
-            };
-            let mut executables: Vec<String> = Vec::new();
-            for entry in entries.flatten() {
-                let path = entry.path();
-                let is_dir = path.is_dir();
-                let file_name = entry.file_name().to_string_lossy().to_lowercase();
-                if !is_dir && file_name.ends_with(".exe") {
-                    executables.push(file_name);
-                }
-                if is_dir {
-                    if let Ok(inner) = fs::read_dir(&path) {
-                        for nested in inner.flatten() {
-                            let inner_name = nested.file_name().to_string_lossy().to_lowercase();
-                            if inner_name.ends_with(".exe")
-                                && (inner_name.contains("shipping")
-                                    || inner_name.contains("win64")
-                                    || inner_name.contains("game"))
-                            {
-                                executables.push(inner_name);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if let Some(process) = executables
+            if let Some(process) = executables_in(&directory)
                 .into_iter()
                 .find(|executable| processes.iter().any(|running| running == executable))
             {
-                found.push(DetectedGame { app_id, name, process });
+                found.push(DetectedGame {
+                    app_id,
+                    name,
+                    process,
+                });
             }
         }
 
@@ -202,14 +240,6 @@ pub fn detect_running_game() -> Option<DetectedGame> {
 #[tauri::command]
 pub fn detect_running_games() -> Vec<DetectedGame> {
     platform::detect()
-}
-
-/// Manual library listing, used by the "playing" picker when detection is off.
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LibraryGame {
-    pub app_id: u32,
-    pub name: String,
 }
 
 #[tauri::command]

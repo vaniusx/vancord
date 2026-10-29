@@ -317,7 +317,7 @@ begin
   values (new_server_id, new.id, 'owner');
 
   insert into channels (server_id, type, name, topic, position)
-  values (new_server_id, 'text', 'genel', 'Sunucunun ilk kanalÄ±', 0);
+  values (new_server_id, 'text', 'genel', 'Sunucunun ilk kanalı', 0);
 
   return new;
 end;
