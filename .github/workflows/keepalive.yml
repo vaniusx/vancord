@@ -9,9 +9,13 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping the REST endpoint
+      - name: Query a real table
+        # Hitting /rest/v1/ alone returns 401 because the root path needs both
+        # apikey and Authorization. A small select exercises the database for
+        # real, which is what keeps a free project from pausing.
         run: |
           curl --fail --silent --show-error \
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
-            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/" \
+            -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/badges?select=id&limit=1" \
             -o /dev/null
