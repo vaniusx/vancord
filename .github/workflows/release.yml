@@ -36,6 +36,12 @@ jobs:
       - name: Type check
         run: pnpm exec tsc --noEmit
 
+      - name: Version consistency
+        run: node scripts/check-version.mjs
+
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build and publish
         uses: tauri-apps/tauri-action@v0
         env:
@@ -90,6 +96,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      - name: Unit tests
+        run: pnpm test
 
       - name: Restore signing keystore
         env:

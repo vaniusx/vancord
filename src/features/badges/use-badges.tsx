@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { BadgeGlyph } from "@/features/badges/BadgeGlyph";
+import { BadgeMedallion } from "@/features/badges/BadgeGlyph";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCurrentUser } from "@/features/auth/auth-store";
 import type { BadgeRow } from "@/lib/models";
@@ -57,30 +57,23 @@ export function BadgeChip({
 }) {
   const label = language === "tr" ? badge.name_tr : badge.name_en;
   const description = language === "tr" ? badge.description_tr : badge.description_en;
-
-  // A medallion rather than a rounded square: it reads as an award, keeps its
-  // silhouette at 18px, and the inner radial gradient gives it depth without an
-  // image asset.
-  const box =
-    size === "lg" ? "size-10" : size === "sm" ? "size-[18px]" : "size-[22px]";
-  const glyph = size === "lg" ? 22 : size === "sm" ? 12 : 14;
-  const color = badge.color;
+  const pixels = size === "lg" ? 38 : size === "sm" ? 18 : 22;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-full",
-            box,
+            "inline-flex shrink-0 items-center justify-center rounded-full",
+            size === "lg" && "ring-2 ring-background",
           )}
-          style={{
-            color,
-            background: `radial-gradient(120% 120% at 30% 22%, color-mix(in oklab, ${color} 42%, transparent), color-mix(in oklab, ${color} 12%, transparent) 62%, color-mix(in oklab, ${color} 7%, transparent))`,
-            boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${color} 55%, transparent), inset 0 1px 0 color-mix(in oklab, white 22%, transparent), 0 1px 2px rgb(0 0 0 / 0.18)`,
-          }}
+          style={
+            size === "lg"
+              ? { filter: `drop-shadow(0 1px 3px color-mix(in oklab, ${badge.color} 55%, transparent))` }
+              : undefined
+          }
         >
-          <BadgeGlyph icon={badge.icon} size={glyph} />
+          <BadgeMedallion icon={badge.icon} color={badge.color} size={pixels} />
         </span>
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-56 text-center">
@@ -90,6 +83,7 @@ export function BadgeChip({
     </Tooltip>
   );
 }
+
 export function BadgeRowList({
   badges,
   language,

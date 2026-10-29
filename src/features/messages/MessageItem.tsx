@@ -1,4 +1,4 @@
-import { Check, Copy, Pencil, SmilePlus, Trash2, X } from "lucide-react";
+import { Check, Copy, CornerUpLeft, Pencil, Pin, SmilePlus, Trash2, X } from "lucide-react";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -156,10 +156,16 @@ export const MessageItem = memo(function MessageItem({
   message,
   grouped,
   canManage,
+  replyPreview,
+  onReply,
+  onPin,
 }: {
   message: MessageRow;
   grouped: boolean;
   canManage: boolean;
+  replyPreview?: { author: string; excerpt: string } | null;
+  onReply?: () => void;
+  onPin?: (pinned: boolean) => void;
 }) {
   const { t } = useTranslation();
   const user = useCurrentUser();
@@ -257,9 +263,22 @@ export const MessageItem = memo(function MessageItem({
                     </span>
                   </ProfilePopover>
                 )}
+                {message.pinned_at ? (
+                  <Pin className="size-3 text-muted-foreground/70" aria-label={t("chat.pin")} />
+                ) : null}
                 <span className="text-[11.5px] text-muted-foreground tabular-nums">
                   {clockTime(message.created_at)}
                 </span>
+              </div>
+            ) : null}
+
+            {replyPreview ? (
+              <div className="mb-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                <CornerUpLeft className="size-3 shrink-0 opacity-70" />
+                <span className="shrink-0 font-medium text-foreground/80">
+                  {replyPreview.author}
+                </span>
+                <span className="min-w-0 truncate opacity-80">{replyPreview.excerpt}</span>
               </div>
             ) : null}
 
@@ -408,6 +427,18 @@ export const MessageItem = memo(function MessageItem({
           <Copy className="mr-2 size-4" />
           {t("chat.copy")}
         </ContextMenuItem>
+        {onReply ? (
+          <ContextMenuItem onSelect={() => onReply()}>
+            <CornerUpLeft className="mr-2 size-4" />
+            {t("chat.reply")}
+          </ContextMenuItem>
+        ) : null}
+        {onPin && (canManage || isMine) ? (
+          <ContextMenuItem onSelect={() => onPin(!message.pinned_at)}>
+            <Pin className="mr-2 size-4" />
+            {message.pinned_at ? t("chat.unpin") : t("chat.pin")}
+          </ContextMenuItem>
+        ) : null}
         {isMine ? (
           <ContextMenuItem
             onSelect={() => {

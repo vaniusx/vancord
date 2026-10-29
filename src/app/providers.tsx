@@ -6,6 +6,7 @@ import { ThemeProvider, useIsDark } from "@/app/theme";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/features/auth/AuthProvider";
+import { BootGate } from "@/features/update/BootGate";
 import { queryClient } from "@/lib/query";
 
 function AppToaster() {
@@ -25,7 +26,9 @@ export function AppProviders() {
       <ThemeProvider>
         <AuthProvider>
           <TooltipProvider delayDuration={250}>
-            <RouterProvider router={router} />
+            <BootGate>
+              <RouterProvider router={router} />
+            </BootGate>
             <AppToaster />
           </TooltipProvider>
         </AuthProvider>

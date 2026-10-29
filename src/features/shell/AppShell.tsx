@@ -38,10 +38,14 @@ const CommandPalette = lazy(() =>
     default: module.CommandPalette,
   })),
 );
-import { MobileNav } from "@/features/shell/MobileNav";
+import { MobileNav, MobileServerList } from "@/features/shell/MobileNav";
 import { ServerRail } from "@/features/shell/ServerRail";
 import { TitleBar } from "@/features/shell/TitleBar";
 import { VoiceBar } from "@/features/voice/VoiceBar";
+import { UpdateNotice } from "@/features/update/BootGate";
+import { useMentionCounts } from "@/features/servers/use-roles";
+import { ShopDialog } from "@/features/economy/ShopDialog";
+import { GroupDmDialog, InboxDialog } from "@/features/economy/SocialDialogs";
 import { isTauri } from "@/lib/tauri";
 import { accentFor } from "@/lib/format";
 
@@ -147,6 +151,7 @@ function ShellLayout() {
   const { data: servers } = useServers();
   const { data: dms } = useDms();
   const { data: unread } = useUnreadCounts();
+  const { data: mentions } = useMentionCounts();
   const { data: allChannels } = useAllChannels();
 
   const serverMatch = location.pathname.match(/^\/s\/([^/]+)/);
@@ -168,6 +173,7 @@ function ShellLayout() {
 
   const [dialog, setDialog] = useState<DialogName>(null);
   const [mobileChannels, setMobileChannels] = useState(false);
+  const [mobileServers, setMobileServers] = useState(false);
 
   const gameDetection = useAppStore((state) => state.gameDetection);
   const manualGame = useAppStore((state) => state.manualGame);
@@ -180,6 +186,12 @@ function ShellLayout() {
   const channelsOpen = useAppStore((state) => state.channelsOpen);
   const settingsOpen = useAppStore((state) => state.settingsOpen);
   const paletteOpen = useAppStore((state) => state.paletteOpen);
+  const shopOpen = useAppStore((state) => state.shopOpen);
+  const setShopOpen = useAppStore((state) => state.setShopOpen);
+  const inboxOpen = useAppStore((state) => state.inboxOpen);
+  const setInboxOpen = useAppStore((state) => state.setInboxOpen);
+  const groupDmOpen = useAppStore((state) => state.groupDmOpen);
+  const setGroupDmOpen = useAppStore((state) => state.setGroupDmOpen);
   const setChannelsOpen = useAppStore((state) => state.setChannelsOpen);
 
   const unreadByServer: Record<string, boolean> = {};
@@ -194,6 +206,10 @@ function ShellLayout() {
     (channel) => channel.server_id === activeServerId,
   );
   const unreadDm = (dms ?? []).some((dm) => (unread?.[dm.id] ?? 0) > 0);
+  const mentionCount = Object.values<number>(mentions ?? {}).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
 
   const canManage =
     activeServer?.role === "owner" || activeServer?.role === "admin";
@@ -224,6 +240,8 @@ function ShellLayout() {
       }}
     >
       <TitleBar />
+
+      <UpdateNotice />
 
       {!online ? (
         <div className="mx-2 mb-1 flex items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-1.5 text-[12px] text-destructive">
@@ -262,11 +280,35 @@ function ShellLayout() {
         activeServerId={activeServerId}
         unreadByServer={unreadByServer}
         unreadDm={unreadDm}
+        mentionCount={mentionCount}
         onSelectServer={(serverId) => navigate(`/s/${serverId}`)}
         onAddServer={() => setDialog("createServer")}
         onJoinServer={() => setDialog("joinServer")}
         onOpenChannels={() => setMobileChannels(true)}
+        onOpenServers={() => setMobileServers(true)}
       />
+
+      <Sheet open={mobileServers} onOpenChange={setMobileServers}>
+        <SheetContent
+          side="left"
+          className="w-[300px] max-w-[88vw] border-none bg-transparent p-0 shadow-none"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>{t("rail.servers")}</SheetTitle>
+          </SheetHeader>
+          <div className="panel h-full overflow-y-auto">
+            <MobileServerList
+              servers={servers ?? []}
+              activeServerId={activeServerId}
+              unreadByServer={unreadByServer}
+              onSelect={(serverId) => navigate(`/s/${serverId}`)}
+              onAdd={() => setDialog("createServer")}
+              onJoin={() => setDialog("joinServer")}
+              onClose={() => setMobileServers(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Sheet open={mobileChannels} onOpenChange={setMobileChannels}>
         <SheetContent
@@ -296,6 +338,15 @@ function ShellLayout() {
           />
         ) : null}
         {settingsOpen ? <SettingsDialog /> : null}
+        {shopOpen ? <ShopDialog open onOpenChange={setShopOpen} /> : null}
+        {inboxOpen ? <InboxDialog open onOpenChange={setInboxOpen} /> : null}
+        {groupDmOpen ? (
+          <GroupDmDialog
+            open
+            onOpenChange={setGroupDmOpen}
+            onCreated={(channelId) => navigate(`/dm/${channelId}`)}
+          />
+        ) : null}
         {paletteOpen ? <CommandPalette /> : null}
       </Suspense>
     </div>

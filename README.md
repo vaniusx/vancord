@@ -10,22 +10,20 @@ installer (NSIS or MSI). Updates are signed and install in place.
 ## Features
 
 - Email/password accounts with a provisioned profile, personal server and starter channel
-- Eight badges (founder, team, beta supporter, early beta developer, bug hunter,
-  active member, moderator, verified bot) shown on profile cards and member rows
-- Profile cards open from any name or avatar with bio, badges, banner and
-  "now playing"; Steam titles are detected locally and can be hidden
+- Automatic updates: a new build installs before the window opens, and can be
+  turned off in Settings → About
+- Text, voice, forum and category channels; direct messages and group DMs for up
+  to ten people
+- Custom roles with seventeen permissions and per-channel allow/deny overrides
+- Message replies, pins, full-text search and an @mention inbox
+- Markdown, GIFs, server emoji and stickers, reactions, image attachments and
+  inline editing
+- Points economy: earn by chatting and by time in voice, spend on Vancord+,
+  Vancord Ultra, server boosts, themes and cosmetic badges
+- Eight badges shown on profile cards and member rows
+- Profile cards with bio, badges, banner and "now playing" via local Steam detection
 - Floating-panel shell with six palettes and a per-server accent colour
-- Servers with icon, banner, description, invite codes and owner/admin/member roles
-- Text channels with markdown, 48 built-in stickers, reactions, image and GIF
-  attachments (animation preserved), inline editing and jumbo emoji
-- Voice channels with camera and screen sharing (LiveKit)
-- Live message updates, typing indicators and presence over Supabase Realtime
-- Direct messages, but only in the messages view; servers stay focused on channels
-- Six colour palettes with dark and light mode, switchable from settings
-- Profile customisation: avatar, banner, bio, status and accent
-- Desktop notifications, system tray, window state, autostart and signed auto-updates
 - Windows and Android from one codebase; the APK ships on every release
-- Turkish and English UI
 
 ## Optional integrations
 
@@ -74,8 +72,10 @@ dashboard SQL editor, or `supabase db push`.
 ```bash
 pnpm dev            # Vite only (browser preview)
 pnpm build          # type check + production bundle
+pnpm test           # unit tests (Vitest)
 pnpm tauri dev      # desktop app with hot reload
 pnpm tauri build    # NSIS + MSI installers
+node scripts/check-version.mjs   # version consistency across the three manifests
 ```
 
 ## Release and updates
@@ -155,6 +155,35 @@ Every server gets an automatic `#mod-log` channel. `server_automod` blocks invit
 links, banned words, mention floods and message floods at the database level, so
 the rule applies even if a client is out of date. Moderators also get timeout,
 kick and ban actions from the member list.
+
+## Points and memberships
+
+Points are recorded in an append-only ledger; a balance is always derived, never
+stored, so it cannot drift and the client cannot write to it.
+
+| Action | Points |
+|---|---|
+| Sending a message | 1 per minute, server channels only, minimum five characters |
+| Time in voice | 2 per minute, 120 a day, clamped to real elapsed time |
+| Daily claim | 10, or 15 with a streak |
+
+| Item | Price |
+|---|---|
+| Vancord+ (30 days) | 3000 |
+| Vancord Ultra (30 days) | 6000 |
+| Server boost (30 days) | 1000 |
+| Premium theme pack | 1200 |
+| Cosmetic badges | 800–1500 |
+
+There is no real-money purchase path. Everything is earned in the app.
+
+## Automatic updates
+
+On launch the desktop build checks for a new version, and if one exists it is
+installed behind a full-screen "Updating" view; the app appears only once the new
+build is in place. The check times out after three seconds so a slow network
+never blocks opening. Turning the option off in Settings → About makes the app
+open with a notice instead. A version that fails twice is skipped for 24 hours.
 
 ## Android
 

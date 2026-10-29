@@ -1,5 +1,5 @@
 import { ArrowDown, Loader2, MessageCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { EmptyState } from "@/components/common/empty-state";
@@ -15,6 +15,8 @@ export function MessageList({
   onLoadOlder,
   canManage,
   ready,
+  onReply,
+  onPin,
 }: {
   messages: MessageRow[];
   hasMore: boolean;
@@ -22,12 +24,19 @@ export function MessageList({
   onLoadOlder: () => void;
   canManage: boolean;
   ready: boolean;
+  onReply?: (message: MessageRow) => void;
+  onPin?: (message: MessageRow, pinned: boolean) => void;
 }) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [atBottom, setAtBottom] = useState(true);
   const lastCount = useRef(0);
+  const byId = useMemo(() => {
+    const map = new Map<string, MessageRow>();
+    for (const message of messages) map.set(message.id, message);
+    return map;
+  }, [messages]);
   const lastChannel = useRef<string | null>(null);
   // Height captured before an "older messages" fetch. The scroll position is
   // corrected once the new rows are actually in the DOM; the old code adjusted
@@ -134,6 +143,19 @@ export function MessageList({
                 message={message}
                 grouped={grouped}
                 canManage={canManage}
+                replyPreview={(() => {
+                  if (!message.reply_to_id) return null;
+                  const target = byId.get(message.reply_to_id);
+                  if (!target) return { author: t("chat.replyUnavailable"), excerpt: "" };
+                  const author =
+                    target.author?.display_name ??
+                    target.bot?.name ??
+                    t("common.unknownUser");
+                  const excerpt = target.content.replace(/\s+/g, " ").slice(0, 90);
+                  return { author, excerpt };
+                })()}
+                onReply={onReply ? () => onReply(message) : undefined}
+                onPin={onPin ? (pinned) => onPin(message, pinned) : undefined}
               />
             </div>
           );

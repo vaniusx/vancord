@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import process from "node:process";
+import pkg from "./package.json" with { type: "json" };
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -47,6 +48,12 @@ export default defineConfig(() => ({
         },
       },
     },
+  },
+
+  // Single source of truth for the version shown in the UI and used by the
+  // updater guard: package.json.
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
 
   clearScreen: false,

@@ -17,6 +17,7 @@ const PAGE_SIZE = 40;
 
 const MESSAGE_SELECT = `
   id, channel_id, author_id, bot_id, content, created_at, edited_at,
+  reply_to_id, pinned_at, pinned_by,
   author:profiles!messages_author_profile_fkey(
     id, username, display_name, avatar_url, accent_color, status, custom_status
   ),
@@ -122,6 +123,7 @@ export function useSendMessage() {
       channelId: string;
       content: string;
       attachments?: UploadResult[];
+      replyToId?: string | null;
     }) => {
       const supabase = requireSupabase();
       const { data, error } = await supabase
@@ -130,6 +132,7 @@ export function useSendMessage() {
           channel_id: input.channelId,
           author_id: user!.id,
           content: input.content,
+          reply_to_id: input.replyToId ?? null,
         })
         .select("id")
         .single();
@@ -167,6 +170,7 @@ export function useSendMessage() {
         content: variables.content,
         created_at: new Date().toISOString(),
         edited_at: null,
+        reply_to_id: variables.replyToId ?? null,
         author:
           profile ??
           useProfileCache.getState().profiles[user.id] ??

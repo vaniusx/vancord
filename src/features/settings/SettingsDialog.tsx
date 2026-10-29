@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { THEME_OPTIONS, useIsDark, useThemeStore, type ThemeMode } from "@/app/theme";
 import { Avatar } from "@/components/common/avatar";
+import { BrandMark } from "@/components/common/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +27,13 @@ import { publicUrl } from "@/lib/supabase";
 import { uploadAvatar, uploadBanner } from "@/lib/upload";
 import { listSteamLibrary } from "@/features/activity/use-activity";
 import { DeveloperSection } from "@/features/bots/DeveloperSection";
-import { checkForUpdate } from "@/lib/updater";
+import {
+  APP_VERSION,
+  canAutoUpdate,
+  checkForUpdate,
+  downloadAndInstall,
+  relaunchApp,
+} from "@/lib/updater";
 import { cn } from "@/lib/utils";
 
 const BANNER_COLORS = [
@@ -534,43 +541,87 @@ function LanguageSection() {
 
 function AboutSection() {
   const { t } = useTranslation();
+  const autoUpdate = useAppStore((state) => state.autoUpdate);
+  const setAutoUpdate = useAppStore((state) => state.setAutoUpdate);
+  const pending = useAppStore((state) => state.pendingUpdate);
+  const setPending = useAppStore((state) => state.setPendingUpdate);
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const desktop = canAutoUpdate();
 
   const check = async () => {
     setChecking(true);
     const info = await checkForUpdate();
     setChecking(false);
-    setResult(
-      info
-        ? t("settings.about.updateAvailable", { version: info.version })
-        : t("settings.about.upToDate"),
-    );
+    if (info) {
+      setPending({ version: info.version, notes: info.notes });
+      setResult(t("update.updateAvailable", { version: info.version }));
+    } else {
+      setPending(null);
+      setResult(t("update.upToDate"));
+    }
+  };
+
+  const install = async () => {
+    setInstalling(true);
+    const ok = await downloadAndInstall();
+    setInstalling(false);
+    if (ok) await relaunchApp();
+    else setResult(t("update.failed"));
   };
 
   return (
-    <div className="space-y-3 text-[13px]">
+    <div className="space-y-4 text-[13px]">
       <div className="flex items-center gap-3">
-        <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
-          V
-        </div>
+        <BrandMark size={44} />
         <div>
           <p className="font-semibold">Vancord</p>
           <p className="text-[12px] text-muted-foreground">
-            {t("settings.about.version")} 0.3.1
+            {t("settings.about.version")} {APP_VERSION}
           </p>
         </div>
       </div>
+
       <p className="leading-relaxed text-muted-foreground">{t("settings.about.body")}</p>
+
       <div className="rounded-xl border border-border/70 bg-card/50 p-3 text-[12px] text-muted-foreground">
         <p>{t("settings.about.stack")}</p>
       </div>
-      <div className="flex items-center gap-2">
+
+      {desktop ? (
+        <div className="rounded-xl border border-border/70 p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-medium">{t("update.autoLabel")}</p>
+              <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted-foreground">
+                {t("update.autoHint")}
+              </p>
+            </div>
+            <Switch checked={autoUpdate} onCheckedChange={setAutoUpdate} />
+          </div>
+
+          {pending ? (
+            <div className="mt-3 flex items-center gap-2 rounded-lg bg-primary/8 px-2.5 py-2">
+              <span className="min-w-0 flex-1 truncate text-[12px]">
+                {t("update.availableVersion", { version: pending.version })}
+              </span>
+              <Button size="sm" className="h-7" disabled={installing} onClick={() => void install()}>
+                {installing ? t("update.installing") : t("update.installNow")}
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant="outline" onClick={() => void check()} disabled={checking}>
           {checking ? <Loader2 className="mr-2 size-3.5 animate-spin" /> : null}
-          {t("settings.about.checkUpdates")}
+          {t("update.checkNow")}
         </Button>
-        {result ? <span className="text-[12px] text-muted-foreground">{result}</span> : null}
+        {result ? (
+          <span className="text-[12px] text-muted-foreground">{result}</span>
+        ) : null}
       </div>
     </div>
   );

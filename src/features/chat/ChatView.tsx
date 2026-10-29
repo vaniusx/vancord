@@ -1,5 +1,5 @@
-import { Hash, Phone, Search, Users, Video } from "lucide-react";
-import { useEffect } from "react";
+import { Hash, Phone, Pin, Search, Users, Video } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -21,6 +21,8 @@ import { useAppStore } from "@/features/app/app-store";
 import { TypingIndicator } from "@/features/chat/TypingIndicator";
 import { useChannel, useDmPartner } from "@/features/dm/use-dms";
 import { MemberList } from "@/features/members/MemberList";
+import { PinnedPanel, SearchDialog, useJumpToMessage } from "@/features/chat/ChannelTools";
+import { useTogglePin } from "@/features/messages/use-chat-extras";
 import { Composer } from "@/features/messages/Composer";
 import { MessageList } from "@/features/messages/MessageList";
 import {
@@ -36,6 +38,7 @@ import {
 import { StatusDot } from "@/features/shell/presence";
 import { useVoice } from "@/features/voice/use-voice";
 import { useVoiceStore } from "@/features/voice/voice-store";
+import type { MessageRow } from "@/lib/models";
 import { cn } from "@/lib/utils";
 
 export function ChatView({ channelId }: { channelId: string }) {
@@ -55,6 +58,11 @@ export function ChatView({ channelId }: { channelId: string }) {
   const isDm = channel?.type === "dm";
   const { data: partner } = useDmPartner(channelId, Boolean(isDm));
   const voice = useVoice();
+  const togglePin = useTogglePin(channelId);
+  const jumpTo = useJumpToMessage();
+  const [replyTo, setReplyTo] = useState<MessageRow | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [pinsOpen, setPinsOpen] = useState(false);
   const callActive = useVoiceStore((state) => state.channelId === channelId);
   const partnerStatus = useLiveStatus(
     partner?.id ?? "",
@@ -197,14 +205,29 @@ export function ChatView({ channelId }: { channelId: string }) {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={t("palette.title")}
+                aria-label={t("chat.searchTitle")}
                 className="size-8 text-muted-foreground"
-                onClick={() => useAppStore.getState().setPaletteOpen(true)}
+                onClick={() => setSearchOpen(true)}
               >
                 <Search className="size-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">{t("palette.title")}</TooltipContent>
+            <TooltipContent side="bottom">{t("chat.searchTitle")}</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("chat.pinnedTitle")}
+                className="size-8 text-muted-foreground"
+                onClick={() => setPinsOpen(true)}
+              >
+                <Pin className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("chat.pinnedTitle")}</TooltipContent>
           </Tooltip>
 
           {!isDm ? (
@@ -241,12 +264,39 @@ export function ChatView({ channelId }: { channelId: string }) {
         }}
         canManage={isAdmin}
         ready={messages.isSuccess}
+        onReply={(message) =>
+          setReplyTo({
+            ...message,
+            content: message.content,
+          })
+        }
+        onPin={(message, pinned) =>
+          togglePin.mutate({ messageId: message.id, pinned })
+        }
       />
 
       <TypingIndicator channelId={channelId} />
 
       <Composer
         channelId={channelId}
+        replyTo={
+          replyTo
+            ? {
+                id: replyTo.id,
+                author:
+                  replyTo.author?.display_name ??
+                  replyTo.bot?.name ??
+                  t("common.unknownUser"),
+                excerpt: replyTo.content.replace(/\s+/g, " ").slice(0, 90),
+              }
+            : null
+        }
+        onCancelReply={() => setReplyTo(null)}
+        mentionables={(members.data ?? []).map((member) => ({
+          id: member.user_id,
+          username: member.profile.username,
+          display_name: member.profile.display_name,
+        }))}
         placeholder={
           isDm
             ? t("chat.placeholderDm", { name: title })
@@ -271,6 +321,15 @@ export function ChatView({ channelId }: { channelId: string }) {
           </SheetContent>
         </Sheet>
       ) : null}
+
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        serverId={serverId}
+        onJump={(hit) => jumpTo(hit)}
+      />
+
+      <PinnedPanel open={pinsOpen} onOpenChange={setPinsOpen} channelId={channelId} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 export type PresenceStatus = "online" | "idle" | "dnd" | "invisible" | "offline";
 export type ServerRole = "owner" | "admin" | "member";
-export type ChannelType = "text" | "voice" | "dm";
+export type ChannelType = "text" | "voice" | "dm" | "group" | "category" | "forum";
 export type FriendshipStatus = "pending" | "accepted" | "blocked";
 
 export interface ProfileSummary {
@@ -55,6 +55,9 @@ export interface ChannelRow {
   name: string | null;
   topic: string | null;
   position: number;
+  category_id?: string | null;
+  slowmode_seconds?: number;
+  user_limit?: number | null;
 }
 
 export interface MemberRow {
@@ -94,6 +97,9 @@ export interface MessageRow {
   content: string;
   created_at: string;
   edited_at: string | null;
+  reply_to_id?: string | null;
+  pinned_at?: string | null;
+  pinned_by?: string | null;
   author: ProfileSummary | null;
   bot: BotSummary | null;
   message_attachments: AttachmentRow[];
@@ -114,3 +120,61 @@ export interface FriendEdge {
   requester: ProfileSummary | null;
   addressee: ProfileSummary | null;
 }
+
+export interface RoleDefinition {
+  id: string;
+  server_id: string;
+  name: string;
+  color: string | null;
+  permissions: string[];
+  position: number;
+  is_default: boolean;
+}
+
+export interface ChannelOverride {
+  id: string;
+  channel_id: string;
+  role_id: string | null;
+  user_id: string | null;
+  allow: string[];
+  deny: string[];
+}
+
+export interface ShopItem {
+  sku: string;
+  kind: "membership" | "boost" | "cosmetic" | "theme";
+  name_tr: string;
+  name_en: string;
+  description_tr: string;
+  description_en: string;
+  price: number;
+  duration_days: number | null;
+  metadata: Record<string, unknown>;
+  sort: number;
+}
+
+export interface EconomyState {
+  balance: number;
+  membership: { tier: "plus" | "ultra"; expiresAt: string } | null;
+  cosmetics: string[];
+  history: Array<{ amount: number; reason: string; createdAt: string }>;
+}
+
+export type PermissionName =
+  | "view_channels"
+  | "send_messages"
+  | "add_reactions"
+  | "attach_files"
+  | "read_history"
+  | "manage_messages"
+  | "manage_channels"
+  | "manage_roles"
+  | "manage_emojis"
+  | "kick_members"
+  | "ban_members"
+  | "timeout_members"
+  | "view_audit_log"
+  | "connect_voice"
+  | "speak"
+  | "use_external_emoji"
+  | "mention_everyone";

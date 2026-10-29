@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { BotDirectory } from "@/features/bots/BotDirectory";
+import { BoostPanel, RoleEditor } from "@/features/servers/RoleEditor";
+import { useBoostLevel } from "@/features/servers/use-roles";
 import { ModerationSettings } from "@/features/moderation/ModerationSettings";
 import { useProfile } from "@/features/profiles/use-profile";
 import { accentFor, initials } from "@/lib/format";
@@ -471,6 +473,7 @@ export function ServerSettingsDialog({
   const iconRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const { data: profile } = useProfile();
+  const { data: boost } = useBoostLevel(server?.id);
 
   useEffect(() => {
     if (!server) return;
@@ -636,6 +639,8 @@ export function ServerSettingsDialog({
 
           {server.role === "owner" || server.role === "admin" ? (
             <>
+              <RoleEditor serverId={server.id} />
+              <BoostPanel serverId={server.id} boostLevel={boost?.level ?? 0} />
               <BotDirectory serverId={server.id} />
               <ModerationSettings serverId={server.id} />
             </>

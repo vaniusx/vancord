@@ -1,13 +1,16 @@
 import {
+  AtSign,
   Check,
   MessageSquare,
   Search,
   UserPlus,
   UserRoundX,
+  Users,
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAppStore } from "@/features/app/app-store";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -63,6 +66,8 @@ function PersonRow({
 
 export function FriendsView() {
   const { t } = useTranslation();
+  const setInboxOpen = useAppStore((state) => state.setInboxOpen);
+  const setGroupDmOpen = useAppStore((state) => state.setGroupDmOpen);
   const user = useCurrentUser();
   const navigate = useNavigate();
   const { data: edges, isLoading } = useFriendships();
@@ -184,6 +189,25 @@ export function FriendsView() {
             {t("friends.subtitle")}
           </p>
         </div>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 gap-1.5 text-[12px] text-muted-foreground"
+          onClick={() => setGroupDmOpen(true)}
+        >
+          <Users className="size-3.5" />
+          {t("group.create")}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 text-muted-foreground"
+          aria-label={t("inbox.title")}
+          onClick={() => setInboxOpen(true)}
+        >
+          <AtSign className="size-4" />
+        </Button>
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">

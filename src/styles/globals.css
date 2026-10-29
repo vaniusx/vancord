@@ -833,3 +833,80 @@ em-emoji-picker {
   }
 }
 
+
+/* ------------------------------------------------------------------ v1 additions */
+
+/* Mentions read as a chip rather than coloured text, so they stay legible on any
+   theme and survive the 4.5:1 contrast bar. */
+.chat-mention {
+  border-radius: 0.3rem;
+  padding: 0 0.2em;
+  font-weight: 600;
+  color: var(--brand-strong);
+  background-color: color-mix(in oklab, var(--brand) 15%, transparent);
+}
+
+.chat-mention-everyone {
+  color: #ffffff;
+  background-color: var(--signal);
+}
+
+@media (prefers-color-scheme: dark) {
+  .chat-mention {
+    color: color-mix(in oklab, var(--brand) 45%, #ffffff);
+    background-color: color-mix(in oklab, var(--brand) 28%, transparent);
+  }
+}
+
+.dark .chat-mention {
+  color: color-mix(in oklab, var(--brand) 45%, #ffffff);
+  background-color: color-mix(in oklab, var(--brand) 28%, transparent);
+}
+
+/* One spacing scale for the whole app: everything is a multiple of 4px and the
+   rhythm between sections is 8/12/16. These are the values the hand-written
+   Tailwind classes already use, exposed as tokens so new code cannot drift. */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Type scale. The app had fourteen ad-hoc sizes between 9.5px and 18px; these
+     five steps cover every case and keep line heights consistent. */
+  --text-2xs: 0.6875rem;  /* 11px - meta */
+  --text-xs: 0.75rem;     /* 12px - secondary */
+  --text-sm: 0.8125rem;   /* 13px - body small */
+  --text-base: 0.875rem;  /* 14px - body */
+  --text-lg: 1rem;        /* 16px - heading */
+  --text-xl: 1.25rem;     /* 20px - page title */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Three elevations only. */
+  --elev-1: 0 1px 2px color-mix(in oklab, #000 6%, transparent);
+  --elev-2: 0 2px 6px color-mix(in oklab, #000 8%, transparent);
+  --elev-3: 0 12px 32px -16px color-mix(in oklab, #000 45%, transparent);
+}
+
+/* Consistent focus ring for every interactive element that does not set its own. */
+:where(button, a, [role="button"], input, textarea, select):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Respect the OS setting; the app has a lot of transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

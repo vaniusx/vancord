@@ -26,9 +26,15 @@ const MAX_FILES = 5;
 export function Composer({
   channelId,
   placeholder,
+  replyTo,
+  onCancelReply,
+  mentionables = [],
 }: {
   channelId: string;
   placeholder: string;
+  replyTo?: { id: string; author: string; excerpt: string } | null;
+  onCancelReply?: () => void;
+  mentionables?: Array<{ id: string; username: string; display_name: string }>;
 }) {
   const { t } = useTranslation();
   const draft = useAppStore((state) => state.drafts[channelId] ?? "");
@@ -41,6 +47,31 @@ export function Composer({
   const [files, setFiles] = useState<PendingFile[]>([]);
   const [dragging, setDragging] = useState(false);
   const [sending, setSending] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+
+  const mentionMatches =
+    mentionQuery === null
+      ? []
+      : mentionables
+          .filter((member) => {
+            const query = mentionQuery.toLowerCase();
+            return (
+              member.username.toLowerCase().startsWith(query) ||
+              member.display_name.toLowerCase().startsWith(query)
+            );
+          })
+          .slice(0, 6);
+
+  const applyMention = (member: { username: string }) => {
+    const value = draft;
+    const at = value.lastIndexOf("@");
+    const next = at >= 0 ? value.slice(0, at) + "@" + member.username + " " : value + "@" + member.username + " ";
+    setDraft(channelId, next);
+    setMentionQuery(null);
+    setMentionIndex(0);
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  };
 
   const resize = () => {
     const el = textareaRef.current;
@@ -78,9 +109,15 @@ export function Composer({
         uploads.push(await uploadAttachment(crypto.randomUUID(), item.file));
       }
 
-      await sendMessage.mutateAsync({ channelId, content, attachments: uploads });
+      await sendMessage.mutateAsync({
+        channelId,
+        content,
+        attachments: uploads,
+        replyToId: replyTo?.id ?? null,
+      });
 
       clearDraft(channelId);
+      onCancelReply?.();
       files.forEach((item) => item.preview && URL.revokeObjectURL(item.preview));
       setFiles([]);
       if (textareaRef.current) textareaRef.current.style.height = "auto";
@@ -144,6 +181,46 @@ export function Composer({
         </div>
       ) : null}
 
+      {replyTo ? (
+        <div className="mb-1.5 flex items-center gap-2 rounded-xl border border-border/70 bg-card/70 px-3 py-1.5 text-[12px]">
+          <span className="shrink-0 text-muted-foreground">{t("chat.replyingTo")}</span>
+          <span className="min-w-0 flex-1 truncate font-medium">{replyTo.author}</span>
+          <span className="hidden min-w-0 flex-1 truncate text-muted-foreground sm:block">
+            {replyTo.excerpt}
+          </span>
+          <button
+            type="button"
+            onClick={onCancelReply}
+            aria-label={t("common.cancel")}
+            className="shrink-0 rounded p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        </div>
+      ) : null}
+
+      {mentionMatches.length > 0 ? (
+        <div className="mb-1.5 overflow-hidden rounded-xl border border-border/70 bg-popover shadow-lg">
+          {mentionMatches.map((member, index) => (
+            <button
+              key={member.id}
+              type="button"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                applyMention(member);
+              }}
+              className={
+                "flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] transition-colors " +
+                (index === mentionIndex ? "bg-accent" : "hover:bg-accent/60")
+              }
+            >
+              <span className="font-medium">@{member.username}</span>
+              <span className="truncate text-muted-foreground">{member.display_name}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       <div className="rounded-xl border border-border/70 bg-card transition-colors focus-within:border-primary/45">
         {files.length > 0 ? (
           <div className="flex flex-wrap gap-2 border-b border-border/60 p-2">
@@ -201,9 +278,14 @@ export function Composer({
             value={draft}
             placeholder={placeholder}
             onChange={(event) => {
-              setDraft(channelId, event.target.value);
+              const value = event.target.value;
+              setDraft(channelId, value);
               sendTyping(channelId);
               resize();
+
+              const match = /(?:^|\s)@([a-zA-Z0-9_.]{0,32})$/.exec(value);
+              setMentionQuery(match ? match[1] : null);
+              setMentionIndex(0);
             }}
             onPaste={(event) => {
               const pasted = Array.from(event.clipboardData.files);
@@ -213,6 +295,29 @@ export function Composer({
               }
             }}
             onKeyDown={(event) => {
+              if (mentionMatches.length > 0) {
+                if (event.key === "ArrowDown") {
+                  event.preventDefault();
+                  setMentionIndex((index) => (index + 1) % mentionMatches.length);
+                  return;
+                }
+                if (event.key === "ArrowUp") {
+                  event.preventDefault();
+                  setMentionIndex(
+                    (index) => (index - 1 + mentionMatches.length) % mentionMatches.length,
+                  );
+                  return;
+                }
+                if (event.key === "Enter" || event.key === "Tab") {
+                  event.preventDefault();
+                  applyMention(mentionMatches[mentionIndex]);
+                  return;
+                }
+                if (event.key === "Escape") {
+                  setMentionQuery(null);
+                  return;
+                }
+              }
               if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 void submit();

@@ -1,4 +1,4 @@
-import { Check, LogOut, Settings, UserRound } from "lucide-react";
+import { Check, LogOut, Settings, Sparkles, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppStore } from "@/features/app/app-store";
 import { useProfile, useUpdateProfile } from "@/features/profiles/use-profile";
+import { useEconomy } from "@/features/servers/use-roles";
 import { StatusDot, type PresenceStatus } from "@/features/shell/presence";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,8 @@ export function UserCard() {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
   const openSettings = useAppStore((state) => state.openSettings);
+  const setShopOpen = useAppStore((state) => state.setShopOpen);
+  const { data: economy } = useEconomy();
 
   if (!profile) {
     return (
@@ -106,6 +109,16 @@ export function UserCard() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <button
+        type="button"
+        onClick={() => setShopOpen(true)}
+        aria-label={t("economy.title")}
+        className="flex h-8 shrink-0 items-center gap-1 rounded-lg px-1.5 text-[11.5px] font-semibold text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-foreground"
+      >
+        <Sparkles className="size-3.5 text-primary" />
+        <span className="tabular-nums">{economy?.balance ?? 0}</span>
+      </button>
 
       <Button
         variant="ghost"

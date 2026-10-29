@@ -38,6 +38,16 @@ interface AppState {
   clearDraft: (channelId: string) => void;
   typingNames: Record<string, string[]>;
   setTyping: (channelId: string, userId: string, active: boolean) => void;
+  autoUpdate: boolean;
+  setAutoUpdate: (enabled: boolean) => void;
+  shopOpen: boolean;
+  setShopOpen: (open: boolean) => void;
+  inboxOpen: boolean;
+  setInboxOpen: (open: boolean) => void;
+  groupDmOpen: boolean;
+  setGroupDmOpen: (open: boolean) => void;
+  pendingUpdate: { version: string; notes: string | null } | null;
+  setPendingUpdate: (update: { version: string; notes: string | null } | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -75,6 +85,16 @@ export const useAppStore = create<AppState>()(
           delete next[channelId];
           return { drafts: next };
         }),
+      autoUpdate: true,
+      setAutoUpdate: (autoUpdate) => set({ autoUpdate }),
+      shopOpen: false,
+      setShopOpen: (shopOpen) => set({ shopOpen }),
+      inboxOpen: false,
+      setInboxOpen: (inboxOpen) => set({ inboxOpen }),
+      groupDmOpen: false,
+      setGroupDmOpen: (groupDmOpen) => set({ groupDmOpen }),
+      pendingUpdate: null,
+      setPendingUpdate: (pendingUpdate) => set({ pendingUpdate }),
       typingNames: {},
       setTyping: (channelId, userId, active) =>
         set((state) => {
@@ -98,6 +118,7 @@ export const useAppStore = create<AppState>()(
         gameDetection: state.gameDetection,
         manualGame: state.manualGame,
         lastServerId: state.lastServerId,
+        autoUpdate: state.autoUpdate,
       }),
     },
   ),

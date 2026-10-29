@@ -63,6 +63,7 @@ function describe(error: unknown): string {
 const roomRef: { current: Room | null } = { current: null };
 const lkRef: { current: LiveKit | null } = { current: null };
 const speaking: { current: Set<string> } = { current: new Set() };
+let heartbeat: ReturnType<typeof setInterval> | null = null;
 
 export function useVoice() {
   const channelId = useVoiceStore((state) => state.channelId);
@@ -78,7 +79,23 @@ export function useVoice() {
     });
   }, []);
 
+  const stopHeartbeat = () => {
+    if (heartbeat !== null) {
+      clearInterval(heartbeat);
+      heartbeat = null;
+    }
+  };
+
+  const startHeartbeat = (id: string) => {
+    stopHeartbeat();
+    const supabase = requireSupabase();
+    heartbeat = setInterval(() => {
+      void supabase.rpc("voice_heartbeat", { target_channel: id }).then(() => undefined);
+    }, 60_000);
+  };
+
   const leave = useCallback(async () => {
+    stopHeartbeat();
     const room = roomRef.current;
     roomRef.current = null;
     speaking.current.clear();
@@ -134,6 +151,7 @@ export function useVoice() {
           })
           .on(lk.RoomEvent.ConnectionStateChanged, sync)
           .on(lk.RoomEvent.Disconnected, () => {
+            stopHeartbeat();
             roomRef.current = null;
             useVoiceStore.getState().reset();
           });
@@ -152,6 +170,7 @@ export function useVoice() {
           connecting: false,
           connected: true,
         });
+        startHeartbeat(id);
         sync();
       } catch (error) {
         useVoiceStore.getState().setState({
