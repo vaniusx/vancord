@@ -65,7 +65,9 @@ const lkRef: { current: LiveKit | null } = { current: null };
 const speaking: { current: Set<string> } = { current: new Set() };
 
 export function useVoice() {
-  const { channelId, connected, connecting } = useVoiceStore();
+  const channelId = useVoiceStore((state) => state.channelId);
+  const connected = useVoiceStore((state) => state.connected);
+  const connecting = useVoiceStore((state) => state.connecting);
 
   const sync = useCallback(() => {
     const room = roomRef.current;

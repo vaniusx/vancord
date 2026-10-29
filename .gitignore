@@ -42,3 +42,6 @@ src-tauri/gen/android/.gradle
 src-tauri/gen/android/build
 *.keystore
 *.jks
+
+# Local tooling
+opencode.json
