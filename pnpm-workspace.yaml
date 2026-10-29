@@ -1,3 +1,8 @@
-onlyBuiltDependencies:
-  - esbuild
-  - "@tailwindcss/oxide"
+# pnpm 11 uses `allowBuilds` (a map) rather than the old `onlyBuiltDependencies`
+# list. esbuild is needed by Vitest and the Tailwind oxide binary by the CSS
+# pipeline; both must run their install scripts or the build fails on a clean
+# checkout.
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true
+  "@tailwindcss/oxide-win32-x64-msvc": true
