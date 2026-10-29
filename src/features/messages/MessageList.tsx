@@ -29,6 +29,10 @@ export function MessageList({
   const [atBottom, setAtBottom] = useState(true);
   const lastCount = useRef(0);
   const lastChannel = useRef<string | null>(null);
+  // Height captured before an "older messages" fetch. The scroll position is
+  // corrected once the new rows are actually in the DOM; the old code adjusted
+  // on the next animation frame, before the data arrived, so the view jumped.
+  const pendingPrepend = useRef<number | null>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     bottomRef.current?.scrollIntoView({ behavior, block: "end" });
@@ -42,13 +46,21 @@ export function MessageList({
     if (lastChannel.current !== channelId) {
       lastChannel.current = channelId;
       lastCount.current = messages.length;
+      pendingPrepend.current = null;
       requestAnimationFrame(() => scrollToBottom("auto"));
       return;
     }
 
-    if (messages.length > lastCount.current && atBottom) {
+    const grew = messages.length > lastCount.current;
+
+    if (grew && pendingPrepend.current !== null) {
+      const delta = container.scrollHeight - pendingPrepend.current;
+      pendingPrepend.current = null;
+      if (delta > 0) container.scrollTop += delta;
+    } else if (grew && atBottom) {
       requestAnimationFrame(() => scrollToBottom("smooth"));
     }
+
     lastCount.current = messages.length;
   }, [messages, atBottom]);
 
@@ -59,12 +71,14 @@ export function MessageList({
       container.scrollHeight - container.scrollTop - container.clientHeight;
     setAtBottom(distance < 120);
 
-    if (container.scrollTop < 80 && hasMore && !loadingOlder) {
-      const previousHeight = container.scrollHeight;
+    if (
+      container.scrollTop < 80 &&
+      hasMore &&
+      !loadingOlder &&
+      pendingPrepend.current === null
+    ) {
+      pendingPrepend.current = container.scrollHeight;
       onLoadOlder();
-      requestAnimationFrame(() => {
-        container.scrollTop = container.scrollHeight - previousHeight + 80;
-      });
     }
   };
 

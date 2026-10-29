@@ -186,11 +186,16 @@ export const MessageItem = memo(function MessageItem({
   };
 
   const react = (emoji: string) => {
+    // Quick reactions used to always insert, so tapping the same emoji twice hit
+    // the unique constraint and failed. Toggle against the current state.
+    const mine = message.reactions.some(
+      (reaction) => reaction.user_id === user?.id && reaction.emoji === emoji,
+    );
     toggleReaction.mutate({
       messageId: message.id,
       channelId: message.channel_id,
       emoji,
-      active: true,
+      active: !mine,
     });
   };
 

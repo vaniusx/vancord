@@ -818,17 +818,12 @@ em-emoji-picker {
   letter-spacing: 0.04em;
 }
 
-/* Touch targets. Android and iOS need 44px hit areas even when the visual is
-   smaller, and pinch-zoom is disabled elsewhere. */
+/* Touch input. A blanket `min-height: 40px` on every button used to stretch the
+   compact toolbars (section headers, icon buttons) and overflow them, so the rule
+   only applies to buttons that are not already sized explicitly. */
 @media (pointer: coarse) {
-  .panel {
-    border-radius: 0;
-    border-width: 0;
-    box-shadow: none;
-  }
-
-  button,
-  [role="button"] {
+  button:not([class*="size-"]):not([class*="h-"]),
+  [role="button"]:not([class*="size-"]):not([class*="h-"]) {
     min-height: 40px;
   }
 
@@ -837,3 +832,4 @@ em-emoji-picker {
     -webkit-text-size-adjust: 100%;
   }
 }
+

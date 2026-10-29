@@ -1,4 +1,4 @@
-import { LogOut, Settings, UserRound } from "lucide-react";
+import { Check, LogOut, Settings, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -91,7 +91,7 @@ export function UserCard() {
               <StatusDot status={status} ring={false} />
               {t(`status.${status}`)}
               {profile.status === status ? (
-                <span className="ml-auto text-[11px] text-primary">â€¢</span>
+                <Check className="ml-auto size-3.5 text-primary" aria-hidden="true" />
               ) : null}
             </DropdownMenuItem>
           ))}

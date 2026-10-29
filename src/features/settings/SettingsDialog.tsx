@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload, X } from "lucide-react";
+import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -653,15 +653,7 @@ export function SettingsDialog() {
               <h2 className="truncate text-[15px] font-semibold">
                 {t(`settings.sections.${section}`)}
               </h2>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={t("common.close")}
-                className="size-8 text-muted-foreground"
-                onClick={close}
-              >
-                <X className="size-4" />
-              </Button>
+              {/* The dialog's own close button sits here; no second one. */}
             </header>
 
             <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-6 py-5">

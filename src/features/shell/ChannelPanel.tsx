@@ -35,11 +35,11 @@ function SectionLabel({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-1 px-1 pb-1">
+    <div className="flex items-center gap-1 pb-0.5">
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-1 text-[10.5px] font-semibold tracking-[0.08em] text-muted-foreground uppercase transition-colors hover:text-foreground"
+        className="-ml-1 flex min-h-7 items-center gap-1 rounded-md px-1 text-[10.5px] font-semibold tracking-[0.08em] text-muted-foreground uppercase transition-colors hover:bg-accent/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <ChevronDown
           className={cn("size-3 transition-transform duration-150", !open && "-rotate-90")}
@@ -73,24 +73,31 @@ function ChannelButton({
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex h-9 w-full items-center gap-2 rounded-full px-3 text-left text-[13.5px] transition-colors",
+        "group relative flex h-8.5 w-full items-center gap-2 rounded-lg pr-2.5 pl-3 text-left text-[13.5px] transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         active
-          ? "font-medium text-white"
+          ? "bg-accent font-medium text-foreground"
           : unread > 0
-            ? "font-medium text-foreground hover:bg-accent/60"
-            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+            ? "font-medium text-foreground hover:bg-accent/55"
+            : "text-muted-foreground hover:bg-accent/55 hover:text-foreground",
       )}
-      style={active ? { backgroundColor: accent } : undefined}
     >
-      <Icon className={cn("size-4 shrink-0", active ? "opacity-90" : "opacity-60")} />
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute top-1/2 left-1 w-[3px] -translate-y-1/2 rounded-full transition-all duration-150",
+          active ? "h-4 opacity-100" : "h-0 opacity-0",
+        )}
+        style={{ backgroundColor: accent }}
+      />
+      <Icon
+        className={cn("size-4 shrink-0", active ? "" : "opacity-60")}
+        style={active ? { color: accent } : undefined}
+      />
       <span className="truncate">{channel.name}</span>
       {unread > 0 && !active && !isVoice ? (
         <span
-          className="ml-auto rounded-full px-1.5 text-[10.5px] font-semibold tabular-nums"
-          style={{
-            backgroundColor: `color-mix(in oklab, ${accent} 18%, transparent)`,
-            color: accent,
-          }}
+          className="ml-auto rounded-full px-1.5 text-[10.5px] font-semibold text-white tabular-nums"
+          style={{ backgroundColor: accent }}
         >
           {unread > 99 ? "99+" : unread}
         </span>
@@ -137,9 +144,11 @@ function DmRow({
       </div>
       {unread > 0 && !active ? (
         <span
-          className="size-2 shrink-0 rounded-full"
+          className="shrink-0 rounded-full px-1.5 text-[10.5px] font-semibold text-white tabular-nums"
           style={{ backgroundColor: accent }}
-        />
+        >
+          {unread > 99 ? "99+" : unread}
+        </span>
       ) : null}
     </button>
   );
@@ -179,6 +188,7 @@ export function ChannelPanel({
   const setPaletteOpen = useAppStore((state) => state.setPaletteOpen);
   const [channelsOpen, setChannelsOpen] = useState(true);
   const [dmsOpen, setDmsOpen] = useState(true);
+  const [voiceOpen, setVoiceOpen] = useState(true);
 
   const accent = activeServer?.accent_color || accentFor(activeServer?.id ?? "home");
   const isAdmin = activeServer?.role === "owner" || activeServer?.role === "admin";
@@ -190,7 +200,7 @@ export function ChannelPanel({
 
   return (
     <aside className="panel flex h-full w-[262px] shrink-0 flex-col overflow-hidden">
-      <div className="flex h-[54px] shrink-0 items-center gap-2 px-2.5">
+      <div className="flex h-[52px] shrink-0 items-center gap-2 px-2.5">
         {mode === "server" && activeServer ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -285,7 +295,7 @@ export function ChannelPanel({
                         type="button"
                         onClick={onCreateChannel}
                         aria-label={t("sidebar.createChannel")}
-                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        className="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                       >
                         <Plus className="size-3.5" />
                       </button>
@@ -314,11 +324,14 @@ export function ChannelPanel({
               </Collapsible>
 
               {voiceChannels.length > 0 ? (
-                <div>
-                  <SectionLabel open onToggle={() => {}}>
+                <Collapsible open={voiceOpen} onOpenChange={setVoiceOpen}>
+                  <SectionLabel
+                    open={voiceOpen}
+                    onToggle={() => setVoiceOpen((value) => !value)}
+                  >
                     {t("sidebar.voiceChannels")}
                   </SectionLabel>
-                  <div className="space-y-0.5">
+                  <CollapsibleContent className="space-y-0.5">
                     {voiceChannels.map((channel) => (
                       <ChannelButton
                         key={channel.id}
@@ -329,8 +342,8 @@ export function ChannelPanel({
                         onClick={() => navigate(`/s/${activeServer.id}/${channel.id}`)}
                       />
                     ))}
-                  </div>
-                </div>
+                  </CollapsibleContent>
+                </Collapsible>
               ) : null}
             </>
           ) : null}
@@ -345,7 +358,7 @@ export function ChannelPanel({
                     type="button"
                     onClick={() => navigate("/")}
                     aria-label={t("friends.title")}
-                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    className="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                   >
                     <Users className="size-3.5" />
                   </button>

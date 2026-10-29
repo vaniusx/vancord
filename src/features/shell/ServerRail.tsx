@@ -17,6 +17,26 @@ import { accentFor, initials } from "@/lib/format";
 import type { ServerSummary } from "@/lib/models";
 import { cn } from "@/lib/utils";
 
+const RAIL_BUTTON =
+  "group relative flex size-10 shrink-0 items-center justify-center rounded-[12px] text-[13px] font-semibold transition-[border-radius,background-color,color,transform] duration-150 hover:rounded-[14px] active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none";
+
+/**
+ * The active pill sits in the rail gutter, not on the icon, so the icon keeps its
+ * full fill and the marker reads at a glance without adding another border.
+ */
+function Indicator({ active, accent }: { active?: boolean; accent?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "absolute -left-2 w-[3px] rounded-full transition-all duration-200",
+        active ? "h-5 opacity-100" : "h-0 opacity-0",
+      )}
+      style={{ backgroundColor: accent ?? "var(--primary)" }}
+    />
+  );
+}
+
 function RailButton({
   label,
   active,
@@ -34,6 +54,7 @@ function RailButton({
   children: React.ReactNode;
   className?: string;
 }) {
+  const activeFill = accent ?? "var(--primary)";
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -43,18 +64,21 @@ function RailButton({
           aria-label={label}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "group relative flex size-10 shrink-0 items-center justify-center rounded-[13px] text-[13px] font-semibold transition-all duration-150",
+            RAIL_BUTTON,
             active
-              ? "text-white shadow-sm"
-              : "text-muted-foreground hover:bg-card hover:text-foreground",
+              ? "text-white shadow-sm ring-1 ring-black/15 ring-inset"
+              : "bg-secondary/60 text-foreground/80 hover:bg-secondary hover:text-foreground",
+            !active && unread && "text-foreground",
             className,
           )}
-          style={active && accent ? { backgroundColor: accent } : undefined}
+          style={active ? { backgroundColor: activeFill } : undefined}
         >
+          <Indicator active={active} accent={activeFill} />
           {children}
           {unread && !active ? (
             <span
-              className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full ring-2 ring-background"
+              aria-hidden="true"
+              className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full ring-2 ring-background"
               style={{ backgroundColor: accent ?? "var(--signal)" }}
             />
           ) : null}
@@ -97,7 +121,6 @@ export function ServerRail({
         label={t("rail.home")}
         active={activeServerId === null}
         onClick={() => navigate("/")}
-        className={activeServerId === null ? "bg-primary text-primary-foreground" : undefined}
       >
         <MessageCircle className="size-[18px]" />
       </RailButton>
@@ -107,11 +130,12 @@ export function ServerRail({
       <div className="scrollbar-none flex w-full flex-1 flex-col items-center gap-1.5 overflow-y-auto">
         {servers.map((server) => {
           const accent = server.accent_color || accentFor(server.id);
+          const active = activeServerId === server.id;
           return (
             <RailButton
               key={server.id}
               label={server.name}
-              active={activeServerId === server.id}
+              active={active}
               accent={accent}
               unread={unreadByServer[server.id]}
               onClick={() => onSelectServer(server.id)}
@@ -120,17 +144,10 @@ export function ServerRail({
                 <img
                   src={server.icon_url}
                   alt=""
-                  className="size-full rounded-[13px] object-cover"
+                  className="size-full rounded-[inherit] object-cover"
                 />
               ) : (
-                <span
-                  className="flex size-full items-center justify-center rounded-[13px]"
-                  style={
-                    activeServerId === server.id
-                      ? undefined
-                      : { backgroundColor: `color-mix(in oklab, ${accent} 14%, transparent)`, color: accent }
-                  }
-                >
+                <span className="flex size-full items-center justify-center rounded-[inherit]">
                   {initials(server.name)}
                 </span>
               )}
@@ -157,14 +174,17 @@ export function ServerRail({
               type="button"
               aria-label={profile?.display_name ?? t("rail.profile")}
               onClick={() => openSettings("profile")}
-              className="relative mt-0.5"
+              className="relative mt-0.5 rounded-[10px] transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
             >
               {profile ? (
                 <Avatar profile={profile} size="sm" className="rounded-[9px]" />
               ) : (
                 <BrandMark size={28} />
               )}
-              <StatusDot status={status} className="absolute -right-0.5 -bottom-0.5 size-2.5" />
+              <StatusDot
+                status={status}
+                className="absolute -right-0.5 -bottom-0.5 size-2.5"
+              />
             </button>
           </TooltipTrigger>
           <TooltipContent side="right">

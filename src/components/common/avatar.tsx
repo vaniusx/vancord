@@ -24,12 +24,15 @@ export function Avatar({
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold text-white select-none",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold text-white ring-1 ring-black/10 ring-inset select-none",
         SIZES[size],
         className,
       )}
       style={{
-        backgroundImage: `linear-gradient(140deg, ${accent} 0%, ${accent}bb 60%, ${accent}88 100%)`,
+        // Both stops are opaque. The old gradient faded to 53% alpha, so the
+        // lower half of every initials avatar became near-white and the white
+        // label dropped to a 1.04 contrast ratio.
+        backgroundImage: `linear-gradient(140deg, ${accent} 0%, color-mix(in oklab, ${accent} 74%, #000) 100%)`,
       }}
       title={profile.display_name}
     >

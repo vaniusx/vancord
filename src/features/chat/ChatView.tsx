@@ -124,7 +124,14 @@ export function ChatView({ channelId }: { channelId: string }) {
             />
           </div>
         ) : (
-          <div className="flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+          <div
+            className="flex size-7 items-center justify-center rounded-lg"
+            style={{
+              backgroundColor:
+                "color-mix(in oklab, var(--server-accent) 14%, transparent)",
+              color: "var(--server-accent)",
+            }}
+          >
             <Hash className="size-4" />
           </div>
         )}

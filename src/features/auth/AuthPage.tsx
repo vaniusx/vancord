@@ -382,7 +382,7 @@ function RecoveryFlow({ onBack }: { onBack: () => void }) {
             if (event.key === "Enter") void send();
           }}
         />
-        <p className="text-[11.5px] text-muted-foreground">{t("auth.resetBody", { email: email || "â€¦" })}</p>
+        <p className="text-[11.5px] text-muted-foreground">{t("auth.resetBody", { email: email || "…" })}</p>
       </div>
       <Button className="w-full" onClick={() => void send()} disabled={pending || !email.trim()}>
         {pending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
