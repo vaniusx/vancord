@@ -40,7 +40,8 @@
     "offline": "Offline",
     "noChannels": "No channels yet",
     "createChannel": "Create channel",
-    "voiceChannels": "Voice channels"
+    "voiceChannels": "Voice channels",
+    "showChannels": "Show channels"
   },
   "servers": {
     "createTitle": "Create a server",
@@ -176,7 +177,8 @@
       "pending": "Requests",
       "sent": "Sent",
       "blocked": "Blocked"
-    }
+    },
+    "empty": "You have no friends yet."
   },
   "members": {
     "roles": {
@@ -335,11 +337,27 @@
     "mute": "Mute",
     "unmute": "Unmute",
     "deafen": "Deafen",
-    "notConfigured": "LiveKit is not configured for voice channels.",
+    "notConfigured": "Voice channels are unavailable right now (server setting is missing).",
     "participants": "Participants",
     "noParticipants": "Nobody here",
     "camera": "Camera",
-    "call": "Call"
+    "call": "Call",
+    "unauthenticated": "Your session expired. Sign in again.",
+    "forbidden": "You are not allowed to join this channel.",
+    "channelUnavailable": "This channel no longer exists.",
+    "micDenied": "Microphone access was denied. Open Windows Settings → Privacy → Microphone, allow Vancord, then try again.",
+    "micBusy": "Another application is using the microphone. Close it and retry.",
+    "noDevice": "No microphone found. Connect one and try again.",
+    "network": "Could not reach the voice server. Check your connection.",
+    "websocketBlocked": "A security policy blocked the voice connection. Install the update.",
+    "roomFull": "The channel is full.",
+    "connectFailed": "Could not connect to voice.",
+    "retry": "Try again",
+    "joinMuted": "You joined with the microphone off",
+    "diagnostics": "Diagnostics",
+    "diagnosticsBody": "Microphone permission, the network and the LiveKit handshake are checked separately, so this screen shows which one is stuck.",
+    "checkMic": "Test microphone",
+    "checkMicOk": "Microphone works"
   },
   "gif": {
     "title": "GIF",

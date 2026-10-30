@@ -2,6 +2,7 @@ import type { Participant, Room, Track } from "livekit-client";
 import { useCallback, useEffect } from "react";
 
 import { useVoiceStore, type VoiceParticipant } from "@/features/voice/voice-store";
+import { classifyVoiceError } from "@/features/voice/errors";
 import { requireSupabase } from "@/lib/supabase";
 
 type TokenResponse = { token: string; url: string; room: string };
@@ -44,17 +45,6 @@ function collect(room: Room, speakingIdentities: Set<string>) {
   return list;
 }
 
-function describe(error: unknown): string {
-  if (error instanceof Error) {
-    const name = (error as { name?: string }).name;
-    if (name === "NotAllowedError" || /permission|denied/i.test(error.message)) {
-      return "voice_mic_denied";
-    }
-    if (name === "NotFoundError") return "voice_no_device";
-    return error.message;
-  }
-  return "voice_connect_failed";
-}
 
 // The LiveKit room is owned by the module, not by a hook instance. Several
 // components (the call bar, the full room view, the DM header) all need the same
@@ -162,8 +152,12 @@ export function useVoice() {
           await room.localParticipant.setMicrophoneEnabled(true);
           useVoiceStore.getState().setState({ micEnabled: true });
         } catch (micError) {
-          // Joining with the mic off is better than not joining at all.
-          useVoiceStore.getState().setState({ micEnabled: false, error: describe(micError) });
+          // Joining with the mic off is better than not joining at all. The
+          // reason is kept so the bar can explain what to fix.
+          useVoiceStore.getState().setState({
+            micEnabled: false,
+            error: classifyVoiceError(micError),
+          });
         }
 
         useVoiceStore.getState().setState({
@@ -176,7 +170,7 @@ export function useVoice() {
         useVoiceStore.getState().setState({
           connecting: false,
           connected: false,
-          error: describe(error),
+          error: classifyVoiceError(error),
           channelId: null,
           channelName: null,
         });
@@ -193,7 +187,7 @@ export function useVoice() {
       await room.localParticipant.setMicrophoneEnabled(next);
       useVoiceStore.getState().setState({ micEnabled: next, error: null });
     } catch (error) {
-      useVoiceStore.getState().setState({ error: describe(error) });
+      useVoiceStore.getState().setState({ error: classifyVoiceError(error) });
     }
     sync();
   }, [sync]);
@@ -206,7 +200,7 @@ export function useVoice() {
       await room.localParticipant.setCameraEnabled(next);
       useVoiceStore.getState().setState({ cameraEnabled: next });
     } catch (error) {
-      useVoiceStore.getState().setState({ cameraEnabled: false, error: describe(error) });
+      useVoiceStore.getState().setState({ cameraEnabled: false, error: classifyVoiceError(error) });
     }
     sync();
   }, [sync]);

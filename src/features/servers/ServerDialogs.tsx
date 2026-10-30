@@ -38,6 +38,7 @@ import {
   useDeleteServer,
   useJoinServer,
   useLeaveServer,
+  useMembers,
   useUpdateServer,
 } from "@/features/servers/use-servers";
 import {
@@ -696,14 +697,15 @@ export function ServerDialogs({
   onClose,
   server,
   canManage,
-  memberCount,
 }: {
   dialog: ServerDialogName | null;
   onClose: () => void;
   server: ServerSummary | undefined;
   canManage: boolean;
-  memberCount: number;
 }) {
+  // Read the roster here, only while a dialog is open, instead of in the shell.
+  const { data: members } = useMembers(server?.id);
+  const memberCount = members?.length ?? 0;
   if (!dialog) return null;
 
   const setOpen = () => (open: boolean) => {

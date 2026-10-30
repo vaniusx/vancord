@@ -2,6 +2,47 @@
 
 All notable changes to Vancord. Versions follow semantic versioning.
 
+## 1.0.1 — 2026-10-30
+
+Bug fixes for issues reported on 0.3 and 1.0.
+
+### Voice
+- The packaged app blocked its own voice connection: the content security policy
+  did not allow the LiveKit WebSocket, so the room never connected. It only
+  worked in development because the dev server skips that policy. Added
+  `wss://*.livekit.cloud` and the Giphy endpoints.
+- Every voice failure used to read "LiveKit is not configured". Errors are now
+  classified: expired session, no permission, denied microphone, missing device,
+  device in use, network failure, blocked WebSocket, full room. Each one explains
+  the fix, and microphone problems offer a retry.
+
+### GIFs
+- The GIF picker could not reach `api.giphy.com` for the same policy reason.
+  Fixed by the same change.
+
+### Sidebar
+- Closing the channel panel on desktop made it unreachable; only Ctrl+B brought
+  it back. There is now a visible toggle between the rail and the content.
+
+### Presence
+- Every member appeared online regardless of activity, because the resolver fell
+  back to the stored profile column which defaults to online. A member with no
+  live presence entry is now offline, and the roster sorts and counts from the
+  live status.
+
+### Performance
+- The shell subscribed to the member roster on every route, so each presence or
+  unread update re-rendered the whole app. The routed screen is now memoised and
+  the roster is only read while a server dialog is open.
+- Steam detection ran every 45 seconds and re-read every library manifest; the
+  library scan is cached for five minutes and the process scan for twenty
+  seconds, polling moved to 90 seconds, and a hidden window does no work.
+- Activity changes patch the member cache instead of invalidating every roster.
+
+### Other
+- Added the missing `friends.empty` and `sidebar.showChannels` strings.
+- Added unit tests for voice error classification and presence resolution.
+
 ## 1.0.0 — 2026-10-29
 
 First release meant to be used by people other than the author.

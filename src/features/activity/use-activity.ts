@@ -50,6 +50,7 @@ export function useGameActivity({
   const user = useCurrentUser();
   const queryClient = useQueryClient();
   const current = useRef<ActivityState | null>(null);
+  const nextActivity = useRef<ActivityState | null>(null);
   const save = useMutation({
     mutationFn: async (activity: ActivityState | null) => {
       const supabase = requireSupabase();
@@ -60,8 +61,18 @@ export function useGameActivity({
       if (error) throw error;
     },
     onSuccess: () => {
+      // Own profile always refreshes; member lists are patched locally so a
+      // cosmetic change does not refetch every server's roster.
       void queryClient.invalidateQueries({ queryKey: profileQueryKey(user?.id) });
-      void queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.setQueriesData<Array<{ user_id: string; profile: Record<string, unknown> }>>(
+        { queryKey: ["members"] },
+        (current) =>
+          current?.map((member) =>
+            member.user_id === user?.id
+              ? { ...member, profile: { ...member.profile, activity: nextActivity.current } }
+              : member,
+          ),
+      );
     },
   });
 
@@ -74,6 +85,7 @@ export function useGameActivity({
         current.current?.appId === next?.appId;
       if (same) return;
       current.current = next;
+      nextActivity.current = next;
       save.mutate(next);
     };
 
@@ -100,11 +112,23 @@ export function useGameActivity({
     };
 
     void tick();
-    const timer = setInterval(() => void tick(), 45_000);
+
+    // 90 seconds instead of 45: the value is cosmetic and the poll spawns two
+    // processes. A hidden window skips the work entirely and catches up on
+    // focus, so a minimised app costs nothing.
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") void tick();
+    }, 90_000);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, enabled, manual, visible]);

@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useVoice } from "@/features/voice/use-voice";
+import { voiceErrorKey } from "@/features/voice/VoiceRoom";
 import { useVoiceStore } from "@/features/voice/voice-store";
 import { ParticipantTile, SCREEN_SHARE, VideoTile } from "@/features/voice/VoiceTiles";
 import { cn } from "@/lib/utils";
@@ -41,13 +42,17 @@ export function VoiceBar() {
   if (!channelName && !error) return null;
 
   if (error) {
+    const key = voiceErrorKey(error);
     return (
       <div className="flex items-center justify-between gap-2 border-t border-border/60 bg-destructive/8 px-3 py-2 text-[12px] text-destructive">
-        <span className="truncate">{t("voice.notConfigured")}</span>
+        <span className="min-w-0 flex-1 leading-relaxed">
+          {key ? t(key) : t("voice.connectFailed")}
+        </span>
         <button
           type="button"
           onClick={() => useVoiceStore.getState().reset()}
           aria-label={t("common.close")}
+          className="shrink-0 rounded p-1 hover:bg-destructive/10"
         >
           <X className="size-3.5" />
         </button>
@@ -114,7 +119,7 @@ export function VoiceBar() {
                 ? t("voice.connecting")
                 : connected
                   ? t("voice.connected")
-                  : t("common.error")}
+                  : t("voice.connectFailed")}
             </p>
           </div>
 

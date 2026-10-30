@@ -9,7 +9,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-import { useCurrentUser } from "@/features/auth/auth-store";
+import { useAuthStore, useCurrentUser } from "@/features/auth/auth-store";
 import { useAppStore } from "@/features/app/app-store";
 import { useProfile } from "@/features/profiles/use-profile";
 import { useProfileCache } from "@/features/profiles/profile-cache";
@@ -36,10 +36,33 @@ export const usePresenceStore = create<PresenceState>((set) => ({
   setAll: (statuses) => set({ statuses }),
 }));
 
-export function useLiveStatus(userId: string, fallback: PresenceStatus) {
-  const live = usePresenceStore((state) => state.statuses[userId]);
+/**
+ * Resolves the status shown next to a name.
+ *
+ * The presence channel is the only source of truth for other people. Falling
+ * back to the profile column made every member look online forever: the column
+ * defaults to 'online' and nothing writes it when a client disconnects, so
+ * casting the fallback to 'offline' is what makes the dot honest.
+ */
+export function resolvePresence(
+  live: PresenceStatus | undefined,
+  userId: string | null | undefined,
+  currentUserId: string | null | undefined,
+  fallback: PresenceStatus = "offline",
+): PresenceStatus {
   if (live === "invisible") return "offline";
-  return live ?? fallback;
+  if (live) return live;
+
+  // Before the first presence sync the local user keeps their chosen status so
+  // the rail does not flash "offline" on launch.
+  if (userId && userId === currentUserId) return fallback;
+  return "offline";
+}
+
+export function useLiveStatus(userId: string, fallback: PresenceStatus = "offline") {
+  const currentUserId = useAuthStore((state) => state.user?.id);
+  const live = usePresenceStore((state) => (userId ? state.statuses[userId] : undefined));
+  return resolvePresence(live, userId, currentUserId, fallback);
 }
 
 type RealtimeChannel = ReturnType<NonNullable<typeof supabase>["channel"]>;

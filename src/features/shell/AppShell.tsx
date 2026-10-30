@@ -1,8 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, memo, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { WifiOff } from "lucide-react";
+import { PanelLeftOpen, WifiOff } from "lucide-react";
 
 import {
   Sheet,
@@ -23,7 +23,6 @@ const ServerDialogs = lazy(() =>
 );
 import {
   useAllChannels,
-  useMembers,
   useServers,
   useUnreadCounts,
 } from "@/features/servers/use-servers";
@@ -140,6 +139,15 @@ function useOnline() {
   return online;
 }
 
+/**
+ * The routed screen. Memoised with no props so a shell re-render — which happens
+ * on every unread or mention update — does not redraw the chat subtree. Router
+ * context changes still reach it, because context bypasses memo.
+ */
+const RoutedContent = memo(function RoutedContent() {
+  return <Outlet />;
+});
+
 function ShellLayout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -158,7 +166,6 @@ function ShellLayout() {
   const activeServerId = serverMatch?.[1] ?? null;
 
   const activeServer = servers?.find((server) => server.id === activeServerId);
-  const { data: members } = useMembers(activeServerId ?? undefined);
 
   const channelMatch =
     location.pathname.match(/^\/s\/[^/]+\/([^/]+)/) ??
@@ -265,11 +272,23 @@ function ShellLayout() {
           <div className="hidden md:flex">
             <ChannelPanel {...panelProps} />
           </div>
-        ) : null}
+        ) : (
+          <div className="hidden shrink-0 flex-col items-center pt-1 md:flex">
+            <button
+              type="button"
+              onClick={() => setChannelsOpen(true)}
+              aria-label={t("sidebar.showChannels")}
+              title={t("sidebar.showChannels")}
+              className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              <PanelLeftOpen className="size-4" />
+            </button>
+          </div>
+        )}
 
         <main className="panel flex min-w-0 flex-1 flex-col overflow-hidden">
           <div className="flex min-h-0 flex-1 flex-col">
-            <Outlet />
+            <RoutedContent />
           </div>
           <VoiceBar />
         </main>
@@ -334,7 +353,6 @@ function ShellLayout() {
             onClose={() => setDialog(null)}
             server={activeServer}
             canManage={Boolean(canManage)}
-            memberCount={members?.length ?? 0}
           />
         ) : null}
         {settingsOpen ? <SettingsDialog /> : null}

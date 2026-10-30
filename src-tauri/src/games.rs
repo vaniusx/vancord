@@ -96,7 +96,32 @@ mod platform {
         libraries
     }
 
+    /// Installed games barely change while the app runs, so the scan is cached.
     fn installed_games() -> Vec<(u32, String, PathBuf)> {
+        use std::sync::Mutex;
+        use std::time::{Duration, Instant};
+
+        static CACHE: Mutex<Option<(Instant, Vec<(u32, String, PathBuf)>)>> = Mutex::new(None);
+        const TTL: Duration = Duration::from_secs(300);
+
+        if let Ok(guard) = CACHE.lock() {
+            if let Some((at, cached)) = guard.as_ref() {
+                if at.elapsed() < TTL {
+                    return cached.clone();
+                }
+            }
+        }
+
+        let scanned = scan_installed_games();
+
+        if let Ok(mut guard) = CACHE.lock() {
+            *guard = Some((Instant::now(), scanned.clone()));
+        }
+
+        scanned
+    }
+
+    fn scan_installed_games() -> Vec<(u32, String, PathBuf)> {
         let mut games = Vec::new();
         for root in steam_roots() {
             for library in library_paths(&root) {
@@ -140,7 +165,33 @@ mod platform {
             })
     }
 
+    /// The process list is cheap but not free; reuse it for a few seconds so a
+    /// double render does not spawn two tasklist runs.
     fn running_processes() -> Vec<String> {
+        use std::sync::Mutex;
+        use std::time::{Duration, Instant};
+
+        static CACHE: Mutex<Option<(Instant, Vec<String>)>> = Mutex::new(None);
+        const TTL: Duration = Duration::from_secs(20);
+
+        if let Ok(guard) = CACHE.lock() {
+            if let Some((at, cached)) = guard.as_ref() {
+                if at.elapsed() < TTL {
+                    return cached.clone();
+                }
+            }
+        }
+
+        let scanned = scan_running_processes();
+
+        if let Ok(mut guard) = CACHE.lock() {
+            *guard = Some((Instant::now(), scanned.clone()));
+        }
+
+        scanned
+    }
+
+    fn scan_running_processes() -> Vec<String> {
         let Ok(output) = quiet_command("tasklist").args(["/fo", "csv", "/nh"]).output() else {
             return Vec::new();
         };

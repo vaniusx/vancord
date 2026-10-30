@@ -5,7 +5,7 @@ import { Avatar } from "@/components/common/avatar";
 import { BadgeRowList, useBadges } from "@/features/badges/use-badges";
 import { ModerationActions } from "@/features/moderation/ModerationSettings";
 import { ProfilePopover } from "@/features/profiles/ProfilePopover";
-import { useLiveStatus } from "@/features/realtime/realtime";
+import { useLiveStatus, usePresenceStore } from "@/features/realtime/realtime";
 import { StatusDot } from "@/features/shell/presence";
 import type { MemberRow, PresenceStatus } from "@/lib/models";
 import { requireSupabase } from "@/lib/supabase";
@@ -98,15 +98,23 @@ export function MemberList({
   const { t } = useTranslation();
   const { data: timedOut } = useTimedOutMembers(serverId);
 
+  // Sorting and the online count must use the live status; using the stored
+  // column put offline people at the top and inflated the count.
+  const liveStatuses = usePresenceStore((state) => state.statuses);
+
+  const statusOf = (member: MemberRow): PresenceStatus => {
+    const live = liveStatuses[member.user_id];
+    if (live === "invisible") return "offline";
+    return live ?? "offline";
+  };
+
   const sorted = [...members].sort((a, b) => {
-    const rank = RANK[a.profile.status] - RANK[b.profile.status];
+    const rank = RANK[statusOf(a)] - RANK[statusOf(b)];
     if (rank !== 0) return rank;
     return a.profile.display_name.localeCompare(b.profile.display_name, "tr");
   });
 
-  const onlineCount = members.filter(
-    (member) => member.profile.status !== "offline",
-  ).length;
+  const onlineCount = members.filter((member) => statusOf(member) !== "offline").length;
 
   return (
     <div className="flex h-full flex-col">

@@ -40,7 +40,8 @@
     "offline": "Çevrimdışı",
     "noChannels": "Henüz kanal yok",
     "createChannel": "Kanal oluştur",
-    "voiceChannels": "Sesli kanallar"
+    "voiceChannels": "Sesli kanallar",
+    "showChannels": "Kanalları göster"
   },
   "servers": {
     "createTitle": "Sunucu oluştur",
@@ -176,7 +177,8 @@
       "pending": "İstekler",
       "sent": "Gönderilen",
       "blocked": "Engellenen"
-    }
+    },
+    "empty": "Henüz arkadaşın yok."
   },
   "members": {
     "roles": {
@@ -335,11 +337,27 @@
     "mute": "Sustur",
     "unmute": "Sesi aç",
     "deafen": "Kulaklığı kapat",
-    "notConfigured": "Sesli kanal için LiveKit yapılandırılmadı.",
+    "notConfigured": "Sesli kanallar şu anda kullanılamıyor (sunucu ayarı eksik).",
     "participants": "Katılımcılar",
     "noParticipants": "Kimse yok",
     "camera": "Kamera",
-    "call": "Ara"
+    "call": "Ara",
+    "unauthenticated": "Oturumun süresi dolmuş. Yeniden giriş yap.",
+    "forbidden": "Bu kanala katılma iznin yok.",
+    "channelUnavailable": "Bu kanal artık mevcut değil.",
+    "micDenied": "Mikrofon izni verilmedi. Windows Ayarlar → Gizlilik → Mikrofon'dan Vancord'a izin ver, sonra tekrar dene.",
+    "micBusy": "Mikrofon başka bir uygulama tarafından kullanılıyor. O uygulamayı kapat.",
+    "noDevice": "Mikrofon bulunamadı. Bir cihaz bağla ve tekrar dene.",
+    "network": "Ses sunucusuna ulaşılamadı. Bağlantını kontrol et.",
+    "websocketBlocked": "Güvenlik ilkesi ses bağlantısını engelledi. Güncellemeyi yükle.",
+    "roomFull": "Kanal dolu.",
+    "connectFailed": "Sese bağlanılamadı.",
+    "retry": "Tekrar dene",
+    "joinMuted": "Mikrofon kapalı katıldın",
+    "diagnostics": "Tanılama",
+    "diagnosticsBody": "Mikrofon izni, ağ ve LiveKit bağlantısı ayrı ayrı denetlenir; bu ekran hangisinin takıldığını gösterir.",
+    "checkMic": "Mikrofonu dene",
+    "checkMicOk": "Mikrofon çalışıyor"
   },
   "gif": {
     "title": "GIF",
