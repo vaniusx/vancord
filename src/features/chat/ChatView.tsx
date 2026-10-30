@@ -23,6 +23,7 @@ import { useChannel, useDmPartner } from "@/features/dm/use-dms";
 import { MemberList } from "@/features/members/MemberList";
 import { PinnedPanel, SearchDialog, useJumpToMessage } from "@/features/chat/ChannelTools";
 import { useTogglePin } from "@/features/messages/use-chat-extras";
+import { useStartCall } from "@/features/voice/use-calls";
 import { Composer } from "@/features/messages/Composer";
 import { MessageList } from "@/features/messages/MessageList";
 import {
@@ -58,6 +59,7 @@ export function ChatView({ channelId }: { channelId: string }) {
   const isDm = channel?.type === "dm";
   const { data: partner } = useDmPartner(channelId, Boolean(isDm));
   const voice = useVoice();
+  const startCall = useStartCall();
   const togglePin = useTogglePin(channelId);
   const jumpTo = useJumpToMessage();
   const [replyTo, setReplyTo] = useState<MessageRow | null>(null);
@@ -167,7 +169,7 @@ export function ChatView({ channelId }: { channelId: string }) {
                     className="size-8 text-muted-foreground"
                     onClick={() => {
                       if (callActive) void voice.leave();
-                      else void voice.join(channelId, title);
+                      else startCall.mutate({ channelId, video: false });
                     }}
                   >
                     <Phone className="size-4" />
@@ -184,13 +186,12 @@ export function ChatView({ channelId }: { channelId: string }) {
                     size="icon"
                     aria-label={t("voice.camera")}
                     className="size-8 text-muted-foreground"
-                    onClick={async () => {
+                    onClick={() => {
                       if (callActive) {
-                        await voice.leave();
+                        void voice.leave();
                         return;
                       }
-                      await voice.join(channelId, title);
-                      await voice.toggleCamera();
+                      startCall.mutate({ channelId, video: true });
                     }}
                   >
                     <Video className="size-4" />

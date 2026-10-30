@@ -466,7 +466,8 @@
     "kick": "Kick",
     "ban": "Ban",
     "modLog": "Moderation log",
-    "muted": "muted"
+    "muted": "muted",
+    "copyId": "Copy ID"
   },
   "update": {
     "checking": "Checking…",
@@ -577,5 +578,60 @@
     "needTwo": "Pick at least one person.",
     "tooMany": "At most 10 people.",
     "created": "Group created."
+  },
+  "errors": {
+    "unknown": "Something went wrong. Try again.",
+    "alreadyExists": "That already exists.",
+    "missingReference": "The related record was not found.",
+    "requiredField": "A required field is empty.",
+    "invalidValue": "That value is not valid.",
+    "forbidden": "You are not allowed to do that.",
+    "missingData": "Could not load the data.",
+    "tooLong": "That input is too long.",
+    "outOfRange": "The value is outside the allowed range.",
+    "notFound": "Not found.",
+    "sessionExpired": "Your session expired. Sign in again.",
+    "invalidCredentials": "Wrong email or password.",
+    "emailNotConfirmed": "Confirm the code in your email first.",
+    "emailInUse": "That email is already in use.",
+    "weakPassword": "Password too weak. Use at least 8 characters with letters and numbers.",
+    "rateLimited": "Too many attempts. Try again in a moment.",
+    "samePassword": "The new password cannot match the old one.",
+    "needsTwoFactor": "Two-factor authentication is required.",
+    "insufficientPoints": "You do not have enough points.",
+    "unknownItem": "That item is no longer available.",
+    "notAMember": "You are not a member of this server.",
+    "notAParticipant": "You are not part of this conversation.",
+    "groupTooLarge": "A group can have at most 10 people.",
+    "groupNeedsTwo": "Pick at least one person.",
+    "invalidInvite": "That invite is invalid.",
+    "inviteExpired": "That invite has expired.",
+    "inviteExhausted": "That invite reached its usage limit.",
+    "network": "Could not connect. Check your internet.",
+    "server": "The server is not responding. Try again shortly.",
+    "unexpected": "An unexpected error occurred."
+  },
+  "calls": {
+    "incoming": "Incoming call",
+    "incomingVideo": "Incoming video call",
+    "ringing": "Ringing…",
+    "calling": "Calling",
+    "connected": "On call",
+    "accept": "Accept",
+    "decline": "Decline",
+    "end": "End",
+    "noAnswer": "No answer",
+    "busy": "Busy",
+    "history": "Call history",
+    "missed": "Missed",
+    "outgoingShort": "Outgoing",
+    "incomingShort": "Incoming",
+    "startVoice": "Voice call",
+    "startVideo": "Video call"
+  },
+  "profiles": {
+    "message": "Send message",
+    "copyUsername": "Copy username",
+    "usePanelToModerate": "Use the moderation panel to time out"
   }
 }

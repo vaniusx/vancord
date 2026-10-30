@@ -910,3 +910,12 @@ em-emoji-picker {
     scroll-behavior: auto !important;
   }
 }
+
+/* Long channels: rows scrolled out of view skip layout and paint.
+   contain-intrinsic-size keeps the scrollbar from jumping, and because the row
+   stays in the DOM the scroll anchoring used when older messages are prepended
+   still works. Cheaper than a virtual list for our sizes. */
+.chat-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 72px;
+}

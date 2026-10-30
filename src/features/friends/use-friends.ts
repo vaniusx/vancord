@@ -76,12 +76,13 @@ export function useFriendMutations() {
   const sendRequest = useMutation({
     mutationFn: async (targetId: string) => {
       const supabase = requireSupabase();
-      const { error } = await supabase.from("friendships").insert({
-        requester_id: user!.id,
-        addressee_id: targetId,
-        status: "pending",
+      // The RPC resolves the awkward cases server side: a mutual request becomes
+      // an acceptance, a repeat is a no-op, a block is refused.
+      const { data, error } = await supabase.rpc("send_friend_request", {
+        target_user: targetId,
       });
       if (error) throw error;
+      return data as string;
     },
     onSuccess: invalidate,
   });

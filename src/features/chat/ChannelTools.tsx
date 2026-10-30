@@ -126,7 +126,7 @@ export function PinnedPanel({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[340px] gap-0 p-0 sm:max-w-[340px]">
+      <SheetContent side="right" className="w-[min(340px,calc(100vw-1rem))] gap-0 p-0 sm:max-w-[340px]">
         <SheetHeader className="border-b border-border/60 px-4 py-3">
           <SheetTitle className="flex items-center gap-2 text-[14px]">
             <Pin className="size-3.5" />

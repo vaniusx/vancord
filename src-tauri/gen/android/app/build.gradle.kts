@@ -22,8 +22,15 @@ android {
         applicationId = "tr.ssyz.vancord"
         minSdk = 24
         targetSdk = 37
-        versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
-        versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
+        // Derived from the semantic version so each release installs over the
+        // previous one. A hardcoded versionCode makes Android treat every build
+        // as the same app and silently refuse the upgrade.
+        val semver = tauriProperties.getProperty("tauri.android.versionName", "1.0.0")
+        val versionParts = semver.split(".").map { it.takeWhile(Char::isDigit).toIntOrNull() ?: 0 }
+        versionCode = versionParts.getOrElse(0) { 0 } * 10000 +
+            versionParts.getOrElse(1) { 0 } * 100 +
+            versionParts.getOrElse(2) { 0 }
+        versionName = semver
     }
     signingConfigs {
         create("release") {

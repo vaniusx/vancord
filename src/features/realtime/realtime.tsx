@@ -13,10 +13,13 @@ import { useAuthStore, useCurrentUser } from "@/features/auth/auth-store";
 import { useAppStore } from "@/features/app/app-store";
 import { useProfile } from "@/features/profiles/use-profile";
 import { useProfileCache } from "@/features/profiles/profile-cache";
+import { useAllChannels } from "@/features/servers/use-servers";
+import { useDms } from "@/features/dm/use-dms";
 import type { MessageRow, PresenceStatus, ReactionRow } from "@/lib/models";
 import { messagesKey } from "@/features/messages/use-messages";
 import { supabase } from "@/lib/supabase";
 import { isTauri } from "@/lib/tauri";
+import { playCue } from "@/lib/sounds";
 
 const PRESENCE_STATUSES: PresenceStatus[] = [
   "online",
@@ -82,15 +85,33 @@ export async function requestNotificationPermission(): Promise<boolean> {
       "@tauri-apps/plugin-notification"
     );
     if (await isPermissionGranted()) return true;
+    // On Android this triggers the POST_NOTIFICATIONS runtime prompt; on
+    // Windows it is the app-level notification consent.
     return (await requestPermission()) === "granted";
   } catch {
     return false;
   }
 }
 
+let ownStatus: PresenceStatus = "online";
+
+/**
+ * Notifications respect the user's own presence: "Do not disturb" means quiet,
+ * which is what the setting claims and what it did not do before — the check
+ * only looked at the global switch.
+ */
+function notificationsAllowed(): boolean {
+  const state = useAppStore.getState();
+  if (!state.notificationsEnabled) return false;
+  if (ownStatus === "dnd") return false;
+  if (ownStatus === "invisible") return false;
+  return true;
+}
+
 async function notify(title: string, body: string) {
   if (!isTauri()) return;
-  if (!useAppStore.getState().notificationsEnabled) return;
+  if (!notificationsAllowed()) return;
+  playCue("message");
   try {
     const { sendNotification } = await import(
       "@tauri-apps/plugin-notification"
@@ -107,6 +128,21 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const user = useCurrentUser();
   const { data: profile } = useProfile();
   const queryClient = useQueryClient();
+
+  // Every server channel plus every DM. The realtime subscription is filtered to
+  // this set: without a filter Postgres streams every message in the database to
+  // every connected client, which is what made the app feel heavy.
+  const { data: allChannels } = useAllChannels();
+  const { data: dms } = useDms();
+
+  const accessibleIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const channel of allChannels ?? []) ids.add(channel.id);
+    for (const dm of dms ?? []) ids.add(dm.id);
+    return [...ids].sort();
+  }, [allChannels, dms]);
+
+  const channelFilterKey = accessibleIds.join(",");
   const channelRef = useRef<RealtimeChannel | null>(null);
   const statusRef = useRef<PresenceStatus>("online");
   const typingTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -139,6 +175,11 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       },
     });
     channelRef.current = channel;
+
+    // Supabase supports a single eq/in filter per subscription, so every
+    // accessible channel is listed in one `in.` expression.
+    const channelFilter =
+      accessibleIds.length > 0 ? `channel_id=in.(${accessibleIds.join(",")})` : null;
 
     type MessagesData = { messages: MessageRow[]; hasMore: boolean };
 
@@ -192,7 +233,9 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     channel
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "messages" },
+        channelFilter
+          ? { event: "*", schema: "public", table: "messages", filter: channelFilter }
+          : { event: "*", schema: "public", table: "messages", filter: "channel_id=eq.00000000-0000-0000-0000-000000000000" },
         (payload) => {
           void queryClient.invalidateQueries({ queryKey: ["unread"] });
 
@@ -367,10 +410,13 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       typingTimers.current = {};
       void client.removeChannel(channel);
     };
-  }, [user, queryClient]);
+    // channelFilterKey re-subscribes when a server or DM is added or removed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, queryClient, channelFilterKey]);
 
   useEffect(() => {
     statusRef.current = profile?.status ?? "online";
+    ownStatus = statusRef.current;
     const channel = channelRef.current;
     if (!channel || !user) return;
     void channel.track({ user_id: user.id, status: statusRef.current });

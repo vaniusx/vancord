@@ -41,6 +41,8 @@ import { MobileNav, MobileServerList } from "@/features/shell/MobileNav";
 import { ServerRail } from "@/features/shell/ServerRail";
 import { TitleBar } from "@/features/shell/TitleBar";
 import { VoiceBar } from "@/features/voice/VoiceBar";
+import { IncomingCallOverlay, OutgoingCallBar } from "@/features/voice/CallOverlay";
+import { useCallSignals } from "@/features/voice/use-calls";
 import { UpdateNotice } from "@/features/update/BootGate";
 import { useMentionCounts } from "@/features/servers/use-roles";
 import { ShopDialog } from "@/features/economy/ShopDialog";
@@ -154,6 +156,7 @@ function ShellLayout() {
   const { t } = useTranslation();
   useTrayEvents();
   useShortcuts();
+  useCallSignals();
   const online = useOnline();
 
   const { data: servers } = useServers();
@@ -290,6 +293,7 @@ function ShellLayout() {
           <div className="flex min-h-0 flex-1 flex-col">
             <RoutedContent />
           </div>
+          <OutgoingCallBar />
           <VoiceBar />
         </main>
       </div>
@@ -356,6 +360,7 @@ function ShellLayout() {
           />
         ) : null}
         {settingsOpen ? <SettingsDialog /> : null}
+        <IncomingCallOverlay />
         {shopOpen ? <ShopDialog open onOpenChange={setShopOpen} /> : null}
         {inboxOpen ? <InboxDialog open onOpenChange={setInboxOpen} /> : null}
         {groupDmOpen ? (

@@ -2,6 +2,53 @@
 
 All notable changes to Vancord. Versions follow semantic versioning.
 
+## 1.2.0 — 2026-10-30
+
+First batch of the v2 cleanup: the failures that made the app feel broken.
+
+### Calls
+- Direct messages can actually ring. A new `call_invitations` table records who
+  called whom and whether it was answered, so a missed call survives a reconnect
+  instead of vanishing with a broadcast.
+- The callee gets a full-screen card with a ring tone, accept and decline, and a
+  45 second timeout. The caller sees a live timer and an end button.
+- The caller only joins the room once the callee accepts, so a declined call never
+  opens a microphone.
+- Android raises a system notification for an incoming call.
+
+### Performance
+- Realtime was subscribed to every message in the database with no filter, so each
+  client received every chat line on the server. The subscription is now limited
+  to the channels the user can open.
+- Chat rows outside the viewport skip layout and paint.
+- The shell no longer refetches the member roster for every route.
+
+### Reliability
+- 35 mutations silently ignored their errors. A single mutation-level handler now
+  turns failures into a sentence that says what to do, with Postgres, Auth and
+  app-specific codes mapped.
+- Sending a friend request used a raw insert on a table keyed by
+  `(requester, addressee)`. Adding someone who had already added you produced a
+  duplicate-key error that disappeared. Requests now go through a function that
+  accepts a mutual request, ignores a repeat and refuses a block.
+- Marking an inaccessible channel read is a no-op instead of a 409.
+- "Do not disturb" now actually suppresses notifications.
+
+### Android
+- `POST_NOTIFICATIONS` and `VIBRATE` declared; the runtime prompt is requested.
+- `versionCode` is derived from the semantic version, so a new APK installs over
+  the old one instead of being refused.
+- Android can check the release feed and hand the APK to the system installer.
+- Invite deep links: `vancord://join/<code>` and the hosted https fallback.
+
+### Interface
+- Members have a context menu: message, copy username, copy id.
+- The profile card flips to stay inside the viewport.
+- Message GIF picker, profile card and the pinned panel no longer overflow on a
+  phone.
+- Added a capabilities layer so screens ask what the platform can do instead of
+  guessing from a viewport width.
+
 ## 1.0.1 — 2026-10-30
 
 Bug fixes for issues reported on 0.3 and 1.0.

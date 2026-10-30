@@ -5,7 +5,9 @@ import { useTranslation } from "react-i18next";
 import { BrandMark } from "@/components/common/brand-mark";
 import { useAppStore } from "@/features/app/app-store";
 import {
+  apkDownloadUrl,
   canAutoUpdate,
+  canCheckForApk,
   checkForUpdateWithTimeout,
   downloadAndInstall,
   isStableVersion,
@@ -89,8 +91,10 @@ export function BootGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    // Web builds, development and mobile have no updater: skip entirely.
-    if (!canAutoUpdate() || import.meta.env.DEV) {
+    // Web builds and development have no updater at all. Android can check the
+    // release feed but must hand the APK to the system installer, so it never
+    // runs the automatic path.
+    if ((!canAutoUpdate() && !canCheckForApk()) || import.meta.env.DEV) {
       setState({ status: "ready" });
       return;
     }
@@ -107,6 +111,12 @@ export function BootGate({ children }: { children: React.ReactNode }) {
       // Remember it so Settings can offer a manual install even when the
       // automatic path is disabled.
       setPendingUpdate({ version: info.version, notes: info.notes });
+
+      if (!canAutoUpdate()) {
+        // Android: a notice, never an automatic install.
+        setState({ status: "ready" });
+        return;
+      }
 
       if (!autoUpdate || !isStableVersion(info.version) || isUpdateBlocked(info.version)) {
         setState({ status: "ready" });
@@ -220,6 +230,13 @@ export function UpdateNotice() {
   if (!pending) return null;
 
   const install = async () => {
+    if (canCheckForApk() && !canAutoUpdate()) {
+      // Open in the system browser so Android's download manager and installer
+      // handle it; a WebView cannot install a package itself.
+      const { openUrl } = await import("@tauri-apps/plugin-opener");
+      await openUrl(apkDownloadUrl());
+      return;
+    }
     setBusy(true);
     const ok = await downloadAndInstall();
     setBusy(false);

@@ -97,7 +97,14 @@ export function ProfilePopover({
           {children}
         </span>
       </PopoverTrigger>
-      <PopoverContent side={side} align="start" className="w-[290px] overflow-hidden p-0">
+      <PopoverContent
+        side={side}
+        align="start"
+        sideOffset={6}
+        collisionPadding={8}
+        avoidCollisions
+        className="w-[min(290px,calc(100vw-1rem))] overflow-hidden p-0"
+      >
         <div
           className="h-16 w-full"
           style={

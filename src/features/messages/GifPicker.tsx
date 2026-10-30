@@ -100,7 +100,7 @@ export function GiphyPicker({ onSelect }: { onSelect: (url: string) => void }) {
   }, [key, query]);
 
   return (
-    <div className="flex h-[380px] w-[330px] flex-col gap-2 rounded-xl border border-border/70 bg-popover p-2 shadow-xl">
+    <div className="flex h-[min(380px,60dvh)] w-[min(330px,calc(100vw-1.5rem))] flex-col gap-2 rounded-xl border border-border/70 bg-popover p-2 shadow-xl">
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input

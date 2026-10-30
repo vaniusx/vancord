@@ -96,11 +96,68 @@ export function isStableVersion(version: string): boolean {
   return !/-(alpha|beta|rc|dev|canary)/i.test(version);
 }
 
+const ANDROID = /Android/i.test(
+  typeof navigator !== "undefined" ? navigator.userAgent : "",
+);
+
+/**
+ * The desktop plugin only exists on Windows, macOS and Linux. Android gets a
+ * lighter path: it checks the release feed and hands the APK to the system
+ * installer, which is the only upgrade route a sideloaded app has.
+ */
+export function isAndroidBuild(): boolean {
+  return ANDROID;
+}
+
 export function canAutoUpdate(): boolean {
-  return isTauri();
+  return isTauri() && !ANDROID;
+}
+
+/** True when this build can at least tell the user a newer APK exists. */
+export function canCheckForApk(): boolean {
+  return isTauri() && ANDROID;
+}
+
+const RELEASE_FEED =
+  "https://github.com/vaniusx/vancord/releases/latest/download/latest.json";
+
+const APK_URL =
+  "https://github.com/vaniusx/vancord/releases/latest/download/app-universal-release.apk";
+
+function compareVersions(a: string, b: string): number {
+  const pa = a.split(/[.-]/).map((part) => Number(part) || 0);
+  const pb = b.split(/[.-]/).map((part) => Number(part) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i += 1) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0) return diff > 0 ? 1 : -1;
+  }
+  return 0;
+}
+
+/** Android: read the release feed and compare versions by hand. */
+async function checkAndroidUpdate(): Promise<UpdateInfo | null> {
+  try {
+    const response = await fetch(RELEASE_FEED, { cache: "no-store" });
+    if (!response.ok) return null;
+    const feed = (await response.json()) as { version?: string; notes?: string };
+    if (!feed.version) return null;
+    if (compareVersions(feed.version, APP_VERSION) <= 0) return null;
+    return {
+      version: feed.version,
+      notes: feed.notes ?? null,
+      currentVersion: APP_VERSION,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function apkDownloadUrl(): string {
+  return APK_URL;
 }
 
 export async function checkForUpdate(): Promise<UpdateInfo | null> {
+  if (ANDROID) return checkAndroidUpdate();
   if (!isTauri()) return null;
   try {
     const { check } = await import("@tauri-apps/plugin-updater");

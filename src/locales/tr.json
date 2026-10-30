@@ -466,7 +466,8 @@
     "kick": "At",
     "ban": "Yasakla",
     "modLog": "Moderasyon kaydı",
-    "muted": "susturuldu"
+    "muted": "susturuldu",
+    "copyId": "Kimliği kopyala"
   },
   "update": {
     "checking": "Kontrol ediliyor…",
@@ -577,5 +578,60 @@
     "needTwo": "En az bir kişi seç.",
     "tooMany": "En fazla 10 kişi olabilir.",
     "created": "Grup oluşturuldu."
+  },
+  "errors": {
+    "unknown": "Bir şeyler ters gitti. Tekrar dene.",
+    "alreadyExists": "Bu zaten mevcut.",
+    "missingReference": "Bağlı olduğu kayıt bulunamadı.",
+    "requiredField": "Zorunlu bir alan boş.",
+    "invalidValue": "Girilen değer geçersiz.",
+    "forbidden": "Bunun için iznin yok.",
+    "missingData": "Veriye ulaşılamadı.",
+    "tooLong": "Girdi çok uzun.",
+    "outOfRange": "Değer izin verilen aralığın dışında.",
+    "notFound": "Bulunamadı.",
+    "sessionExpired": "Oturumun sona erdi. Yeniden giriş yap.",
+    "invalidCredentials": "E-posta veya şifre yanlış.",
+    "emailNotConfirmed": "Önce e-postandaki kodu doğrula.",
+    "emailInUse": "Bu e-posta zaten kullanılıyor.",
+    "weakPassword": "Şifre çok zayıf. En az 8 karakter, harf ve rakam kullan.",
+    "rateLimited": "Çok fazla deneme. Biraz sonra tekrar dene.",
+    "samePassword": "Yeni şifre eskisiyle aynı olamaz.",
+    "needsTwoFactor": "İki adımlı doğrulama gerekiyor.",
+    "insufficientPoints": "Yeterli puanın yok.",
+    "unknownItem": "Bu ürün artık mevcut değil.",
+    "notAMember": "Bu sunucunun üyesi değilsin.",
+    "notAParticipant": "Bu konuşmanın katılımcısı değilsin.",
+    "groupTooLarge": "Grup en fazla 10 kişi olabilir.",
+    "groupNeedsTwo": "En az bir kişi seç.",
+    "invalidInvite": "Davet geçersiz.",
+    "inviteExpired": "Davetin süresi dolmuş.",
+    "inviteExhausted": "Davet kullanım limiti dolmuş.",
+    "network": "Bağlantı kurulamadı. İnternetini kontrol et.",
+    "server": "Sunucu şu anda yanıt vermiyor. Biraz sonra tekrar dene.",
+    "unexpected": "Beklenmeyen bir hata oluştu."
+  },
+  "calls": {
+    "incoming": "Gelen arama",
+    "incomingVideo": "Gelen görüntülü arama",
+    "ringing": "Çalıyor…",
+    "calling": "Aranıyor",
+    "connected": "Görüşme",
+    "accept": "Kabul et",
+    "decline": "Reddet",
+    "end": "Bitir",
+    "noAnswer": "Cevap yok",
+    "busy": "Meşgul",
+    "history": "Arama geçmişi",
+    "missed": "Cevapsız",
+    "outgoingShort": "Giden",
+    "incomingShort": "Gelen",
+    "startVoice": "Sesli ara",
+    "startVideo": "Görüntülü ara"
+  },
+  "profiles": {
+    "message": "Mesaj gönder",
+    "copyUsername": "Kullanıcı adını kopyala",
+    "usePanelToModerate": "Susturmak için moderasyon panelini kullan"
   }
 }

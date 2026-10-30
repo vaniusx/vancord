@@ -130,7 +130,7 @@ export function MessageList({
             canGroup(previous.created_at, message.created_at);
 
           return (
-            <div key={message.id}>
+            <div key={message.id} className="chat-row">
               {newDay ? (
                 <div className="flex items-center gap-3 px-4 pt-6 pb-1.5">
                   <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">

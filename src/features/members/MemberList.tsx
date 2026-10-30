@@ -1,10 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
+import { MessageSquare, Shield, ShieldOff, UserRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Avatar } from "@/components/common/avatar";
 import { BadgeRowList, useBadges } from "@/features/badges/use-badges";
 import { ModerationActions } from "@/features/moderation/ModerationSettings";
 import { ProfilePopover } from "@/features/profiles/ProfilePopover";
+import { useStartDm } from "@/features/dm/use-dms";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useLiveStatus, usePresenceStore } from "@/features/realtime/realtime";
 import { StatusDot } from "@/features/shell/presence";
 import type { MemberRow, PresenceStatus } from "@/lib/models";
@@ -30,12 +40,27 @@ function MemberBadges({ userId }: { userId: string }) {
   );
 }
 
-function MemberTile({ member }: { member: MemberRow }) {
+function MemberTile({
+  member,
+  canModerate,
+}: {
+  member: MemberRow;
+  canModerate?: boolean;
+}) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const startDm = useStartDm();
   const status = useLiveStatus(member.user_id, member.profile.status);
   const offline = status === "offline";
 
+  const openDm = async () => {
+    const channelId = await startDm.mutateAsync(member.user_id);
+    navigate(`/dm/${channelId}`);
+  };
+
   return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
     <ProfilePopover profile={member.profile} role={member.role} joinedAt={member.joined_at}>
       <div
         className={cn(
@@ -66,6 +91,40 @@ function MemberTile({ member }: { member: MemberRow }) {
         </div>
       </div>
     </ProfilePopover>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent className="w-52">
+        <ContextMenuItem onSelect={() => void openDm()}>
+          <MessageSquare className="mr-2 size-4" />
+          {t("friends.message")}
+        </ContextMenuItem>
+        <ContextMenuItem
+          onSelect={() => {
+            void navigator.clipboard.writeText(member.profile.username);
+          }}
+        >
+          <UserRound className="mr-2 size-4" />
+          {t("profiles.copyUsername")}
+        </ContextMenuItem>
+        {canModerate && member.role !== "owner" ? (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              onSelect={() => {
+                void navigator.clipboard.writeText(member.user_id);
+              }}
+            >
+              <Shield className="mr-2 size-4" />
+              {t("moderation.copyId")}
+            </ContextMenuItem>
+            <ContextMenuItem disabled>
+              <ShieldOff className="mr-2 size-4" />
+              {t("profiles.usePanelToModerate")}
+            </ContextMenuItem>
+          </>
+        ) : null}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
@@ -128,7 +187,7 @@ export function MemberList({
       <div className="scrollbar-thin flex-1 space-y-0.5 overflow-y-auto p-2">
         {sorted.map((member) => (
           <div key={member.user_id}>
-            <MemberTile member={member} />
+            <MemberTile member={member} canModerate={canModerate} />
             {timedOut?.has(member.user_id) ? (
               <p className="px-2 text-[10px] font-medium text-status-idle">
                 {t("moderation.muted")}
