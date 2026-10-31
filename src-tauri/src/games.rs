@@ -8,6 +8,7 @@ pub struct DetectedGame {
     pub app_id: u32,
     pub name: String,
     pub process: String,
+    pub launcher: String,
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
@@ -262,6 +263,25 @@ mod platform {
                     app_id,
                     name,
                     process,
+                    launcher: "Steam".to_string(),
+                });
+            }
+        }
+
+        // Anything the Steam library missed is matched against the known-process
+        // table: Riot, Epic, Battle.net, GOG, EA, Ubisoft and standalone titles.
+        for running in &processes {
+            if found.iter().any(|game| game.process == *running) {
+                continue;
+            }
+            if let Some(known) = crate::games_db::lookup(running) {
+                // Steam id 0 means "not from Steam"; the client only uses it for
+                // the store-page link, so an unknown id is acceptable.
+                found.push(DetectedGame {
+                    app_id: 0,
+                    name: known.name.to_string(),
+                    process: running.clone(),
+                    launcher: known.launcher.to_string(),
                 });
             }
         }

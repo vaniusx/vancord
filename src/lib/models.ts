@@ -23,6 +23,7 @@ export interface ActivityState {
   type: "game";
   name: string;
   appId?: number;
+  launcher?: string;
   startedAt: string;
 }
 
@@ -46,6 +47,7 @@ export interface ServerSummary {
   accent_color: string | null;
   owner_id: string;
   role: ServerRole;
+  vanity_slug: string | null;
 }
 
 export interface ChannelRow {
@@ -150,6 +152,8 @@ export interface ShopItem {
   price: number;
   duration_days: number | null;
   metadata: Record<string, unknown>;
+  preview: Record<string, unknown>;
+  family: string;
   sort: number;
 }
 

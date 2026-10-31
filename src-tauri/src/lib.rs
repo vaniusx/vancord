@@ -1,5 +1,7 @@
 #[cfg(desktop)]
 mod games;
+#[cfg(desktop)]
+mod games_db;
 
 #[cfg(desktop)]
 use tauri::{

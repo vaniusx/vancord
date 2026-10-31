@@ -11,6 +11,7 @@ interface DetectedGame {
   appId: number;
   name: string;
   process: string;
+  launcher: string;
 }
 
 async function detectGame(): Promise<DetectedGame | null> {
@@ -82,7 +83,8 @@ export function useGameActivity({
     const push = (next: ActivityState | null) => {
       const same =
         current.current?.name === next?.name &&
-        current.current?.appId === next?.appId;
+        current.current?.appId === next?.appId &&
+        current.current?.launcher === next?.launcher;
       if (same) return;
       current.current = next;
       nextActivity.current = next;
@@ -104,6 +106,7 @@ export function useGameActivity({
           type: "game",
           name: game.name,
           appId: game.appId,
+          launcher: game.launcher,
           startedAt: current.current?.startedAt ?? new Date().toISOString(),
         });
         return;

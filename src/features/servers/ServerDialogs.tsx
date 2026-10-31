@@ -5,12 +5,18 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { BotDirectory } from "@/features/bots/BotDirectory";
+import { OfficialBotPanel } from "@/features/bots/OfficialBotPanel";
 import { BoostPanel, RoleEditor } from "@/features/servers/RoleEditor";
+import { EventsPanel } from "@/features/events/EventsPanel";
+import { EmojiManager } from "@/features/servers/EmojiManager";
+import { VanitySlugEditor } from "@/features/servers/VanitySlugEditor";
 import { useBoostLevel } from "@/features/servers/use-roles";
 import { ModerationSettings } from "@/features/moderation/ModerationSettings";
 import { useProfile } from "@/features/profiles/use-profile";
 import { accentFor, initials } from "@/lib/format";
+import { extractInviteCode, inviteLink, vanityLink } from "@/lib/invites";
 import { publicUrl } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 import { uploadServerIcon } from "@/lib/upload";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  useChannels,
   useCreateChannel,
   useCreateServer,
   useDeleteServer,
@@ -125,7 +132,8 @@ export function JoinServerDialog({
   const [code, setCode] = useState("");
 
   const submit = () => {
-    const value = code.trim();
+    // Accept a pasted link, a deep link or a bare code.
+    const value = extractInviteCode(code);
     if (!value) return;
     joinServer.mutate(value, {
       onSuccess: (serverId) => {
@@ -202,8 +210,10 @@ export function InviteDialog({
   const [uses, setUses] = useState("10");
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copy = async (code: string) => {
-    await navigator.clipboard.writeText(code);
+  // A link is what people actually paste into a chat, so that is the primary
+  // copy action; the bare code stays available for typing by hand.
+  const copyLink = async (code: string) => {
+    await navigator.clipboard.writeText(inviteLink(code));
     setCopied(code);
     toast.success(t("invites.copied"));
     setTimeout(() => setCopied(null), 1600);
@@ -213,14 +223,37 @@ export function InviteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {t("invites.title", { server: server?.name ?? "" })}
-          </DialogTitle>
+          <DialogTitle>{t("invites.title", { server: server?.name ?? "" })}</DialogTitle>
           <DialogDescription>{t("invites.body")}</DialogDescription>
         </DialogHeader>
 
         {!server ? null : canManage ? (
           <div className="space-y-3">
+            {server.vanity_slug ? (
+              <div className="rounded-lg border border-primary/25 bg-primary/6 p-2.5">
+                <p className="text-[11px] font-semibold tracking-wide text-primary uppercase">
+                  {t("invites.vanity")}
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <code className="min-w-0 flex-1 truncate text-[12px]">
+                    {vanityLink(server.vanity_slug)}
+                  </code>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-7 shrink-0"
+                    aria-label={t("invites.copy")}
+                    onClick={() => {
+                      void navigator.clipboard.writeText(vanityLink(server.vanity_slug!));
+                      toast.success(t("invites.copied"));
+                    }}
+                  >
+                    <Copy className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>{t("invites.expiry")}</Label>
@@ -263,7 +296,7 @@ export function InviteDialog({
                     maxUses: Number(uses) || null,
                   },
                   {
-                    onSuccess: (code) => void copy(code),
+                    onSuccess: (code) => void copyLink(code),
                     onError: () => toast.error(t("common.error")),
                   },
                 )
@@ -284,24 +317,24 @@ export function InviteDialog({
                   {t("invites.none")}
                 </p>
               ) : (
-                <div className="max-h-52 space-y-1 overflow-y-auto">
+                <div className="scrollbar-thin max-h-52 space-y-1 overflow-y-auto">
                   {invites?.map((invite) => (
                     <div
                       key={invite.code}
                       className="flex items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 py-1.5"
                     >
-                      <code className="flex-1 truncate font-mono text-[12px]">
+                      <code className="min-w-0 flex-1 truncate font-mono text-[12px]">
                         {invite.code}
                       </code>
-                      <span className="text-[10.5px] text-muted-foreground tabular-nums">
+                      <span className="shrink-0 text-[10.5px] text-muted-foreground tabular-nums">
                         {invite.uses}/{invite.max_uses ?? "∞"}
                       </span>
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="size-7"
+                        className="size-7 shrink-0"
                         aria-label={t("invites.copy")}
-                        onClick={() => void copy(invite.code)}
+                        onClick={() => void copyLink(invite.code)}
                       >
                         {copied === invite.code ? (
                           <Check className="size-3.5" />
@@ -312,13 +345,10 @@ export function InviteDialog({
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="size-7 text-muted-foreground hover:text-destructive"
+                        className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
                         aria-label={t("invites.revoke")}
                         onClick={() =>
-                          revokeInvite.mutate({
-                            code: invite.code,
-                            serverId: server.id,
-                          })
+                          revokeInvite.mutate({ code: invite.code, serverId: server.id })
                         }
                       >
                         <Trash2 className="size-3.5" />
@@ -330,16 +360,8 @@ export function InviteDialog({
             </div>
           </div>
         ) : (
-          <p className="text-[13px] text-muted-foreground">
-            {t("invites.noPermission")}
-          </p>
+          <p className="text-[13px] text-muted-foreground">{t("invites.noPermission")}</p>
         )}
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            {t("common.close")}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -451,6 +473,16 @@ export function CreateChannelDialog({
   );
 }
 
+type SettingsTab =
+  | "general"
+  | "roles"
+  | "emoji"
+  | "events"
+  | "boost"
+  | "moderation"
+  | "bots"
+  | "danger";
+
 export function ServerSettingsDialog({
   open,
   onOpenChange,
@@ -475,6 +507,11 @@ export function ServerSettingsDialog({
   const bannerRef = useRef<HTMLInputElement>(null);
   const { data: profile } = useProfile();
   const { data: boost } = useBoostLevel(server?.id);
+  const { data: channels } = useChannels(server?.id);
+  const [tab, setTab] = useState<SettingsTab>("general");
+
+  const isOwner = server?.role === "owner";
+  const canManage = isOwner || server?.role === "admin";
 
   useEffect(() => {
     if (!server) return;
@@ -484,26 +521,23 @@ export function ServerSettingsDialog({
 
   if (!server) return null;
 
-  const isOwner = server.role === "owner";
-
   const save = () => {
-    const value = name.trim();
-    if (!value) return;
     updateServer.mutate(
-      { serverId: server.id, name: value, description: description.trim() || null },
       {
-        onSuccess: () => toast.success(t("common.saved")),
-        onError: () => toast.error(t("common.error")),
+        serverId: server.id,
+        name: name.trim() || server.name,
+        description: description.trim() || null,
       },
+      { onSuccess: () => toast.success(t("common.saved")) },
     );
   };
 
   const onIcon = async (file: File | undefined) => {
-    if (!file || !profile) return;
+    if (!file) return;
     setBusy("icon");
     try {
-      const path = await uploadServerIcon(profile.id, server.id, file);
-      updateServer.mutate({ serverId: server.id, icon_url: publicUrl("banners", path) });
+      const path = await uploadServerIcon(profile!.id, server.id, file);
+      updateServer.mutate({ serverId: server.id, icon_url: publicUrl("icons", path) });
     } catch {
       toast.error(t("common.error"));
     } finally {
@@ -512,10 +546,10 @@ export function ServerSettingsDialog({
   };
 
   const onBanner = async (file: File | undefined) => {
-    if (!file || !profile) return;
+    if (!file) return;
     setBusy("banner");
     try {
-      const path = await uploadServerIcon(profile.id, `${server.id}-banner`, file);
+      const path = await uploadServerIcon(profile!.id, `${server.id}-banner`, file);
       updateServer.mutate({ serverId: server.id, banner_url: publicUrl("banners", path) });
     } catch {
       toast.error(t("common.error"));
@@ -543,147 +577,240 @@ export function ServerSettingsDialog({
     }
   };
 
+  const tabs: Array<{ id: SettingsTab; label: string }> = [
+    { id: "general", label: t("serverSettings.general") },
+    ...(canManage
+      ? ([
+          { id: "roles", label: t("serverSettings.roles") },
+          { id: "emoji", label: t("serverSettings.emoji") },
+          { id: "events", label: t("serverSettings.events") },
+          { id: "boost", label: t("serverSettings.boost") },
+          { id: "moderation", label: t("serverSettings.moderation") },
+          { id: "bots", label: t("serverSettings.bots") },
+          { id: "danger", label: t("serverSettings.danger") },
+        ] as Array<{ id: SettingsTab; label: string }>)
+      : []),
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto p-0 sm:max-w-lg">
-        <DialogHeader className="border-b border-border px-6 py-4">
+      <DialogContent className="h-[86vh] max-h-[720px] gap-0 overflow-hidden p-0 sm:max-w-[860px]">
+        <DialogHeader className="sr-only">
           <DialogTitle>{t("servers.settings")}</DialogTitle>
           <DialogDescription>
             {t("servers.memberCount", { count: memberCount })}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 px-6 py-4">
-          <div className="overflow-hidden rounded-xl border border-border/70">
-            <button
-              type="button"
-              onClick={() => bannerRef.current?.click()}
-              className="relative flex h-24 w-full items-end justify-end p-2"
-              style={
-                server.banner_url
-                  ? {
-                      backgroundImage: `url(${server.banner_url})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }
-                  : { backgroundColor: accentFor(server.id) }
-              }
-            >
-              <span className="rounded-md bg-black/35 px-2 py-1 text-[11px] font-medium text-white">
-                {busy === "banner" ? <Loader2 className="size-3 animate-spin" /> : t("servers.changeBanner")}
-              </span>
-            </button>
-            <div className="flex items-center gap-3 px-3 pb-3">
-              <button
-                type="button"
-                onClick={() => iconRef.current?.click()}
-                className="-mt-6 flex size-14 items-center justify-center overflow-hidden rounded-xl border-4 border-card text-[13px] font-semibold text-white"
-                style={{ backgroundColor: accentFor(server.id) }}
-              >
-                {server.icon_url ? (
-                  <img src={server.icon_url} alt="" className="size-full object-cover" />
-                ) : busy === "icon" ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  initials(server.name)
-                )}
-              </button>
-              <p className="min-w-0 flex-1 truncate pt-4 text-[13px] font-semibold">
+        <div className="flex min-h-0 flex-1">
+          <aside className="flex w-[190px] shrink-0 flex-col border-r border-border/60 bg-sidebar/70">
+            <div className="px-3 pt-4 pb-2">
+              <p className="truncate px-2 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                 {server.name}
               </p>
             </div>
-          </div>
+            <nav className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+              {tabs.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setTab(item.id)}
+                  aria-current={tab === item.id ? "page" : undefined}
+                  className={cn(
+                    "mb-0.5 flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[12.5px] transition-colors",
+                    tab === item.id
+                      ? "bg-accent font-medium text-foreground"
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                    item.id === "danger" && "text-destructive hover:text-destructive",
+                  )}
+                >
+                  <span className="truncate">{item.label}</span>
+                  {tab === item.id ? (
+                    <span className="size-1.5 rounded-full bg-primary" />
+                  ) : null}
+                </button>
+              ))}
+            </nav>
+          </aside>
 
-          <input
-            ref={iconRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            className="hidden"
-            onChange={(event) => void onIcon(event.target.files?.[0])}
-          />
-          <input
-            ref={bannerRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            className="hidden"
-            onChange={(event) => void onBanner(event.target.files?.[0])}
-          />
+          <section className="flex min-w-0 flex-1 flex-col">
+            <header className="flex h-[52px] shrink-0 items-center border-b border-border/60 px-5">
+              <h2 className="truncate text-[14.5px] font-semibold">
+                {tabs.find((item) => item.id === tab)?.label ?? ""}
+              </h2>
+            </header>
 
-          {server.role === "owner" || server.role === "admin" ? (
-            <>
-              <div className="space-y-1.5">
-                <Label htmlFor="server-rename">{t("servers.name")}</Label>
-                <Input
-                  id="server-rename"
-                  value={name}
-                  maxLength={100}
-                  onChange={(event) => setName(event.target.value)}
+            <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              {tab === "general" ? (
+                <div className="space-y-4">
+                  <div className="overflow-hidden rounded-xl border border-border/70">
+                    <button
+                      type="button"
+                      onClick={() => canManage && bannerRef.current?.click()}
+                      disabled={!canManage}
+                      className="relative flex h-24 w-full items-end justify-end p-2 transition-opacity hover:opacity-90 disabled:cursor-default disabled:hover:opacity-100"
+                      style={
+                        server.banner_url
+                          ? {
+                              backgroundImage: `url(${server.banner_url})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }
+                          : { backgroundColor: accentFor(server.id) }
+                      }
+                    >
+                      <span className="rounded-md bg-black/35 px-2 py-1 text-[11px] font-medium text-white">
+                        {busy === "banner" ? (
+                          <Loader2 className="size-3 animate-spin" />
+                        ) : (
+                          t("servers.changeBanner")
+                        )}
+                      </span>
+                    </button>
+                    <div className="flex items-center gap-3 px-3 pb-3">
+                      <button
+                        type="button"
+                        onClick={() => canManage && iconRef.current?.click()}
+                        disabled={!canManage}
+                        className="-mt-6 flex size-14 items-center justify-center overflow-hidden rounded-xl border-4 border-card text-[13px] font-semibold text-white disabled:cursor-default"
+                        style={{ backgroundColor: accentFor(server.id) }}
+                      >
+                        {server.icon_url ? (
+                          <img src={server.icon_url} alt="" className="size-full object-cover" />
+                        ) : busy === "icon" ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          initials(server.name)
+                        )}
+                      </button>
+                      <p className="min-w-0 flex-1 truncate pt-4 text-[13px] font-semibold">
+                        {server.name}
+                      </p>
+                    </div>
+                  </div>
+
+                  <input
+                    ref={iconRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(event) => void onIcon(event.target.files?.[0])}
+                  />
+                  <input
+                    ref={bannerRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(event) => void onBanner(event.target.files?.[0])}
+                  />
+
+                  {canManage ? (
+                    <>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="server-rename">{t("servers.name")}</Label>
+                        <Input
+                          id="server-rename"
+                          value={name}
+                          maxLength={100}
+                          onChange={(event) => setName(event.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="server-description">{t("servers.description")}</Label>
+                        <Textarea
+                          id="server-description"
+                          value={description}
+                          rows={3}
+                          maxLength={280}
+                          placeholder={t("servers.descriptionPlaceholder")}
+                          onChange={(event) => setDescription(event.target.value)}
+                        />
+                      </div>
+                      <VanitySlugEditor
+                        serverId={server.id}
+                        slug={server.vanity_slug}
+                        canUse={(boost?.level ?? 0) >= 2}
+                        onSaved={(next) =>
+                          updateServer.mutate({ serverId: server.id, vanity_slug: next })
+                        }
+                      />
+
+                      <Button
+                        onClick={save}
+                        disabled={updateServer.isPending || !name.trim()}
+                      >
+                        {updateServer.isPending ? (
+                          <Loader2 className="mr-2 size-4 animate-spin" />
+                        ) : null}
+                        {t("common.save")}
+                      </Button>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {tab === "roles" ? <RoleEditor serverId={server.id} /> : null}
+              {tab === "emoji" ? (
+                <EmojiManager serverId={server.id} canManage={canManage} />
+              ) : null}
+              {tab === "events" ? (
+                <EventsPanel
+                  serverId={server.id}
+                  channels={channels ?? []}
+                  canManage={canManage}
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="server-description">{t("servers.description")}</Label>
-                <Textarea
-                  id="server-description"
-                  value={description}
-                  rows={3}
-                  maxLength={280}
-                  placeholder={t("servers.descriptionPlaceholder")}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
-              </div>
-              <Button onClick={save} disabled={updateServer.isPending || !name.trim()}>
-                {updateServer.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                {t("common.save")}
-              </Button>
-            </>
-          ) : null}
+              ) : null}
+              {tab === "boost" ? (
+                <BoostPanel serverId={server.id} boostLevel={boost?.level ?? 0} />
+              ) : null}
+              {tab === "moderation" ? <ModerationSettings serverId={server.id} /> : null}
+              {tab === "bots" ? (
+                <div className="space-y-3">
+                  <OfficialBotPanel serverId={server.id} />
+                  <BotDirectory serverId={server.id} />
+                </div>
+              ) : null}
 
-          {server.role === "owner" || server.role === "admin" ? (
-            <>
-              <RoleEditor serverId={server.id} />
-              <BoostPanel serverId={server.id} boostLevel={boost?.level ?? 0} />
-              <BotDirectory serverId={server.id} />
-              <ModerationSettings serverId={server.id} />
-            </>
-          ) : null}
-
-          <div className="space-y-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
-            <p className="text-[12px] font-semibold text-destructive">
-              {t("servers.dangerZone")}
-            </p>
-            <p className="text-[11.5px] leading-relaxed text-muted-foreground">
-              {isOwner ? t("servers.deleteWarning") : t("servers.leaveWarning")}
-            </p>
-            {confirming ? (
-              <div className="flex gap-2">
-                <Button variant="destructive" size="sm" onClick={destroy}>
-                  {t("common.confirm")}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setConfirming(null)}>
-                  {t("common.cancel")}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setConfirming(isOwner ? "delete" : "leave")}
-              >
-                {isOwner ? t("servers.delete") : t("servers.leave")}
-              </Button>
-            )}
-          </div>
+              {tab === "danger" ? (
+                <div className="space-y-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+                  <p className="text-[12px] font-semibold text-destructive">
+                    {t("servers.dangerZone")}
+                  </p>
+                  <p className="text-[11.5px] leading-relaxed text-muted-foreground">
+                    {isOwner ? t("servers.deleteWarning") : t("servers.leaveWarning")}
+                  </p>
+                  {confirming ? (
+                    <div className="flex gap-2">
+                      <Button variant="destructive" size="sm" onClick={destroy}>
+                        {t("common.confirm")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirming(null)}
+                      >
+                        {t("common.cancel")}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setConfirming(isOwner ? "delete" : "leave")}
+                    >
+                      {isOwner ? t("servers.delete") : t("servers.leave")}
+                    </Button>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </section>
         </div>
-
-        <DialogFooter className="border-t border-border px-6 py-3">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            {t("common.close")}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
 export type ServerDialogName =
   | "createServer"
   | "joinServer"

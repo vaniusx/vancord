@@ -23,7 +23,7 @@ export function useServers() {
       const supabase = requireSupabase();
       const { data, error } = await supabase
         .from("server_members")
-        .select("role, joined_at, servers!inner(id, name, icon_url, description, banner_url, accent_color, owner_id)")
+        .select("role, joined_at, servers!inner(id, name, icon_url, description, banner_url, accent_color, owner_id, vanity_slug)")
         .eq("user_id", user!.id)
         .order("joined_at", { ascending: true });
 
@@ -39,6 +39,7 @@ export function useServers() {
             banner_url: string | null;
             accent_color: string | null;
             owner_id: string;
+            vanity_slug: string | null;
           } | null;
           if (!server) return null;
           return {
@@ -49,6 +50,7 @@ export function useServers() {
             banner_url: server.banner_url,
             accent_color: server.accent_color,
             owner_id: server.owner_id,
+            vanity_slug: server.vanity_slug,
             role: row.role as ServerSummary["role"],
           } satisfies ServerSummary;
         })
@@ -115,6 +117,7 @@ export function useUpdateServer() {
       description?: string | null;
       icon_url?: string | null;
       banner_url?: string | null;
+      vanity_slug?: string | null;
     }) => {
       const supabase = requireSupabase();
       const patch: Record<string, unknown> = {};
@@ -122,6 +125,9 @@ export function useUpdateServer() {
       if (input.description !== undefined) patch.description = input.description;
       if (input.icon_url !== undefined) patch.icon_url = input.icon_url;
       if (input.banner_url !== undefined) patch.banner_url = input.banner_url;
+      // Written by set_vanity_slug; included here only so the local cache can be
+      // patched after the RPC succeeds.
+      if (input.vanity_slug !== undefined) patch.vanity_slug = input.vanity_slug;
 
       const { error } = await supabase
         .from("servers")

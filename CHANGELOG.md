@@ -2,6 +2,56 @@
 
 All notable changes to Vancord. Versions follow semantic versioning.
 
+## 1.3.0 — 2026-10-31
+
+Servers grow up, settings get real, and the store becomes something to browse.
+
+### Servers
+- Invite codes are now readable words instead of a random hash, and every server
+  can claim a vanity slug once it reaches boost level 2. A hosted join link works
+  as well as the bare code.
+- Server settings split into eight tabs: general, roles, emoji, events, boosts,
+  moderation, bots and danger zone.
+- Custom emojis and stickers can be uploaded. Slots are enforced by boost level,
+  so buying a boost is what unlocks the next set.
+- Perks are listed in the boost tab instead of being implied: emoji slots, upload
+  size, stream quality and the vanity slug.
+
+### Events
+- A server can schedule events with a title, description, start and end time, a
+  location and an optional voice channel. The panel shows upcoming and past
+  events, who is attending, and reminds attendees shortly before the start.
+- Events are reachable from the channel list, not buried in settings.
+
+### Settings
+- Fourteen sections in six groups. New: account (password change, active
+  sessions, account deletion), security (authenticator app enrolment), voice and
+  video (input mode, noise suppression, echo cancellation, output volume), sound
+  effects (per-event toggle and volume), accessibility (reduced motion, message
+  density), privacy (activity visibility, data export) and keyboard shortcuts.
+- "Delete my account" and "export my data" run server-side, so removing the
+  client does not leave a stranded account.
+
+### Store
+- Five tabs: plans, frames, themes, badges and nameplates, with a live preview
+  drawn from the profile itself — a frame preview is your own avatar inside that
+  ring, a nameplate preview is your own display name in that colour.
+- Vancord+ and Ultra are compared line by line: animated avatar and banner,
+  upload size, stream quality, accent colour, profile theme, frames and the
+  soundboard.
+- Any cosmetic can be gifted to another user by username, paid from your balance.
+
+### Games
+- Detection now covers Riot, Epic, Battle.net, EA, Ubisoft, GOG, Rockstar and
+  standalone launchers, not just Steam. League, VALORANT, Fortnite, Overwatch 2,
+  Cyberpunk, Elden Ring and about fifty more titles are recognised from the
+  process list, and the profile card says which launcher the game came from.
+
+### Official bot
+- Every server gets one, silently. It greets new members, writes timeouts, kicks
+  and bans into the log channel, and announces boosts with the new level. It is
+  hidden from the member list and has switches in the bots tab.
+
 ## 1.2.0 — 2026-10-30
 
 First batch of the v2 cleanup: the failures that made the app feel broken.

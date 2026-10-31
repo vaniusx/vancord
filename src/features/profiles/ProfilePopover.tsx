@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { MessageSquare, UserPlus } from "lucide-react";
+import { Gamepad2, MessageSquare, UserPlus } from "lucide-react";
 
 import { Avatar } from "@/components/common/avatar";
 import { BrandMark } from "@/components/common/brand-mark";
@@ -29,13 +29,15 @@ function ActivityLine({ profile }: { profile: ProfileSummary }) {
 
   return (
     <div className="mt-2.5 flex items-center gap-2 rounded-xl bg-background/70 px-2.5 py-2 dark:bg-black/25">
-      <span className="flex size-6 items-center justify-center rounded-md bg-primary/15 text-[12px]">
-        🎮
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
+        <Gamepad2 className="size-3.5" />
       </span>
       <div className="min-w-0 leading-tight">
         <p className="truncate text-[12px] font-medium">{activity.name}</p>
         <p className="truncate text-[10.5px] text-muted-foreground">
-          {t("profile.nowPlaying")}
+          {activity.launcher
+            ? `${t("profile.playingVia")} ${activity.launcher}`
+            : t("profile.nowPlaying")}
         </p>
       </div>
     </div>

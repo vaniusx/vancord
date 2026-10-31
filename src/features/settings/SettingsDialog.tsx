@@ -27,6 +27,14 @@ import { publicUrl } from "@/lib/supabase";
 import { uploadAvatar, uploadBanner } from "@/lib/upload";
 import { listSteamLibrary } from "@/features/activity/use-activity";
 import { DeveloperSection } from "@/features/bots/DeveloperSection";
+import { AccountSection } from "@/features/settings/AccountSection";
+import { SecuritySection } from "@/features/settings/SecuritySection";
+import { SoundsSection, VoiceSection } from "@/features/settings/VoiceSection";
+import {
+  AccessibilitySection,
+  PrivacySection,
+  ShortcutsSection,
+} from "@/features/settings/ExtraSections";
 import {
   APP_VERSION,
   canAutoUpdate,
@@ -628,8 +636,10 @@ function AboutSection() {
 }
 
 const SECTIONS = [
-  { group: "account", items: ["profile"] },
-  { group: "app", items: ["appearance", "activity", "notifications", "language"] },
+  { group: "account", items: ["profile", "account", "security"] },
+  { group: "app", items: ["appearance", "accessibility", "activity", "notifications", "language"] },
+  { group: "voice", items: ["voice", "sounds", "shortcuts"] },
+  { group: "privacy", items: ["privacy"] },
   { group: "developer", items: ["developer"] },
   { group: "misc", items: ["about"] },
 ] as const;
@@ -710,7 +720,14 @@ export function SettingsDialog() {
             <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-6 py-5">
               <div className="mx-auto w-full max-w-[560px]">
                 {section === "profile" ? <ProfileSection /> : null}
+                {section === "account" ? <AccountSection /> : null}
+                {section === "security" ? <SecuritySection /> : null}
                 {section === "appearance" ? <AppearanceSection /> : null}
+                {section === "accessibility" ? <AccessibilitySection /> : null}
+                {section === "voice" ? <VoiceSection /> : null}
+                {section === "sounds" ? <SoundsSection /> : null}
+                {section === "shortcuts" ? <ShortcutsSection /> : null}
+                {section === "privacy" ? <PrivacySection /> : null}
                 {section === "activity" ? <ActivitySection /> : null}
                 {section === "notifications" ? <NotificationsSection /> : null}
                 {section === "language" ? <LanguageSection /> : null}

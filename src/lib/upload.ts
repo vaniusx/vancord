@@ -132,3 +132,41 @@ export async function uploadServerIcon(userId: string, serverId: string, file: F
   if (error) throw error;
   return path;
 }
+/** Server emoji: small, must keep animation, so no canvas re-encode for GIF. */
+export async function uploadEmoji(
+  file: File,
+  serverId: string,
+  name: string,
+): Promise<{ path: string; animated: boolean }> {
+  const supabase = requireSupabase();
+  const animated = await isAnimated(file);
+  const blob = animated ? file : await compress(file, 0.4, 128);
+  const mime = animated ? file.type : "image/webp";
+  const path = `${serverId}/${name}-${crypto.randomUUID()}.${extensionFor(mime)}`;
+
+  const { error } = await supabase.storage
+    .from("emojis")
+    .upload(path, blob, { contentType: mime, upsert: false });
+  if (error) throw error;
+
+  return { path, animated };
+}
+
+/** Server sticker: larger than an emoji, still small enough for a chat bubble. */
+export async function uploadSticker(
+  file: File,
+  serverId: string,
+): Promise<{ path: string }> {
+  const supabase = requireSupabase();
+  const animated = await isAnimated(file);
+  const blob = animated ? file : await compress(file, 0.8, 320);
+  const mime = animated ? file.type : "image/webp";
+  const path = `${serverId}/${crypto.randomUUID()}.${extensionFor(mime)}`;
+
+  const { error } = await supabase.storage
+    .from("stickers")
+    .upload(path, blob, { contentType: mime, upsert: false });
+  if (error) throw error;
+
+  return { path };
+}

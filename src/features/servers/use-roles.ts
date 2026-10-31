@@ -249,7 +249,7 @@ export function useShop() {
       const supabase = requireSupabase();
       const { data, error } = await supabase
         .from("shop_items")
-        .select("sku, kind, name_tr, name_en, description_tr, description_en, price, duration_days, metadata, sort")
+        .select("sku, kind, family, name_tr, name_en, description_tr, description_en, price, duration_days, metadata, preview, sort")
         .order("sort");
       if (error) throw error;
       return (data ?? []) as ShopItem[];
@@ -364,6 +364,54 @@ export function useBoostLevel(serverId: string | undefined) {
         level: (level.data as number) ?? 0,
         count: (count.data as number) ?? 0,
       };
+    },
+  });
+}
+
+/** Effective limits for a server (emoji slots, bitrate, stream quality). */
+export function useServerPerks(serverId: string | undefined) {
+  return useQuery({
+    queryKey: ["perks", serverId],
+    enabled: Boolean(serverId),
+    staleTime: 60_000,
+    queryFn: async (): Promise<Record<string, unknown>> => {
+      const supabase = requireSupabase();
+      const { data, error } = await supabase.rpc("server_perks", {
+        target_server: serverId,
+      });
+      if (error) throw error;
+      return (data ?? {}) as Record<string, unknown>;
+    },
+  });
+}
+
+/** Buy an item for another user out of your own balance. */
+export function useGift() {
+  const invalidate = useInvalidateEconomy();
+  return useMutation({
+    mutationFn: async (input: { sku: string; recipientId: string }) => {
+      const supabase = requireSupabase();
+      const { error } = await supabase.rpc("gift_item", {
+        target_sku: input.sku,
+        recipient: input.recipientId,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+    meta: { handled: true },
+  });
+}
+
+/** What each membership tier unlocks, for the comparison table. */
+export function useMembershipPerks() {
+  return useQuery({
+    queryKey: ["membership-perks"],
+    staleTime: Infinity,
+    queryFn: async (): Promise<Record<string, Record<string, unknown>>> => {
+      const supabase = requireSupabase();
+      const { data, error } = await supabase.rpc("membership_perks");
+      if (error) throw error;
+      return (data ?? {}) as Record<string, Record<string, unknown>>;
     },
   });
 }

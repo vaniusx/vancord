@@ -3,10 +3,17 @@ import { persist } from "zustand/middleware";
 
 export type SettingsSection =
   | "profile"
+  | "account"
+  | "security"
   | "appearance"
+  | "accessibility"
   | "activity"
   | "notifications"
   | "language"
+  | "voice"
+  | "sounds"
+  | "shortcuts"
+  | "privacy"
   | "developer"
   | "about";
 
@@ -38,6 +45,16 @@ interface AppState {
   clearDraft: (channelId: string) => void;
   typingNames: Record<string, string[]>;
   setTyping: (channelId: string, userId: string, active: boolean) => void;
+  activityVisible: boolean;
+  setActivityVisible: (visible: boolean) => void;
+  noiseSuppression: boolean;
+  setNoiseSuppression: (enabled: boolean) => void;
+  echoCancellation: boolean;
+  setEchoCancellation: (enabled: boolean) => void;
+  reduceMotion: boolean;
+  setReduceMotion: (enabled: boolean) => void;
+  messageDensity: "cozy" | "compact";
+  setMessageDensity: (density: "cozy" | "compact") => void;
   autoUpdate: boolean;
   setAutoUpdate: (enabled: boolean) => void;
   shopOpen: boolean;
@@ -85,6 +102,16 @@ export const useAppStore = create<AppState>()(
           delete next[channelId];
           return { drafts: next };
         }),
+      activityVisible: true,
+      setActivityVisible: (activityVisible) => set({ activityVisible }),
+      noiseSuppression: true,
+      setNoiseSuppression: (noiseSuppression) => set({ noiseSuppression }),
+      echoCancellation: true,
+      setEchoCancellation: (echoCancellation) => set({ echoCancellation }),
+      reduceMotion: false,
+      setReduceMotion: (reduceMotion) => set({ reduceMotion }),
+      messageDensity: "cozy",
+      setMessageDensity: (messageDensity) => set({ messageDensity }),
       autoUpdate: true,
       setAutoUpdate: (autoUpdate) => set({ autoUpdate }),
       shopOpen: false,
@@ -119,6 +146,11 @@ export const useAppStore = create<AppState>()(
         manualGame: state.manualGame,
         lastServerId: state.lastServerId,
         autoUpdate: state.autoUpdate,
+        activityVisible: state.activityVisible,
+        noiseSuppression: state.noiseSuppression,
+        echoCancellation: state.echoCancellation,
+        reduceMotion: state.reduceMotion,
+        messageDensity: state.messageDensity,
       }),
     },
   ),
