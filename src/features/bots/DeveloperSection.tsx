@@ -1,4 +1,4 @@
-import { Check, Copy, Loader2, Plus, RefreshCw, Terminal, Trash2, X } from "lucide-react";
+import { Check, Copy, Loader2, Plus, RefreshCw, Terminal, Trash2, X } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

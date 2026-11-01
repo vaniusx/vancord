@@ -1,4 +1,4 @@
-import { Check, LogOut, Settings, Sparkles, UserRound } from "lucide-react";
+import { Check, LogOut, Settings, Sparkles, UserRound } from "@/components/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

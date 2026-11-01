@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Gamepad2, MessageSquare, UserPlus } from "lucide-react";
+import { Gamepad2, MessageSquare, UserPlus } from "@/components/icons";
 
 import { Avatar } from "@/components/common/avatar";
 import { BrandMark } from "@/components/common/brand-mark";

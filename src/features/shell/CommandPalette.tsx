@@ -1,4 +1,4 @@
-import { Hash, MessageSquare, Search, UserRound } from "lucide-react";
+import { Hash, MessageSquare, Search, UserRound } from "@/components/icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

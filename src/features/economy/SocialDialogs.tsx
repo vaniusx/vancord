@@ -1,4 +1,4 @@
-import { AtSign, Loader2, Users } from "lucide-react";
+import { AtSign, Loader2, Users } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

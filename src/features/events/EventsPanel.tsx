@@ -7,7 +7,7 @@ import {
   Plus,
   Users,
   X,
-} from "lucide-react";
+} from "@/components/icons";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

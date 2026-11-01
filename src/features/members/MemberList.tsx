@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Check, MessageSquare, Shield, ShieldOff, Tags, UserRound } from "lucide-react";
+import { Check, MessageSquare, Shield, ShieldOff, Tags, UserRound } from "@/components/icons";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 

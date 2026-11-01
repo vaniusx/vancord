@@ -1,4 +1,4 @@
-import { Loader2, Pin, Search } from "lucide-react";
+import { Loader2, Pin, Search } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

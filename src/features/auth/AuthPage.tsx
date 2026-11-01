@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { AtSign, Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
+import { AtSign, Eye, EyeOff, Loader2, Lock, User } from "@/components/icons";
 
 import { CodeForm } from "@/features/auth/CodeForm";
 import { useAuthStatus } from "@/features/auth/auth-store";

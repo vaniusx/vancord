@@ -1,4 +1,4 @@
-import { Loader2, Paperclip, Send, X } from "lucide-react";
+import { Loader2, Paperclip, Send, X } from "@/components/icons";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

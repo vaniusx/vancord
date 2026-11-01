@@ -1,4 +1,4 @@
-import { Hash, Phone, Pin, Search, Users, Video } from "lucide-react";
+import { Hash, Phone, Pin, Search, Users, Video } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";

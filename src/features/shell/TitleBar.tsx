@@ -1,4 +1,4 @@
-import { Copy, Minus, Square, X } from "lucide-react";
+import { Copy, Minus, Square, X } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 

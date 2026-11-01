@@ -1,4 +1,4 @@
-import { ChevronDown, Hash, Phone, Plus, Search, Users, Video, Volume2 } from "lucide-react";
+import { ChevronDown, Hash, Phone, Plus, Search, Users, Video, Volume2 } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

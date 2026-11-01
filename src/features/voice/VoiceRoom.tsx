@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Mic, MicOff, MonitorUp, PhoneOff, Video, VideoOff } from "lucide-react";
+import { AlertCircle, Loader2, Mic, MicOff, MonitorUp, PhoneOff, Video, VideoOff } from "@/components/icons";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";

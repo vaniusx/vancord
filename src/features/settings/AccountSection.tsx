@@ -1,4 +1,4 @@
-import { KeyRound, Loader2, LogOut, Mail, Monitor, ShieldAlert } from "lucide-react";
+import { KeyRound, Loader2, LogOut, Mail, Monitor, ShieldAlert } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

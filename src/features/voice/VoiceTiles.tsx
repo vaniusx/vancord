@@ -1,4 +1,4 @@
-import { Maximize2, MicOff, MonitorUp } from "lucide-react";
+import { Maximize2, MicOff, MonitorUp } from "@/components/icons";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 

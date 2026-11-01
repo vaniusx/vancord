@@ -1,4 +1,4 @@
-import { Compass, Hash, Inbox, MessageCircle, Plus, Search, Users } from "lucide-react";
+import { Compass, Hash, Inbox, MessageCircle, Plus, Search, Users } from "@/components/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

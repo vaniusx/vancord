@@ -1,4 +1,4 @@
-import { ArrowDown, Loader2, MessageCircle } from "lucide-react";
+import { ArrowDown, Loader2, MessageCircle } from "@/components/icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 

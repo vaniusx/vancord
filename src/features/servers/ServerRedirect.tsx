@@ -1,4 +1,4 @@
-import { Hash, Loader2 } from "lucide-react";
+import { Hash, Loader2 } from "@/components/icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";

@@ -1,4 +1,4 @@
-import { Loader2, PackageCheck, TriangleAlert } from "lucide-react";
+import { Loader2, PackageCheck, TriangleAlert } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 

@@ -1,4 +1,4 @@
-import { Check, Copy, Loader2, ShieldCheck } from "lucide-react";
+import { Check, Copy, Loader2, ShieldCheck } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

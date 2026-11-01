@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Loader2, Plus, Trash2, Zap } from "lucide-react";
+import { Check, ChevronDown, Loader2, Plus, Trash2, Zap } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

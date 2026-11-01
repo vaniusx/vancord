@@ -1,4 +1,4 @@
-import { BadgeCheck, Loader2 } from "lucide-react";
+import { BadgeCheck, Loader2 } from "@/components/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 

@@ -9,7 +9,7 @@ import {
   Palette,
   Sparkles,
   Type,
-} from "lucide-react";
+} from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -35,6 +35,7 @@ import {
 } from "@/features/servers/use-roles";
 import type { ShopItem } from "@/lib/models";
 import { relativeTime } from "@/lib/format";
+import { playCue } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 type Tab = "plans" | "frames" | "themes" | "badges" | "plates";
@@ -200,7 +201,10 @@ export function ShopDialog({
 
   const buy = (item: ShopItem) => {
     purchase.mutate(item.sku, {
-      onSuccess: () => toast.success(t("economy.bought")),
+      onSuccess: () => {
+        playCue("success");
+        toast.success(t("economy.bought"));
+      },
       onError: (error) =>
         toast.error(
           String(error).includes("insufficient_points")
@@ -520,6 +524,7 @@ export function ShopDialog({
                     { sku: giftFor.sku, recipientId: found.id },
                     {
                       onSuccess: () => {
+                        playCue("gift");
                         toast.success(t("store.giftSent"));
                         setGiftFor(null);
                       },

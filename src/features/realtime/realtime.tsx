@@ -109,10 +109,14 @@ function notificationsAllowed(): boolean {
   return true;
 }
 
-async function notify(title: string, body: string) {
+async function notify(
+  title: string,
+  body: string,
+  cue: Parameters<typeof playCue>[0] = "message",
+) {
   if (!isTauri()) return;
   if (!notificationsAllowed()) return;
-  playCue("message");
+  playCue(cue);
   try {
     const { sendNotification } = await import(
       "@tauri-apps/plugin-notification"
@@ -398,7 +402,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
               .eq("id", row.requester_id!)
               .maybeSingle();
             const name = data?.display_name ?? data?.username ?? "Vancord";
-            await notify(i18n.t("friends.newRequest", { name }), "");
+            await notify(i18n.t("friends.newRequest", { name }), "", "friend");
           })();
         },
       )

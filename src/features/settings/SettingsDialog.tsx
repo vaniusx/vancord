@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload } from "lucide-react";
+import { Check, Loader2, Monitor, Moon, Palette, Sun, Upload } from "@/components/icons";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

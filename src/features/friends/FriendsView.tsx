@@ -7,7 +7,7 @@ import {
   UserRoundX,
   Users,
   X,
-} from "lucide-react";
+} from "@/components/icons";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "@/features/app/app-store";

@@ -8,7 +8,7 @@ import {
   Video,
   VideoOff,
   X,
-} from "lucide-react";
+} from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 

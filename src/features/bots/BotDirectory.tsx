@@ -1,4 +1,4 @@
-import { Loader2, ShieldCheck, Trash2, X } from "lucide-react";
+import { Loader2, ShieldCheck, Trash2, X } from "@/components/icons";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 

@@ -1,4 +1,4 @@
-import { Smile } from "lucide-react";
+import { Smile } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 

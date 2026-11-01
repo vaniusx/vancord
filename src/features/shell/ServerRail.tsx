@@ -1,4 +1,4 @@
-import { Compass, MessageCircle, Plus, Settings2 } from "lucide-react";
+import { Compass, MessageCircle, Plus, Settings2 } from "@/components/icons";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

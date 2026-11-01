@@ -1,4 +1,4 @@
-import { Check, Copy, CornerUpLeft, Pencil, Pin, SmilePlus, Trash2, X } from "lucide-react";
+import { Check, Copy, CornerUpLeft, Pencil, Pin, SmilePlus, Trash2, X } from "@/components/icons";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";

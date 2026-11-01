@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useVoiceStore, type VoiceParticipant } from "@/features/voice/voice-store";
 import { classifyVoiceError } from "@/features/voice/errors";
 import { requireSupabase } from "@/lib/supabase";
+import { playCue } from "@/lib/sounds";
 
 type TokenResponse = { token: string; url: string; room: string };
 type LiveKit = typeof import("livekit-client");
@@ -186,6 +187,7 @@ export function useVoice() {
     try {
       await room.localParticipant.setMicrophoneEnabled(next);
       useVoiceStore.getState().setState({ micEnabled: next, error: null });
+      playCue(next ? "unmute" : "mute");
     } catch (error) {
       useVoiceStore.getState().setState({ error: classifyVoiceError(error) });
     }
@@ -199,6 +201,7 @@ export function useVoice() {
     try {
       await room.localParticipant.setCameraEnabled(next);
       useVoiceStore.getState().setState({ cameraEnabled: next });
+      playCue(next ? "camera-on" : "camera-off");
     } catch (error) {
       useVoiceStore.getState().setState({ cameraEnabled: false, error: classifyVoiceError(error) });
     }
@@ -216,6 +219,7 @@ export function useVoice() {
         surfaceSwitching: "include",
       });
       useVoiceStore.getState().setState({ screenSharing: next });
+      playCue(next ? "screen-start" : "screen-stop");
     } catch {
       useVoiceStore.getState().setState({ screenSharing: false });
     }

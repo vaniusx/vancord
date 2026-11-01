@@ -2,7 +2,7 @@ import { lazy, memo, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { PanelLeftOpen, WifiOff } from "lucide-react";
+import { PanelLeftOpen, WifiOff } from "@/components/icons";
 
 import {
   Sheet,
