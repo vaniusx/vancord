@@ -1,11 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquare, Shield, ShieldOff, UserRound } from "lucide-react";
+import { Check, MessageSquare, Shield, ShieldOff, Tags, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Avatar } from "@/components/common/avatar";
 import { BadgeRowList, useBadges } from "@/features/badges/use-badges";
 import { ModerationActions } from "@/features/moderation/ModerationSettings";
+import {
+  useAssignRole,
+  useMemberRoles,
+  useRoles,
+} from "@/features/servers/use-roles";
 import { ProfilePopover } from "@/features/profiles/ProfilePopover";
 import { useStartDm } from "@/features/dm/use-dms";
 import {
@@ -13,6 +18,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { useLiveStatus, usePresenceStore } from "@/features/realtime/realtime";
@@ -42,9 +50,11 @@ function MemberBadges({ userId }: { userId: string }) {
 
 function MemberTile({
   member,
+  serverId,
   canModerate,
 }: {
   member: MemberRow;
+  serverId?: string;
   canModerate?: boolean;
 }) {
   const { t } = useTranslation();
@@ -52,6 +62,21 @@ function MemberTile({
   const startDm = useStartDm();
   const status = useLiveStatus(member.user_id, member.profile.status);
   const offline = status === "offline";
+
+  const { data: roles } = useRoles(canModerate ? serverId : undefined);
+  const { data: assignments } = useMemberRoles(canModerate ? serverId : undefined);
+  const assignRole = useAssignRole(serverId);
+
+  const mine = new Set(
+    (assignments ?? [])
+      .filter((row) => row.user_id === member.user_id)
+      .map((row) => row.role_id),
+  );
+
+  // The owner always keeps the top role; giving it away would leave the server
+  // without somebody who can undo it.
+  const assignable = (roles ?? []).filter((role) => !role.is_default);
+  const canEditRoles = canModerate && member.role !== "owner" && assignable.length > 0;
 
   const openDm = async () => {
     const channelId = await startDm.mutateAsync(member.user_id);
@@ -117,6 +142,40 @@ function MemberTile({
               <Shield className="mr-2 size-4" />
               {t("moderation.copyId")}
             </ContextMenuItem>
+            {canEditRoles ? (
+              <ContextMenuSub>
+                <ContextMenuSubTrigger>
+                  <Tags className="mr-2 size-4" />
+                  {t("members.rolesMenu")}
+                </ContextMenuSubTrigger>
+                <ContextMenuSubContent className="w-52">
+                  {assignable.map((role) => {
+                    const active = mine.has(role.id);
+                    return (
+                      <ContextMenuItem
+                        key={role.id}
+                        onSelect={() =>
+                          assignRole.mutate({
+                            userId: member.user_id,
+                            roleId: role.id,
+                            active: !active,
+                          })
+                        }
+                      >
+                        <span className="mr-2 flex size-4 items-center justify-center">
+                          {active ? <Check className="size-3.5" /> : null}
+                        </span>
+                        <span
+                          className="size-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: role.color || "var(--muted-foreground)" }}
+                        />
+                        <span className="ml-2 truncate">{role.name}</span>
+                      </ContextMenuItem>
+                    );
+                  })}
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            ) : null}
             <ContextMenuItem disabled>
               <ShieldOff className="mr-2 size-4" />
               {t("profiles.usePanelToModerate")}
@@ -187,7 +246,7 @@ export function MemberList({
       <div className="scrollbar-thin flex-1 space-y-0.5 overflow-y-auto p-2">
         {sorted.map((member) => (
           <div key={member.user_id}>
-            <MemberTile member={member} canModerate={canModerate} />
+            <MemberTile member={member} serverId={serverId} canModerate={canModerate} />
             {timedOut?.has(member.user_id) ? (
               <p className="px-2 text-[10px] font-medium text-status-idle">
                 {t("moderation.muted")}

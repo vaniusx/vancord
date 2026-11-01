@@ -919,3 +919,59 @@ em-emoji-picker {
   content-visibility: auto;
   contain-intrinsic-size: auto 72px;
 }
+
+/* ---------------------------------------------------------------------------
+   Motion layer
+   A short, consistent entrance for a routed screen. 180ms is fast enough that
+   switching channels feels instant but still gives the eye an anchor.
+   --------------------------------------------------------------------------- */
+@keyframes vancord-route-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.route-enter {
+  animation: vancord-route-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* A panel that slides in from the side, used by the mobile drawers. */
+@keyframes vancord-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Press feedback is separate from hover: a touch screen has no hover, so the
+   only affordance it gets is the tap itself. */
+.pressable {
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+/* The app-level "reduce motion" switch. The media query above only follows the
+   operating system; this attribute lets somebody turn it off for Vancord alone
+   without changing their desktop settings. */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

@@ -1,4 +1,4 @@
-import { ChevronDown, Hash, Plus, Search, Users, Volume2 } from "lucide-react";
+import { ChevronDown, Hash, Phone, Plus, Search, Users, Video, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAppStore } from "@/features/app/app-store";
 import { useLiveStatus } from "@/features/realtime/realtime";
+import { useStartCall } from "@/features/voice/use-calls";
 import { StatusDot } from "@/features/shell/presence";
 import { UserCard } from "@/features/shell/UserCard";
 import { accentFor, initials } from "@/lib/format";
@@ -118,39 +119,73 @@ function DmRow({
   accent: string;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const startCall = useStartCall();
   const other = dm.members[0];
   const status = useLiveStatus(other?.id ?? "", other?.status ?? "offline");
 
   if (!other) return null;
 
   return (
-    <button
-      type="button"
-      onClick={() => navigate(`/dm/${dm.id}`)}
+    <div
       className={cn(
-        "flex h-11 w-full items-center gap-2.5 rounded-xl px-2.5 text-left transition-colors",
+        "group flex h-11 w-full items-center rounded-xl transition-colors",
         active ? "bg-accent" : "hover:bg-accent/60",
       )}
     >
-      <div className="relative">
-        <Avatar profile={other} size="sm" />
-        <StatusDot status={status} className="absolute -right-0.5 -bottom-0.5 size-2.5" />
-      </div>
-      <div className="min-w-0 flex-1 leading-tight">
-        <p className="truncate text-[13.5px] font-medium">{other.display_name}</p>
-        <p className="truncate text-[11.5px] text-muted-foreground">
-          {other.custom_status || `@${other.username}`}
-        </p>
-      </div>
-      {unread > 0 && !active ? (
-        <span
-          className="shrink-0 rounded-full px-1.5 text-[10.5px] font-semibold text-white tabular-nums"
-          style={{ backgroundColor: accent }}
+      <button
+        type="button"
+        onClick={() => navigate(`/dm/${dm.id}`)}
+        className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5 py-1 text-left"
+      >
+        <div className="relative shrink-0">
+          <Avatar profile={other} size="sm" />
+          <StatusDot status={status} className="absolute -right-0.5 -bottom-0.5 size-2.5" />
+        </div>
+        <div className="min-w-0 flex-1 leading-tight">
+          <p className="truncate text-[13.5px] font-medium">{other.display_name}</p>
+          <p className="truncate text-[11.5px] text-muted-foreground">
+            {other.custom_status || `@${other.username}`}
+          </p>
+        </div>
+        {unread > 0 && !active ? (
+          <span
+            className="shrink-0 rounded-full px-1.5 text-[10.5px] font-semibold text-white tabular-nums"
+            style={{ backgroundColor: accent }}
+          >
+            {unread > 99 ? "99+" : unread}
+          </span>
+        ) : null}
+      </button>
+
+      {/* Calling from the list means Android never has to open the chat first. */}
+      <div className="flex shrink-0 items-center pr-1">
+        <button
+          type="button"
+          aria-label={t("voice.call")}
+          title={t("voice.call")}
+          onClick={() => {
+            navigate(`/dm/${dm.id}`);
+            startCall.mutate({ channelId: dm.id, video: false });
+          }}
+          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background/70 hover:text-foreground"
         >
-          {unread > 99 ? "99+" : unread}
-        </span>
-      ) : null}
-    </button>
+          <Phone className="size-[15px]" />
+        </button>
+        <button
+          type="button"
+          aria-label={t("voice.camera")}
+          title={t("voice.camera")}
+          onClick={() => {
+            navigate(`/dm/${dm.id}`);
+            startCall.mutate({ channelId: dm.id, video: true });
+          }}
+          className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background/70 hover:text-foreground"
+        >
+          <Video className="size-[15px]" />
+        </button>
+      </div>
+    </div>
   );
 }
 

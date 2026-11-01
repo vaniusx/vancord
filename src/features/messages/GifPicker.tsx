@@ -100,7 +100,7 @@ export function GiphyPicker({ onSelect }: { onSelect: (url: string) => void }) {
   }, [key, query]);
 
   return (
-    <div className="flex h-[min(380px,60dvh)] w-[min(330px,calc(100vw-1.5rem))] flex-col gap-2 rounded-xl border border-border/70 bg-popover p-2 shadow-xl">
+    <div className="flex h-[min(380px,55dvh)] w-[min(330px,calc(100vw-1.5rem))] flex-col gap-2 rounded-xl border border-border/70 bg-popover p-2 shadow-xl">
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -138,7 +138,7 @@ export function GiphyPicker({ onSelect }: { onSelect: (url: string) => void }) {
                 key={gif.id}
                 type="button"
                 onClick={() => onSelect(gif.url)}
-                className="group relative overflow-hidden rounded-md bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                className="group relative aspect-square overflow-hidden rounded-md bg-secondary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 title={gif.title}
               >
                 <img
@@ -173,6 +173,8 @@ export function GifPickerButton({ onSelect }: { onSelect: (url: string) => void 
       <PopoverContent
         align="end"
         side="top"
+        sideOffset={10}
+        collisionPadding={12}
         className="w-auto border-none bg-transparent p-0 shadow-none"
       >
         <GiphyPicker onSelect={onSelect} />

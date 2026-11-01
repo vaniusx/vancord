@@ -179,14 +179,16 @@
       "sent": "Sent",
       "blocked": "Blocked"
     },
-    "empty": "You have no friends yet."
+    "empty": "You have no friends yet.",
+    "newRequest": "{{name}} sent you a friend request"
   },
   "members": {
     "roles": {
       "owner": "Owner",
       "admin": "Admin",
       "member": "Member"
-    }
+    },
+    "rolesMenu": "Roles"
   },
   "settings": {
     "title": "Settings",
@@ -367,7 +369,11 @@
     "diagnostics": "Diagnostics",
     "diagnosticsBody": "Microphone permission, the network and the LiveKit handshake are checked separately, so this screen shows which one is stuck.",
     "checkMic": "Test microphone",
-    "checkMicOk": "Microphone works"
+    "checkMicOk": "Microphone works",
+    "expand": "Expand",
+    "restore": "Back to stage",
+    "stage": "Stage",
+    "screenSharing": "Sharing screen"
   },
   "gif": {
     "title": "GIF",

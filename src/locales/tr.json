@@ -179,14 +179,16 @@
       "sent": "Gönderilen",
       "blocked": "Engellenen"
     },
-    "empty": "Henüz arkadaşın yok."
+    "empty": "Henüz arkadaşın yok.",
+    "newRequest": "{{name}} arkadaşlık isteği gönderdi"
   },
   "members": {
     "roles": {
       "owner": "Kurucu",
       "admin": "Yönetici",
       "member": "Üye"
-    }
+    },
+    "rolesMenu": "Roller"
   },
   "settings": {
     "title": "Ayarlar",
@@ -351,7 +353,7 @@
     "participants": "Katılımcılar",
     "noParticipants": "Kimse yok",
     "camera": "Kamera",
-    "call": "Ara",
+    "call": "Sesli ara",
     "unauthenticated": "Oturumun süresi dolmuş. Yeniden giriş yap.",
     "forbidden": "Bu kanala katılma iznin yok.",
     "channelUnavailable": "Bu kanal artık mevcut değil.",
@@ -367,7 +369,11 @@
     "diagnostics": "Tanılama",
     "diagnosticsBody": "Mikrofon izni, ağ ve LiveKit bağlantısı ayrı ayrı denetlenir; bu ekran hangisinin takıldığını gösterir.",
     "checkMic": "Mikrofonu dene",
-    "checkMicOk": "Mikrofon çalışıyor"
+    "checkMicOk": "Mikrofon çalışıyor",
+    "expand": "Büyüt",
+    "restore": "Sahneye dön",
+    "stage": "Sahne",
+    "screenSharing": "Ekran paylaşıyor"
   },
   "gif": {
     "title": "GIF",

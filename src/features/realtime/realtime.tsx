@@ -17,7 +17,8 @@ import { useAllChannels } from "@/features/servers/use-servers";
 import { useDms } from "@/features/dm/use-dms";
 import type { MessageRow, PresenceStatus, ReactionRow } from "@/lib/models";
 import { messagesKey } from "@/features/messages/use-messages";
-import { supabase } from "@/lib/supabase";
+import i18n from "@/lib/i18n";
+import { requireSupabase, supabase } from "@/lib/supabase";
 import { isTauri } from "@/lib/tauri";
 import { playCue } from "@/lib/sounds";
 
@@ -368,6 +369,37 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         () => {
           void queryClient.invalidateQueries({ queryKey: ["members"] });
           void queryClient.invalidateQueries({ queryKey: ["servers"] });
+        },
+      )
+      // Friend requests used to appear only after a reload, which is why they
+      // felt unreliable. A new edge is pushed to both sides immediately, and an
+      // incoming request also raises a notification.
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "friendships" },
+        (payload) => {
+          const row = (payload.eventType === "DELETE" ? payload.old : payload.new) as {
+            requester_id?: string;
+            addressee_id?: string;
+            status?: string;
+          } | null;
+
+          void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+
+          const mine = row && (row.requester_id === user.id || row.addressee_id === user.id);
+          if (!mine || payload.eventType !== "INSERT" || row?.status !== "pending") return;
+          if (row.addressee_id !== user.id) return;
+
+          void (async () => {
+            const client = requireSupabase();
+            const { data } = await client
+              .from("profiles")
+              .select("display_name, username")
+              .eq("id", row.requester_id!)
+              .maybeSingle();
+            const name = data?.display_name ?? data?.username ?? "Vancord";
+            await notify(i18n.t("friends.newRequest", { name }), "");
+          })();
         },
       )
       .on("broadcast", { event: "typing" }, ({ payload }) => {

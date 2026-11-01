@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/features/auth/auth-store";
-import { ProfilePopover } from "@/features/profiles/ProfilePopover";
+import { useAppStore } from "@/features/app/app-store";import { ProfilePopover } from "@/features/profiles/ProfilePopover";
 import { EmojiPicker } from "@/features/messages/EmojiPicker";
 import {
   useDeleteMessage,
@@ -45,11 +45,26 @@ function GifEmbed({ url }: { url: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button type="button" className="mt-1.5 block max-w-sm overflow-hidden rounded-xl">
+        <button
+          type="button"
+          className="mt-1.5 block w-fit max-w-[min(320px,100%)] overflow-hidden rounded-xl"
+        >
           {isVideo ? (
-            <video src={url} autoPlay loop muted playsInline className="max-h-64 rounded-xl" />
+            <video
+              src={url}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="block max-h-64 w-full rounded-xl object-contain"
+            />
           ) : (
-            <img src={url} alt="" loading="lazy" className="max-h-64 rounded-xl object-cover" />
+            <img
+              src={url}
+              alt=""
+              loading="lazy"
+              className="block max-h-64 w-full rounded-xl object-contain"
+            />
           )}
         </button>
       </DialogTrigger>
@@ -169,6 +184,7 @@ export const MessageItem = memo(function MessageItem({
 }) {
   const { t } = useTranslation();
   const user = useCurrentUser();
+  const compact = useAppStore((state) => state.messageDensity === "compact");
   const isMine = message.author_id === user?.id && !message.bot_id;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(message.content);
@@ -227,7 +243,7 @@ export const MessageItem = memo(function MessageItem({
         <div
           className={cn(
             "group relative flex gap-3 px-4 transition-colors hover:bg-accent/35",
-            grouped ? "py-0.5" : "pt-3 pb-0.5",
+            compact ? (grouped ? "py-px" : "pt-1 pb-px") : grouped ? "py-0.5" : "pt-3 pb-0.5",
           )}
         >
           <div className="w-9 shrink-0">

@@ -85,21 +85,7 @@ export function VoiceBar() {
               <Maximize2 className="size-3.5" />
             </button>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {screens.map((participant) => (
-              <VideoTile
-                key={`${participant.identity}-screen`}
-                room={room}
-                participant={participant}
-                source={SCREEN_SHARE}
-              />
-            ))}
-            {participants
-              .filter((participant) => participant.cameraEnabled && !participant.screenShare)
-              .map((participant) => (
-                <VideoTile key={`${participant.identity}-cam`} room={room} participant={participant} />
-              ))}
-          </div>
+          <VoiceStage room={room} />
         </div>
       ) : null}
 
@@ -212,24 +198,105 @@ export function VoiceBar() {
   );
 }
 
-export function VoiceStage({ room }: { room: ReturnType<ReturnType<typeof useVoice>["getRoom"]> }) {
+export function VoiceStage({
+  room,
+  compact = false,
+}: {
+  room: ReturnType<ReturnType<typeof useVoice>["getRoom"]>;
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
   const participants = useVoiceStore((state) => state.participants);
+  const [focused, setFocused] = useState<string | null>(null);
 
+  const screens = participants.filter((participant) => participant.screenShare);
+  const cameras = participants.filter(
+    (participant) => participant.cameraEnabled && !participant.screenShare,
+  );
+  const others = participants.filter(
+    (participant) => !participant.cameraEnabled && !participant.screenShare,
+  );
+
+  const focusedParticipant = focused
+    ? participants.find((participant) => participant.identity === focused)
+    : undefined;
+  const stageParticipant = focusedParticipant ?? screens[0];
+  const stageSource =
+    stageParticipant && stageParticipant.screenShare ? SCREEN_SHARE : undefined;
+
+  if (participants.length === 0) {
+    return (
+      <p className="py-8 text-center text-[13px] text-muted-foreground">
+        {t("voice.noParticipants")}
+      </p>
+    );
+  }
+
+  // A screen share owns the stage: it is the thing somebody is trying to read.
+  // Everything else shrinks to a strip underneath, a row of thumbnails beside
+  // it. Cameras that are not screen sharing stay on in that strip.
+  if (stageParticipant && !compact) {
+    const strip = participants.filter(
+      (participant) => participant.identity !== stageParticipant.identity,
+    );
+
+    return (
+      <div className="flex min-h-0 flex-col gap-2">
+        <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-xl bg-black">
+          <VideoTile
+            room={room}
+            participant={stageParticipant}
+            source={stageSource ?? (stageParticipant.cameraEnabled ? undefined : SCREEN_SHARE)}
+            fill
+          />
+          {focused ? (
+            <button
+              type="button"
+              onClick={() => setFocused(null)}
+              className="absolute top-2 right-2 rounded-md bg-black/60 px-2 py-1 text-[11px] font-medium text-white backdrop-blur-sm"
+            >
+              {t("voice.restore")}
+            </button>
+          ) : null}
+        </div>
+
+        {strip.length > 0 ? (
+          <div className="scrollbar-thin flex shrink-0 gap-2 overflow-x-auto pb-1">
+            {strip.map((participant) =>
+              participant.cameraEnabled ? (
+                <div key={participant.identity} className="w-40 shrink-0">
+                  <VideoTile
+                    room={room}
+                    participant={participant}
+                    onExpand={() => setFocused(participant.identity)}
+                  />
+                </div>
+              ) : (
+                <div key={participant.identity} className="w-40 shrink-0">
+                  <ParticipantTile participant={participant} />
+                </div>
+              ),
+            )}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  // No screen share: cameras in a grid, everyone without one as a card.
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {participants.map((participant) =>
-        participant.cameraEnabled || participant.screenShare ? (
-          <VideoTile key={participant.identity} room={room} participant={participant} />
-        ) : (
-          <ParticipantTile key={participant.identity} participant={participant} />
-        ),
-      )}
-      {participants.length === 0 ? (
-        <p className="col-span-full py-8 text-center text-[13px] text-muted-foreground">
-          {t("voice.noParticipants")}
-        </p>
-      ) : null}
+      {cameras.map((participant) => (
+        <VideoTile
+          key={participant.identity}
+          room={room}
+          participant={participant}
+          onExpand={() => setFocused(participant.identity)}
+        />
+      ))}
+      {others.map((participant) => (
+        <ParticipantTile key={participant.identity} participant={participant} />
+      ))}
     </div>
   );
 }

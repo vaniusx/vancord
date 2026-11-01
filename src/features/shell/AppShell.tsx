@@ -158,6 +158,14 @@ function ShellLayout() {
   useShortcuts();
   useCallSignals();
   const online = useOnline();
+  const reduceMotion = useAppStore((state) => state.reduceMotion);
+  const messageDensity = useAppStore((state) => state.messageDensity);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.motion = reduceMotion ? "reduced" : "full";
+    root.dataset.density = messageDensity;
+  }, [reduceMotion, messageDensity]);
 
   const { data: servers } = useServers();
   const { data: dms } = useDms();
@@ -290,7 +298,7 @@ function ShellLayout() {
         )}
 
         <main className="panel flex min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="flex min-h-0 flex-1 flex-col">
+          <div key={location.pathname} className="route-enter flex min-h-0 flex-1 flex-col">
             <RoutedContent />
           </div>
           <OutgoingCallBar />
