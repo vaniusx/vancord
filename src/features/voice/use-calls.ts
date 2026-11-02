@@ -64,7 +64,7 @@ export function useCallSignals() {
       if (!caller) {
         const { data } = await client
           .from("profiles")
-          .select("id, username, display_name, avatar_url, accent_color, status, custom_status")
+          .select("id, username, display_name, avatar_url, accent_color, status, custom_status, frame_sku, nameplate_sku")
           .eq("id", row.caller_id)
           .maybeSingle();
         if (data) {

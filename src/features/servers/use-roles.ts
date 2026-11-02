@@ -10,6 +10,7 @@ import type {
   EconomyState,
 } from "@/lib/models";
 import { requireSupabase } from "@/lib/supabase";
+import { profileQueryKey } from "@/features/profiles/use-profile";
 
 export const rolesKey = (serverId: string | undefined) =>
   ["roles", serverId] as const;
@@ -334,7 +335,7 @@ export function useServerMembers(serverId: string | undefined) {
       const { data, error } = await supabase
         .from("server_members")
         .select(
-          "user_id, role, profile:profiles!server_members_user_id_fkey(id, username, display_name, avatar_url, accent_color, status, custom_status)",
+          "user_id, role, profile:profiles!server_members_user_id_fkey(id, username, display_name, avatar_url, accent_color, status, custom_status, frame_sku, nameplate_sku)",
         )
         .eq("server_id", serverId!);
       if (error) throw error;
@@ -413,5 +414,33 @@ export function useMembershipPerks() {
       if (error) throw error;
       return (data ?? {}) as Record<string, Record<string, unknown>>;
     },
+  });
+}
+
+/**
+ * Equip a purchased cosmetic. The slot is implied by the item's family on the
+ * server, so the client only sends the sku.
+ */
+export function useEquipCosmetic() {
+  const queryClient = useQueryClient();
+  const user = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async (input: { sku: string | null; slot: "frame" | "plate" | "theme" }) => {
+      const supabase = requireSupabase();
+      if (input.sku) {
+        const { error } = await supabase.rpc("equip_cosmetic", { target_sku: input.sku });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.rpc("unequip_cosmetic", { slot: input.slot });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: profileQueryKey(user?.id) });
+      void queryClient.invalidateQueries({ queryKey: ["members"] });
+      void queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+    },
+    meta: { handled: true },
   });
 }

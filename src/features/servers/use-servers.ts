@@ -280,7 +280,7 @@ export function useMembers(serverId: string | undefined) {
       const { data, error } = await supabase
         .from("server_members")
         .select(
-          "user_id, role, joined_at, profiles!inner(id, username, display_name, avatar_url, accent_color, status, custom_status)",
+          "user_id, role, joined_at, profiles!inner(id, username, display_name, avatar_url, accent_color, status, custom_status, frame_sku, nameplate_sku)",
         )
         .eq("server_id", serverId!)
         .order("joined_at", { ascending: true });

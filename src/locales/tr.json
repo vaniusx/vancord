@@ -853,7 +853,9 @@
     "giftUsername": "Kullanıcı adı",
     "giftSend": "Gönder",
     "giftSent": "Hediye gönderildi.",
-    "giftNotFound": "Kullanıcı bulunamadı."
+    "giftNotFound": "Kullanıcı bulunamadı.",
+    "equip": "Kuşan",
+    "equipped": "Kuşanıldı"
   },
   "officialBot": {
     "subtitle": "Resmî bot · her sunucuda, üye listesinde görünmez",

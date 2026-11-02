@@ -8,7 +8,13 @@ export type BadgeIcon =
   | "bug"
   | "flame"
   | "gavel"
-  | "bot";
+  | "bot"
+  | "calendar"
+  | "bolt"
+  | "globe"
+  | "palette"
+  | "heart"
+  | "star";
 
 const GLYPHS: Record<string, string> = {
   // Crown: three points, a band, and a base.
@@ -28,6 +34,23 @@ const GLYPHS: Record<string, string> = {
     "M3.3 19.1h9.6v1.9H3.3zM13.8 2.6l6.6 6.6-2.4 2.4-6.6-6.6zM10.3 6.1l6.6 6.6-2.4 2.4-6.6-6.6zM11.8 12.1L10.2 13.7 5.5 9l1.6-1.6z",
   bot:
     "M6 8.2h12a3.4 3.4 0 013.4 3.4v6.2a3.4 3.4 0 01-3.4 3.4H6a3.4 3.4 0 01-3.4-3.4v-6.2A3.4 3.4 0 016 8.2zm1.9 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm8.2 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM8.8 17.6h6.4v1.7H8.8zM11 3.3h2v4.5h-2z",
+  // Calendar: a squared body with a punched header and two rings.
+  calendar:
+    "M7.2 3.2h2v2.4h-2zM14.8 3.2h2v2.4h-2zM4.6 6.4h14.8a1.6 1.6 0 011.6 1.6v10.4a1.6 1.6 0 01-1.6 1.6H4.6A1.6 1.6 0 013 18.4V8a1.6 1.6 0 011.6-1.6zm1.6 4.2v7.6h11.6V10.6z",
+  // Bolt: a solid lightning wedge.
+  bolt: "M13.6 2.2L5.4 13.1h4.7l-1.2 8.7 8.3-11.1h-4.8z",
+  // Globe: a disc with two meridian cuts and an equator.
+  globe:
+    "M12 2.2a9.8 9.8 0 100 19.6 9.8 9.8 0 000-19.6zm0 2.1c1.4 1 2.4 2.9 2.8 5.2H9.2c.4-2.3 1.4-4.2 2.8-5.2zM9 11.5h6c0 1 .1 2 .3 2.9H8.7c.2-.9.3-1.9.3-2.9zm-2.2 0c0 1-.1 2-.3 2.9H4.4a7.7 7.7 0 010-2.9zm10.3 0h2.1a7.7 7.7 0 010 2.9h-2.1c.2-.9.2-1.9 0-2.9zM5.1 16.2h1.6c.4 1.5 1 2.7 1.8 3.4a7.7 7.7 0 01-3.4-3.4zm3.9 0h6c-.4 2.3-1.4 4.1-3 4.9-1.6-.8-2.6-2.6-3-4.9zm9.9 0h1.6a7.7 7.7 0 01-3.4 3.4c.8-.7 1.4-1.9 1.8-3.4z",
+  // Palette: a disc with a thumb hole and three paint dots.
+  palette:
+    "M12 2.6a9.4 9.4 0 00-1.1 18.7c1.4.2 2-.7 2-1.5 0-.6-.3-1.1-.7-1.6-.3-.4-.5-.8-.5-1.3 0-.9.8-1.6 1.8-1.6h1.6c3.2 0 5.6-2.3 5.6-5.6 0-4-3.9-7.1-8.7-7.1zM7.6 8.1a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8zm4.1-1.7a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8zm4.2 1.1a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8zM8.2 13.4a1.3 1.3 0 110 2.6 1.3 1.3 0 010-2.6z",
+  // Heart: two lobes and a point, slightly squared off.
+  heart:
+    "M12 20.9l-1.2-1.1C6.2 15.7 3 12.9 3 9.5A4.7 4.7 0 017.7 4.8c1.6 0 3.1.8 4.3 2 1.2-1.2 2.7-2 4.3-2A4.7 4.7 0 0121 9.5c0 3.4-3.2 6.2-7.8 10.3z",
+  // Star: five points, cut straight rather than curved.
+  star:
+    "M12 2.4l2.8 6 6.5.8-4.8 4.4 1.3 6.4L12 16.8 6.2 20l1.3-6.4L2.7 9.2l6.5-.8z",
 };
 
 /** Shapes drawn as holes in the medallion, so the metal shows through the cut. */

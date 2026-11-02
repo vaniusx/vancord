@@ -17,6 +17,9 @@ export interface ProfileSummary {
   animated_avatar?: boolean;
   activity?: ActivityState | null;
   activity_visible?: boolean;
+  frame_sku?: string | null;
+  nameplate_sku?: string | null;
+  theme_sku?: string | null;
 }
 
 export interface ActivityState {

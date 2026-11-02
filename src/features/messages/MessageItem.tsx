@@ -3,7 +3,7 @@ import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-import { Avatar } from "@/components/common/avatar";
+import { Avatar, Nameplate } from "@/components/common/avatar";
 import { Markdown } from "@/components/common/markdown";
 import { Button } from "@/components/ui/button";
 import {
@@ -274,9 +274,12 @@ export const MessageItem = memo(function MessageItem({
                   </span>
                 ) : (
                   <ProfilePopover profile={author}>
-                    <span className="text-[14px] font-semibold text-foreground hover:underline">
+                    <Nameplate
+                      profile={author}
+                      className="text-[14px] font-semibold hover:underline"
+                    >
                       {author.display_name}
-                    </span>
+                    </Nameplate>
                   </ProfilePopover>
                 )}
                 {message.pinned_at ? (

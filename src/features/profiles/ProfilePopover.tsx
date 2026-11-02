@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Gamepad2, MessageSquare, UserPlus } from "@/components/icons";
 
-import { Avatar } from "@/components/common/avatar";
+import { Avatar, Nameplate } from "@/components/common/avatar";
 import { BrandMark } from "@/components/common/brand-mark";
 import { BadgeRowList, useBadges } from "@/features/badges/use-badges";
 import { Button } from "@/components/ui/button";
@@ -139,7 +139,9 @@ export function ProfilePopover({
           </div>
 
           <div className="mt-2">
-            <p className="truncate text-[14px] font-semibold">{profile.display_name}</p>
+            <Nameplate profile={profile} className="block truncate text-[14px] font-semibold">
+        {profile.display_name}
+      </Nameplate>
             <p className="truncate text-[11.5px] text-muted-foreground">
               @{profile.username}
             </p>

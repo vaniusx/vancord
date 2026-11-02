@@ -3,7 +3,7 @@ import { Check, MessageSquare, Shield, ShieldOff, Tags, UserRound } from "@/comp
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { Avatar } from "@/components/common/avatar";
+import { Avatar, Nameplate } from "@/components/common/avatar";
 import { BadgeRowList, useBadges } from "@/features/badges/use-badges";
 import { ModerationActions } from "@/features/moderation/ModerationSettings";
 import {
@@ -102,7 +102,9 @@ function MemberTile({
         </div>
         <div className="min-w-0 flex-1 leading-tight">
           <p className="flex items-center gap-1.5 truncate text-[13.5px] font-medium">
-            <span className="truncate">{member.profile.display_name}</span>
+            <Nameplate profile={member.profile} className="truncate">
+              {member.profile.display_name}
+            </Nameplate>
             {member.role !== "member" ? (
               <span className="shrink-0 rounded bg-primary/10 px-1 py-px text-[10px] font-semibold text-primary">
                 {t(`members.roles.${member.role}`)}

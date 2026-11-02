@@ -853,7 +853,9 @@
     "giftUsername": "Username",
     "giftSend": "Send",
     "giftSent": "Gift sent.",
-    "giftNotFound": "User not found."
+    "giftNotFound": "User not found.",
+    "equip": "Equip",
+    "equipped": "Equipped"
   },
   "officialBot": {
     "subtitle": "Official bot · on every server, hidden from the member list",

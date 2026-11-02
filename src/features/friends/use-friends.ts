@@ -5,7 +5,7 @@ import type { FriendEdge, ProfileSummary } from "@/lib/models";
 import { requireSupabase } from "@/lib/supabase";
 
 const PROFILE_FIELDS =
-  "id, username, display_name, avatar_url, accent_color, status, custom_status";
+  "id, username, display_name, avatar_url, accent_color, status, custom_status, frame_sku, nameplate_sku";
 
 export const friendsKey = (userId: string | undefined) =>
   ["friendships", userId] as const;

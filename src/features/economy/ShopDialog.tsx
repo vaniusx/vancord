@@ -28,6 +28,7 @@ import { useProfile } from "@/features/profiles/use-profile";
 import {
   useClaimDaily,
   useEconomy,
+  useEquipCosmetic,
   useGift,
   useMembershipPerks,
   usePurchase,
@@ -179,6 +180,7 @@ export function ShopDialog({
   const purchase = usePurchase();
   const claim = useClaimDaily();
   const gift = useGift();
+  const equip = useEquipCosmetic();
   const [tab, setTab] = useState<Tab>("plans");
   const [giftFor, setGiftFor] = useState<ShopItem | null>(null);
   const [giftUsername, setGiftUsername] = useState("");
@@ -193,6 +195,18 @@ export function ShopDialog({
   );
 
   const items = shop ?? [];
+
+  // The equipped sku per slot, so the gallery can mark what is already worn.
+  const equippedSku =
+    tab === "frames"
+      ? (profile?.frame_sku ?? null)
+      : tab === "plates"
+        ? (profile?.nameplate_sku ?? null)
+        : tab === "themes"
+          ? (profile?.theme_sku ?? null)
+          : null;
+  const slot: "frame" | "plate" | "theme" | null =
+    tab === "frames" ? "frame" : tab === "plates" ? "plate" : tab === "themes" ? "theme" : null;
   const plans = items.filter((item) => item.family === "membership");
   const frames = items.filter((item) => item.family === "frame");
   const themes = items.filter((item) => item.family === "theme");
@@ -273,19 +287,33 @@ export function ShopDialog({
         </div>
 
         <div className="mt-auto flex items-center gap-1.5">
-          <Button
-            size="sm"
-            className="h-7 flex-1 text-[11.5px]"
-            variant={isOwned ? "outline" : affordable ? "default" : "ghost"}
-            disabled={isOwned || !affordable || purchase.isPending}
-            onClick={() => buy(item)}
-          >
-            {isOwned
-              ? t("economy.owned")
-              : affordable
-                ? `${item.price.toLocaleString()}`
-                : t("economy.notEnough")}
-          </Button>
+          {isOwned && slot ? (
+            <Button
+              size="sm"
+              className="h-7 flex-1 text-[11.5px]"
+              variant={equippedSku === item.sku ? "outline" : "default"}
+              disabled={equip.isPending}
+              onClick={() =>
+                equip.mutate({ sku: equippedSku === item.sku ? null : item.sku, slot })
+              }
+            >
+              {equippedSku === item.sku ? t("store.equipped") : t("store.equip")}
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="h-7 flex-1 text-[11.5px]"
+              variant={isOwned ? "outline" : affordable ? "default" : "ghost"}
+              disabled={isOwned || !affordable || purchase.isPending}
+              onClick={() => buy(item)}
+            >
+              {isOwned
+                ? t("economy.owned")
+                : affordable
+                  ? `${item.price.toLocaleString()}`
+                  : t("economy.notEnough")}
+            </Button>
+          )}
           {!isOwned && affordable ? (
             <Button
               size="icon"
