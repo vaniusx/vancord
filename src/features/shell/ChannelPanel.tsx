@@ -1,9 +1,16 @@
-import { ChevronDown, Hash, Phone, Plus, Search, Users, Video, Volume2 } from "@/components/icons";
+import { CalendarDays, ChevronDown, Hash, Phone, Plus, Search, Users, Video, Volume2 } from "@/components/icons";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { Avatar } from "@/components/common/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
@@ -14,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAppStore } from "@/features/app/app-store";
+import { EventsPanel } from "@/features/events/EventsPanel";
 import { useLiveStatus } from "@/features/realtime/realtime";
 import { useStartCall } from "@/features/voice/use-calls";
 import { StatusDot } from "@/features/shell/presence";
@@ -224,6 +232,7 @@ export function ChannelPanel({
   const [channelsOpen, setChannelsOpen] = useState(true);
   const [dmsOpen, setDmsOpen] = useState(true);
   const [voiceOpen, setVoiceOpen] = useState(true);
+  const [eventsOpen, setEventsOpen] = useState(false);
 
   const accent = activeServer?.accent_color || accentFor(activeServer?.id ?? "home");
   const isAdmin = activeServer?.role === "owner" || activeServer?.role === "admin";
@@ -234,6 +243,7 @@ export function ChannelPanel({
   const showDms = mode !== "server";
 
   return (
+    <>
     <aside className="panel flex h-full w-[262px] shrink-0 flex-col overflow-hidden">
       <div className="flex h-[52px] shrink-0 items-center gap-2 px-2.5">
         {mode === "server" && activeServer ? (
@@ -293,6 +303,18 @@ export function ChannelPanel({
             </span>
           </div>
         )}
+
+        {activeServer ? (
+          <button
+            type="button"
+            onClick={() => setEventsOpen(true)}
+            aria-label={t("events.title")}
+            title={t("events.title")}
+            className="flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <CalendarDays className="size-4" />
+          </button>
+        ) : null}
 
         <button
           type="button"
@@ -432,5 +454,54 @@ export function ChannelPanel({
 
       <UserCard />
     </aside>
+
+    {activeServer ? (
+      <EventsDialog
+        open={eventsOpen}
+        onOpenChange={setEventsOpen}
+        serverId={activeServer.id}
+        channels={channels}
+        canManage={isAdmin}
+      />
+    ) : null}
+    </>
+  );
+}
+
+
+/**
+ * Events live in a dialog on the channel panel rather than only in settings:
+ * an event is something members act on, not something they configure.
+ */
+function EventsDialog({
+  open,
+  onOpenChange,
+  serverId,
+  channels,
+  canManage,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  serverId: string;
+  channels: ChannelRow[];
+  canManage: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[86dvh] gap-0 overflow-hidden p-0 sm:max-w-[620px]">
+        <DialogHeader className="border-b border-border/60 px-4 py-3">
+          <DialogTitle className="flex items-center gap-2 text-[15px]">
+            <CalendarDays className="size-4 text-primary" />
+            {t("events.title")}
+          </DialogTitle>
+          <DialogDescription className="sr-only">{t("events.title")}</DialogDescription>
+        </DialogHeader>
+        <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-4">
+          <EventsPanel serverId={serverId} channels={channels} canManage={canManage} />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
