@@ -2,6 +2,55 @@
 
 All notable changes to Vancord. Versions follow semantic versioning.
 
+## 2.0.0 — 2026-11-02
+
+The release the app was aiming at: a server that feels like a place, a store
+whose cosmetics actually appear, and an interface drawn in one icon language.
+
+### Icons
+- The whole interface moved from 1.5 px outlines to Phosphor solid glyphs, held
+  behind one module so the weight is a single decision. At 14–16 px an outline
+  loses its shape; a filled mark does not, which is what made the UI read as
+  low quality.
+- Badges are struck medallions with a punched glyph, and grew from eight to
+  fourteen: event host, booster, translator, artist, helper and legend.
+
+### Cosmetics that exist
+- Frames, nameplates and themes now have an equipped state on the profile, so
+  buying one changes what people see. A frame draws around the avatar, a
+  nameplate tints the display name in messages, the member list and the profile
+  card.
+- Equipping is checked server-side: a wrong slot or an item the user does not
+  own is refused.
+- Animated avatars require a membership, enforced in the database rather than by
+  the client.
+
+### Sound
+- Twenty-four cues instead of twelve, retuned for a bright, soft, short feel:
+  sine and triangle bodies with a quiet partial, a 4 ms attack, a 6 kHz low-pass
+  and nothing over 300 ms except the ring. A master volume slider sits above the
+  per-cue switches.
+
+### Call and screen sharing
+- A screen share owns the stage with a thumbnail strip beneath it; cameras
+  expand on demand and collapse back. Tile labels are translated rather than
+  hardcoded.
+- DM rows carry voice and video buttons, so a call starts from the list.
+- Mute, deafen, camera and screen share all play their own cue.
+
+### Motion
+- A routed screen enters with a short, consistent fade-and-lift; buttons scale
+  on press, which is the only affordance a touch screen has.
+- "Reduce motion" and "compact" message density now do something: they set
+  attributes the stylesheet reads, instead of only being stored.
+
+### Fixed
+- A sent GIF and the GIF picker no longer spill over the composer.
+- Right-clicking a member offers a role submenu instead of a disabled label.
+- Friend requests arrive over realtime with a notification, so they no longer
+  need a reload.
+- Events are one click from the channel list.
+
 ## 1.3.0 — 2026-10-31
 
 Servers grow up, settings get real, and the store becomes something to browse.
